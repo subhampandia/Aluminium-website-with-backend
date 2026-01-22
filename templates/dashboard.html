@@ -1,0 +1,15 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome {{ request.user.username }}</h2>
+<p>Your charts, tables and widgets will appear here.</p>
+
+<div class="card mt-3 shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Sample Section</h5>
+    <p class="card-text">This is where your content goes.</p>
+  </div>
+</div>
+{% endblock %}

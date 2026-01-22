@@ -1,0 +1,988 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AlumTech Industries | Premium Aluminum Solutions</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{% static 'images/gvit.png' %}"
+    />
+
+    <meta
+      name="description"
+      content="AlumTech Industries - leading global manufacturer of aluminum extrusion, fabrication, and engineered industrial solutions."
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#">
+          <img src="{% static 'images/gvit.png' %}" alt="logo" height="40" />
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto text-center">
+            <li class="nav-item">
+              <a class="nav-link active" href="#home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#products">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#client">Clients</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#quality">Quality</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+              <a
+  id="loginbtn"
+  class="btn icon-hover ms-2"
+  href="{% url 'login' %}"
+  aria-label="Login"
+>
+  Login
+</a>
+
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="home" class="hero-section text-white text-center">
+      <div class="container animate__animated animate__fadeIn">
+        <p class="caption-overlay mb-4">
+          Leading manufacturer of high-quality aluminum products.
+        </p>
+
+        <h1 class="fw-bolder display-4">AlumTech</h1>
+        <h2 class="fw-semibold mb-3">Premium Aluminum Solutions</h2>
+        <p class="lead mb-4">
+          Empowering industries worldwide with precision and innovation.
+        </p>
+
+        <!--
+        <a href="#contact" class="btn btn-primary btn-lg px-4">
+          <i class="fas fa-envelope me-2"></i>Contact Us
+        </a>-->
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">About Us</h2>
+          <div class="divider"></div>
+          <p class="text-muted">Innovation • Precision • Excellence</p>
+        </div>
+
+        <div class="row align-items-center g-4">
+          <div class="col-md-6">
+            <h3 class="fw-bold mb-3">AlumTech Industries</h3>
+            <p class="text-muted">
+              With over 25 years of manufacturing excellence, AlumTech
+              Industries has established itself as a trusted name in aluminum
+              solutions. We combine cutting-edge technology with skilled
+              craftsmanship to deliver products that exceed industry standards.
+            </p>
+
+            <div class="info-box mb-3">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-bullseye text-primary fs-4 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-1">Our Mission</h5>
+                  <p class="text-muted mb-0">
+                    To engineer world-class aluminum products that drive
+                    industrial progress and sustainability.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box mb-3">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-eye text-primary fs-4 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-1">Our Vision</h5>
+                  <p class="text-muted mb-0">
+                    To become a global benchmark in aluminum manufacturing
+                    excellence and innovation.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-history text-primary fs-4 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-1">Our History</h5>
+                  <p class="text-muted mb-0">
+                    From a small manufacturing plant in 1998 to becoming a
+                    global industry leader, our journey reflects unwavering
+                    commitment to quality, innovation, and customer
+                    satisfaction.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <img
+              src="{% static 'images/101542968.cms' %}"
+              alt="AlumTech manufacturing facility with modern equipment"
+              class="img-fluid shadow rounded border border-3 p-3"
+              loading="lazy"
+              width="800"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products" class="py-5 bg-white">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">Our Products</h2>
+          <div class="divider"></div>
+          <p class="text-muted">
+            Comprehensive aluminum solutions for every industry
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-cube fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Aluminum Extrusions</h5>
+              <p class="text-muted">
+                Custom profiles and standard extrusions for construction,
+                automotive, and manufacturing industries. Precision-engineered
+                to your specifications.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-tools fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Fabrication Services</h5>
+              <p class="text-muted">
+                Complete fabrication solutions including precision cutting,
+                welding, CNC machining, and custom assembly services for complex
+                projects.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-cog fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Industrial Components</h5>
+              <p class="text-muted">
+                Engineered aluminum components and systems for diverse
+                applications including aerospace, transportation, and energy
+                sectors.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-layer-group fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Aluminum Sheets & Plates</h5>
+              <p class="text-muted">
+                High-quality aluminum sheets and plates in various grades and
+                thicknesses for multiple applications and industries.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-paint-roller fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Surface Finishing</h5>
+              <p class="text-muted">
+                Comprehensive finishing services including anodizing, powder
+                coating, and polishing for enhanced durability and aesthetics.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="product-box">
+              <i class="fas fa-puzzle-piece fs-1 text-primary mb-3"></i>
+              <h5 class="fw-bold mb-3">Custom Solutions</h5>
+              <p class="text-muted">
+                Tailored aluminum solutions designed and manufactured to meet
+                your unique project requirements and specifications.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="client" class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">
+            Trusted By Industry Leaders
+          </h2>
+          <div class="divider"></div>
+          <p class="text-muted">Partnering with leading companies worldwide</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img src="{% static 'images/tata.png' %}" alt="Tata Group Logo" />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/relianec.png' %}"
+                alt="Reliance Industries Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Siemens-logo.svg/320px-Siemens-logo.svg.png"
+                alt="Siemens Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/l&t.png' %}"
+                alt="Larsen & Toubro Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/adani.png' %}"
+                alt="Adani Group Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/mahindra.png' %}"
+                alt="Mahindra Group Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/godreg.png' %}"
+                alt="Godrej Group Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img src="{% static 'images/bhel.png' %}" alt="BHEL Logo" />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/hindalco.png' %}"
+                alt="Hindalco Logo"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img src="{% static 'images/bosch.png' %}" alt="Bosch Logo" />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img src="{% static 'images/jcb.png' %}" alt="JCB Logo" />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img src="{% static 'images/volvo.png' %}" alt="Volvo Logo" />
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <p class="lead text-muted">
+            Serving 500+ clients across 30+ countries
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUALITY -->
+    <section id="quality" class="py-5 bg-white">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">Quality Assurance</h2>
+          <div class="divider"></div>
+          <p class="text-muted">Committed to excellence in every product</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-6">
+            <div class="info-box">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-certificate text-primary fs-3 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-2">ISO Certified Excellence</h5>
+                  <p class="text-muted mb-0">
+                    ISO 9001:2015 certified manufacturing processes ensuring
+                    consistent quality and continuous improvement in all
+                    operations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="info-box">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-microscope text-primary fs-3 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-2">Rigorous Testing</h5>
+                  <p class="text-muted mb-0">
+                    Every product undergoes comprehensive quality checks using
+                    state-of-the-art testing equipment and methodologies.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="info-box">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-shield-alt text-primary fs-3 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-2">Industry Compliance</h5>
+                  <p class="text-muted mb-0">
+                    Full compliance with international standards including ASTM,
+                    EN, and industry-specific regulations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="info-box">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-leaf text-primary fs-3 me-3"></i>
+                <div>
+                  <h5 class="fw-bold mb-2">Sustainable Practices</h5>
+                  <p class="text-muted mb-0">
+                    Environmentally responsible manufacturing with recycling
+                    programs and energy-efficient processes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CERTIFICATIONS -->
+        <div class="text-center mb-4">
+          <h3 class="fw-bold mb-4 text-primary">Our Certifications</h3>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/9001.png' %}"
+                alt="ISO 9001 Certification"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/14001.png' %}"
+                alt="ISO 14001 Certification"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/ohsas.png' %}"
+                alt="OHSAS 18001 Certification"
+              />
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="client-box">
+              <img
+                src="{% static 'images/ce.png' %}"
+                alt="CE Marking Certification"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- TESTING FACILITY IMAGES -->
+        <div class="text-center mb-4">
+          <h3 class="fw-bold mb-4 text-primary">
+            State-of-the-Art Testing Facilities
+          </h3>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div
+              class="position-relative overflow-hidden rounded shadow test-card"
+            >
+              <img
+                src="{% static 'images/test.png' %}"
+                alt="Material Testing Laboratory"
+                class="img-fluid w-100"
+                style="height: 250px; object-fit: cover"
+              />
+              <div
+                class="position-absolute bottom-0 w-100 bg-dark bg-opacity-75 text-white p-3"
+              >
+                <h6 class="mb-0 fw-bold">Material Testing Lab</h6>
+                <p class="small mb-0">Advanced mechanical testing equipment</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div
+              class="position-relative overflow-hidden rounded shadow test-card"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600"
+                alt="Quality Control Center"
+                class="img-fluid w-100"
+                style="height: 250px; object-fit: cover"
+              />
+              <div
+                class="position-absolute bottom-0 w-100 bg-dark bg-opacity-75 text-white p-3"
+              >
+                <h6 class="mb-0 fw-bold">Quality Control Center</h6>
+                <p class="small mb-0">Precision measurement & inspection</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div
+              class="position-relative overflow-hidden rounded shadow test-card"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=600"
+                alt="Metallurgical Analysis"
+                class="img-fluid w-100"
+                style="height: 250px; object-fit: cover"
+              />
+              <div
+                class="position-absolute bottom-0 w-100 bg-dark bg-opacity-75 text-white p-3"
+              >
+                <h6 class="mb-0 fw-bold">Metallurgical Analysis</h6>
+                <p class="small mb-0">Spectroscopy & composition testing</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CSR SECTION -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">
+            Corporate Social Responsibility
+          </h2>
+          <div class="divider"></div>
+          <p class="text-muted">
+            Making a positive impact on communities and the environment
+          </p>
+        </div>
+
+        <!-- CSR Carousel -->
+        <div
+          id="csrCarousel"
+          class="carousel slide shadow-lg rounded overflow-hidden"
+          data-bs-ride="carousel"
+        >
+          <div class="carousel-indicators">
+            <button
+              type="button"
+              data-bs-target="#csrCarousel"
+              data-bs-slide-to="0"
+              class="active"
+              aria-current="true"
+              aria-label="Slide 1"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#csrCarousel"
+              data-bs-slide-to="1"
+              aria-label="Slide 2"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#csrCarousel"
+              data-bs-slide-to="2"
+              aria-label="Slide 3"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#csrCarousel"
+              data-bs-slide-to="3"
+              aria-label="Slide 4"
+            ></button>
+            <button
+              type="button"
+              data-bs-target="#csrCarousel"
+              data-bs-slide-to="4"
+              aria-label="Slide 5"
+            ></button>
+          </div>
+
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="csr-carousel-item">
+                <img
+                  src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200"
+                  alt="Education Initiative"
+                />
+                <div class="csr-caption">
+                  <h4 class="fw-bold mb-2">
+                    <i class="fas fa-graduation-cap me-2"></i>Education for All
+                  </h4>
+                  <p class="mb-0">
+                    Supporting underprivileged children with scholarships,
+                    school supplies, and infrastructure development in rural
+                    areas.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="csr-carousel-item">
+                <img
+                  src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200"
+                  alt="Environmental Conservation"
+                />
+                <div class="csr-caption">
+                  <h4 class="fw-bold mb-2">
+                    <i class="fas fa-tree me-2"></i>Green Earth Initiative
+                  </h4>
+                  <p class="mb-0">
+                    Planting 50,000+ trees annually and implementing sustainable
+                    practices to reduce our carbon footprint and protect
+                    biodiversity.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="csr-carousel-item">
+                <img
+                  src="{% static 'images/community_hd_imgupscaler.ai_Beta_2K.jpg' %}"
+                  alt="Community Health Programs"
+                />
+
+                <div class="csr-caption">
+                  <h4 class="fw-bold mb-2">
+                    <i class="fas fa-heartbeat me-2"></i>Community Health
+                    Programs
+                  </h4>
+                  <p class="mb-0">
+                    Free health camps, medical equipment donations, and
+                    awareness programs benefiting thousands of families in
+                    underserved communities.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="csr-carousel-item">
+                <img
+                  src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200"
+                  alt="Skill Development"
+                />
+                <div class="csr-caption">
+                  <h4 class="fw-bold mb-2">
+                    <i class="fas fa-tools me-2"></i>Skill Development Programs
+                  </h4>
+                  <p class="mb-0">
+                    Vocational training and employment opportunities for youth,
+                    empowering them with technical skills for sustainable
+                    livelihoods.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="csr-carousel-item">
+                <img
+                  src="{% static 'images/woman2.jpg' %}"
+                  alt="Women Empowerment"
+                  width="1200"
+                />
+                <div class="csr-caption">
+                  <h4 class="fw-bold mb-2">
+                    <i class="fas fa-female me-2"></i>Women Empowerment
+                  </h4>
+                  <p class="mb-0">
+                    Self-help groups, entrepreneurship programs, and skill
+                    training initiatives supporting women's economic
+                    independence and social development.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#csrCarousel"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#csrCarousel"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+
+        <!-- CSR Stats -->
+        <div class="row g-4 mt-4">
+          <div class="col-md-3 col-6 text-center">
+            <div class="p-3 bg-white rounded shadow-sm">
+              <h3 class="text-primary fw-bold mb-1">50,000+</h3>
+              <p class="text-muted mb-0 small">Trees Planted</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 text-center">
+            <div class="p-3 bg-white rounded shadow-sm">
+              <h3 class="text-primary fw-bold mb-1">10,000+</h3>
+              <p class="text-muted mb-0 small">Students Supported</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 text-center">
+            <div class="p-3 bg-white rounded shadow-sm">
+              <h3 class="text-primary fw-bold mb-1">25+</h3>
+              <p class="text-muted mb-0 small">Health Camps</p>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 text-center">
+            <div class="p-3 bg-white rounded shadow-sm">
+              <h3 class="text-primary fw-bold mb-1">5,000+</h3>
+              <p class="text-muted mb-0 small">Lives Impacted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title text-primary">Contact Us</h2>
+          <div class="divider"></div>
+          <p class="text-muted">
+            We are here to assist you with your aluminum needs.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <!-- DETAILS -->
+          <div class="col-lg-8">
+            <div class="p-4 shadow-sm rounded bg-white h-100">
+              <h4 class="fw-bold mb-3 text-center">Get In Touch</h4>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-start mt-5 ms-5">
+                    <i class="fas fa-clock fs-4 text-primary me-3"></i>
+                    <div>
+                      <h6>Working Hours</h6>
+                      <p class="text-muted mb-0">Mon – Sat: 9 AM – 7 PM</p>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-start mt-5 ms-5">
+                    <i class="fas fa-phone fs-4 text-primary me-3"></i>
+                    <div>
+                      <h6>Phone</h6>
+                      <p class="text-muted mb-0">+91-8658486585</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="d-flex align-items-start mt-5">
+                    <i class="fas fa-location-dot fs-4 text-primary me-3"></i>
+                    <div>
+                      <h6>Address</h6>
+                      <p class="text-muted mb-0">
+                        Industrial Zone, Mumbai, India
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-start mt-5">
+                    <i class="fas fa-envelope fs-4 text-primary me-3"></i>
+                    <div>
+                      <h6>Email</h6>
+                      <p class="text-muted mb-0">info@alumtech.com</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FORM -->
+          <div class="col-lg-4">
+            <div class="p-4 shadow-sm rounded bg-white h-100">
+              <h4 class="fw-bold mb-3">Send Us a Message</h4>
+
+              <form id="contactForm">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Full Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="fullName"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Email *</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Subject</label>
+                  <input type="text" class="form-control" id="subject" />
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Message *</label>
+                  <textarea
+                    rows="5"
+                    class="form-control"
+                    id="message"
+                    required
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                  <i class="fas fa-paper-plane me-2"></i>Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 rounded overflow-hidden shadow-sm">
+          <iframe
+            width="100%"
+            height="350"
+            loading="lazy"
+            title="AlumTech Industries Location Map"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14797.59518547373!2d85.82283964999999!3d20.2767877!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a1909b628cfe7c5%3A0xb6f72fb5d526cb6!2sGVI%20TECHNOLOGY!5e0!3m2!1sen!2sin!4v1732267999999!5m2!1sen!2sin"
+          >
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-white py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <h5 class="mb-3">
+              <i class="fas fa-industry me-2"></i>AlumTech Industries
+            </h5>
+            <p class="text-white-50">
+              Leading manufacturer of premium aluminum solutions, serving
+              industries worldwide with innovation and excellence.
+            </p>
+          </div>
+
+          <div class="col-md-4">
+            <h5 class="mb-3">Quick Links</h5>
+            <ul class="list-unstyled">
+              <li>
+                <a href="#about" class="text-white text-decoration-none"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a href="#products" class="text-white text-decoration-none"
+                  >Products</a
+                >
+              </li>
+              <li>
+                <a href="#quality" class="text-white text-decoration-none"
+                  >Quality</a
+                >
+              </li>
+              <li>
+                <a href="#contact" class="text-white text-decoration-none"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-4">
+            <h5 class="mb-3">Follow Us</h5>
+            <div class="d-flex gap-3">
+              <a href="#" class="text-white fs-4" aria-label="Facebook"
+                ><i class="fab fa-facebook"></i
+              ></a>
+              <a href="#" class="text-white fs-4" aria-label="LinkedIn"
+                ><i class="fab fa-linkedin"></i
+              ></a>
+              <a href="#" class="text-white fs-4" aria-label="Twitter"
+                ><i class="fab fa-twitter"></i
+              ></a>
+              <a href="#" class="text-white fs-4" aria-label="Instagram"
+                ><i class="fab fa-instagram"></i
+              ></a>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-secondary my-4" />
+
+        <p class="text-center text-white-50 mb-0">
+          © 2024 AlumTech Industries. All rights reserved.
+        </p>
+        <p class="text-center text-white-50">
+          Designed By&nbsp;<a
+            href="https://www.gvitechnology.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-decoration-none"
+            >GVI Technology</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <!-- BACK TO TOP BUTTON -->
+    <div class="back-to-top" id="backToTop">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Smooth scroll for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
