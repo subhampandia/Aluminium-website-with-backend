@@ -1,0 +1,110 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Employee{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Employee List</h3>
+  <a href="{% url 'employee_add' %}" class="btn btn-primary">
+    + Add Employee
+  </a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered align-middle text-center">
+
+    <!-- HEADER -->
+    <thead class="table-light">
+      <tr>
+        <th rowspan="2">Sl No</th>
+        <th rowspan="2">Details</th>
+        <th colspan="2">Work Details</th>
+        <th colspan="2">Contact Details</th>
+        <th rowspan="2" style="width:200px">Action</th>
+      </tr>
+      <tr>
+        <th>Department</th>
+        <th>Designation</th>
+        <th>Phone</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+
+    <!-- BODY -->
+    <tbody>
+      {% for emp in employees %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+
+        <!-- DETAILS -->
+        <td class="text-start">
+          <div class="d-flex align-items-center gap-3">
+
+            {% if emp.photo %}
+              <img src="{{ emp.photo.url }}"
+                   class="rounded-circle border"
+                   width="50" height="50"
+                   style="object-fit:cover;">
+            {% else %}
+              <div class="rounded-circle bg-secondary text-white d-flex
+                          align-items-center justify-content-center"
+                   style="width:50px;height:50px;">
+                <i class="bi bi-person"></i>
+              </div>
+            {% endif %}
+
+            <div>
+              <strong>{{ emp.full_name }}</strong><br>
+              <small class="text-muted">ID: {{ emp.employee_id }}</small>
+              {% if not emp.is_active %}
+                <span class="badge bg-danger ms-2">Inactive</span>
+              {% endif %}
+            </div>
+
+          </div>
+        </td>
+
+        <!-- WORK -->
+        <td>{{ emp.department.name }}</td>
+        <td>{{ emp.designation.name }}</td>
+
+        <!-- CONTACT -->
+        <td>{{ emp.contact_no }}</td>
+        <td>{{ emp.email }}</td>
+
+        <!-- ACTION -->
+        <td>
+          <a href="{% url 'employee_view' emp.id %}" class="btn btn-info btn-sm mb-1">
+            View
+          </a>
+
+          <a href="{% url 'employee_edit' emp.id %}" class="btn btn-warning btn-sm mb-1">
+            Edit
+          </a>
+
+          <a href="{% url 'employee_delete' emp.id %}"
+             class="btn btn-danger btn-sm mb-1"
+             onclick="return confirm('Delete this employee?');">
+            Delete
+          </a>
+
+          <a href="{% url 'employee_toggle_status' emp.id %}"
+             class="btn btn-sm {% if emp.is_active %}btn-secondary{% else %}btn-success{% endif %}">
+            {% if emp.is_active %}Deactivate{% else %}Activate{% endif %}
+          </a>
+        </td>
+      </tr>
+
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center text-muted">
+          No employees found
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+
+{% endblock %}

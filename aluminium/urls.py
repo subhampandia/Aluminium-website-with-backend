@@ -36,6 +36,16 @@ from app.views import (
     designation_delete,
 )
 
+from app.views import (
+    employee_list,
+    employee_add,
+    employee_view,
+    employee_edit,
+    employee_delete,employee_toggle_status  
+)
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='index'),
@@ -52,6 +62,14 @@ urlpatterns = [
     path('designation/add/', designation_add, name='designation_add'),
     path('designation/edit/<int:pk>/', designation_edit, name='designation_edit'),
     path('designation/delete/<int:pk>/', designation_delete, name='designation_delete'),
+
+    path('employee/', employee_list, name='employee_list'),
+    path('employee/add/', employee_add, name='employee_add'),
+    path('employee/view/<int:pk>/', employee_view, name='employee_view'),
+    path('employee/edit/<int:pk>/', employee_edit, name='employee_edit'),
+    path('employee/delete/<int:pk>/', employee_delete, name='employee_delete'),
+    path('employee/toggle-status/<int:pk>/', employee_toggle_status, name='employee_toggle_status'),
+
 
 ]
 

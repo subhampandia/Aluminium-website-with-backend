@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Department, Designation
+from .models import Department, Designation, Employee
 
 
 def index(request):
@@ -143,3 +143,116 @@ def designation_delete(request, pk):
     designation.delete()
     messages.success(request, "Designation deleted successfully")
     return redirect('designation_list')
+
+@never_cache
+@login_required(login_url='login')
+def employee_list(request):
+    employees = Employee.objects.select_related(
+        'department', 'designation'
+    ).all()
+
+    return render(request, 'employee/employee_list.html', {
+        'employees': employees
+    })
+
+@login_required(login_url='login')
+def employee_add(request):
+    departments = Department.objects.all()
+    designations = Designation.objects.all()
+
+    if request.method == 'POST':
+        Employee.objects.create(
+            first_name=request.POST.get('first_name'),
+            middle_name=request.POST.get('middle_name'),
+            last_name=request.POST.get('last_name'),
+            gender=request.POST.get('gender'),
+            blood_group=request.POST.get('blood_group'),
+            photo=request.FILES.get('photo'),   # ✅ THIS LINE
+
+            email=request.POST.get('email'),
+            contact_no=request.POST.get('contact_no'),
+            emergency_contact=request.POST.get('emergency_contact'),
+            address=request.POST.get('address'),
+            permanent_address=request.POST.get('permanent_address'),
+
+            employee_id=request.POST.get('employee_id'),
+            department_id=request.POST.get('department'),
+            designation_id=request.POST.get('designation'),
+
+            father_name=request.POST.get('father_name'),
+            mother_name=request.POST.get('mother_name'),
+
+            created_by=request.user
+        )
+
+        messages.success(request, "Employee added successfully")
+        return redirect('employee_list')
+
+    return render(request, 'employee/employee_add.html', {
+        'departments': departments,
+        'designations': designations
+    })
+@login_required(login_url='login')
+def employee_view(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    return render(request, 'employee/employee_view.html', {
+        'employee': employee
+    })
+
+@login_required(login_url='login')
+def employee_edit(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    departments = Department.objects.all()
+    designations = Designation.objects.all()
+
+    if request.method == 'POST':
+        employee.first_name = request.POST.get('first_name')
+        employee.middle_name = request.POST.get('middle_name')
+        employee.last_name = request.POST.get('last_name')
+        employee.gender = request.POST.get('gender')
+        employee.blood_group = request.POST.get('blood_group')
+
+        employee.email = request.POST.get('email')
+        employee.contact_no = request.POST.get('contact_no')
+        employee.emergency_contact = request.POST.get('emergency_contact')
+        employee.address = request.POST.get('address')
+        employee.permanent_address = request.POST.get('permanent_address')
+
+        employee.employee_id = request.POST.get('employee_id')
+        employee.department_id = request.POST.get('department')
+        employee.designation_id = request.POST.get('designation')
+
+        employee.father_name = request.POST.get('father_name')
+        employee.mother_name = request.POST.get('mother_name')
+
+        # PHOTO (only update if new one is uploaded)
+        if request.FILES.get('photo'):
+            employee.photo = request.FILES.get('photo')
+
+        employee.save()
+        messages.success(request, "Employee updated successfully")
+        return redirect('employee_list')
+
+    return render(request, 'employee/employee_edit.html', {
+        'employee': employee,
+        'departments': departments,
+        'designations': designations
+    })
+
+@login_required(login_url='login')
+def employee_delete(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    employee.delete()
+    messages.success(request, "Employee deleted successfully")
+    return redirect('employee_list')
+
+@login_required(login_url='login')
+def employee_toggle_status(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    employee.is_active = not employee.is_active
+    employee.save()
+
+    status = "activated" if employee.is_active else "deactivated"
+    messages.success(request, f"Employee {status} successfully")
+
+    return redirect('employee_list')

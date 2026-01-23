@@ -1,0 +1,166 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Employee Details{% endblock %}
+
+{% block content %}
+
+<style>
+  .a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: auto;
+    background: #fff;
+    padding: 25mm;
+    box-shadow: 0 0 10px rgba(0,0,0,.15);
+    font-size: 14px;
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .a4-page, .a4-page * {
+      visibility: visible;
+    }
+    .a4-page {
+      position: absolute;
+      left: 0;
+      top: 0;
+      box-shadow: none;
+    }
+  }
+
+  .section-title {
+    border-bottom: 2px solid #000;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .label {
+    font-weight: 600;
+    color: #333;
+  }
+</style>
+<div class="mb-3">
+  <a href="{% url 'employee_list' %}" class="btn btn-secondary btn-sm">
+    ← Back to Employee List
+  </a>
+</div>
+
+<div class="a4-page">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="mb-1">Employee Profile</h4>
+      <small class="text-muted">Generated on {{ employee.created_at|date:"d M Y" }}</small>
+    </div>
+
+    {% if employee.photo %}
+      <img src="{{ employee.photo.url }}"
+           width="120" height="120"
+           class="border"
+           style="object-fit:cover">
+    {% endif %}
+  </div>
+
+  <!-- BASIC DETAILS -->
+  <div class="mb-4">
+    <div class="section-title">Personal Details</div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Full Name</div>
+      <div class="col-8">{{ employee.full_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Employee ID</div>
+      <div class="col-8">{{ employee.employee_id }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Gender</div>
+      <div class="col-8">{{ employee.gender }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Blood Group</div>
+      <div class="col-8">{{ employee.blood_group }}</div>
+    </div>
+  </div>
+
+  <!-- WORK DETAILS -->
+  <div class="mb-4">
+    <div class="section-title">Work Details</div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Department</div>
+      <div class="col-8">{{ employee.department.name }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Designation</div>
+      <div class="col-8">{{ employee.designation.name }}</div>
+    </div>
+  </div>
+
+  <!-- CONTACT DETAILS -->
+  <div class="mb-4">
+    <div class="section-title">Contact Details</div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Email</div>
+      <div class="col-8">{{ employee.email }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Contact No</div>
+      <div class="col-8">{{ employee.contact_no }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Emergency Contact</div>
+      <div class="col-8">{{ employee.emergency_contact }}</div>
+    </div>
+  </div>
+
+  <!-- FAMILY DETAILS -->
+  <div class="mb-4">
+    <div class="section-title">Family Details</div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Father Name</div>
+      <div class="col-8">{{ employee.father_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Mother Name</div>
+      <div class="col-8">{{ employee.mother_name }}</div>
+    </div>
+  </div>
+
+  <!-- ADDRESS -->
+  <div class="mb-4">
+    <div class="section-title">Address</div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Current Address</div>
+      <div class="col-8">{{ employee.address }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-4 label">Permanent Address</div>
+      <div class="col-8">{{ employee.permanent_address }}</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="text-end mt-5">
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+      Print
+    </button>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Edit Employee{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+  <a href="{% url 'employee_list' %}" class="btn btn-secondary btn-sm">
+    ← Back to Employee List
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="mb-4">Edit Employee</h4>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- PERSONAL DETAILS -->
+      <h6 class="text-primary">Personal Details</h6>
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label>First Name</label>
+          <input type="text" name="first_name" value="{{ employee.first_name }}" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>Middle Name</label>
+          <input type="text" name="middle_name" value="{{ employee.middle_name }}" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label>Last Name</label>
+          <input type="text" name="last_name" value="{{ employee.last_name }}" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Gender</label>
+          <select name="gender" class="form-select">
+            <option value="Male" {% if employee.gender == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if employee.gender == 'Female' %}selected{% endif %}>Female</option>
+            <option value="Other" {% if employee.gender == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label>Blood Group</label>
+          <input type="text" name="blood_group" value="{{ employee.blood_group }}" class="form-control">
+        </div>
+      </div>
+
+      <!-- PHOTO -->
+      <h6 class="text-primary">Profile Photo</h6>
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <input type="file" name="photo" class="form-control">
+        </div>
+        {% if employee.photo %}
+        <div class="col-md-4">
+          <img src="{{ employee.photo.url }}" width="80" class="border">
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- WORK DETAILS -->
+      <h6 class="text-primary">Work Details</h6>
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label>Employee ID</label>
+          <input type="text" name="employee_id" value="{{ employee.employee_id }}" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Department</label>
+          <select name="department" class="form-select">
+            {% for dept in departments %}
+              <option value="{{ dept.id }}"
+                {% if employee.department_id == dept.id %}selected{% endif %}>
+                {{ dept.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label>Designation</label>
+          <select name="designation" class="form-select">
+            {% for des in designations %}
+              <option value="{{ des.id }}"
+                {% if employee.designation_id == des.id %}selected{% endif %}>
+                {{ des.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <h6 class="text-primary">Contact Details</h6>
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ employee.email }}" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label>Contact No</label>
+          <input type="text" name="contact_no" value="{{ employee.contact_no }}" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label>Emergency Contact</label>
+          <input type="text" name="emergency_contact" value="{{ employee.emergency_contact }}" class="form-control">
+        </div>
+      </div>
+      <!-- ADDRESS DETAILS -->
+<h6 class="text-primary">Address Details</h6>
+<div class="row g-3 mb-4">
+
+  <div class="col-md-6">
+    <label class="form-label">Current Address</label>
+    <textarea
+      name="address"
+      class="form-control"
+      rows="3"
+    >{{ employee.address }}</textarea>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Permanent Address</label>
+    <textarea
+      name="permanent_address"
+      class="form-control"
+      rows="3"
+    >{{ employee.permanent_address }}</textarea>
+  </div>
+
+</div>
+
+      <!-- FAMILY -->
+      <h6 class="text-primary">Family Details</h6>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label>Father Name</label>
+          <input type="text" name="father_name" value="{{ employee.father_name }}" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label>Mother Name</label>
+          <input type="text" name="mother_name" value="{{ employee.mother_name }}" class="form-control">
+        </div>
+      </div>
+
+      <!-- ACTION -->
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary">Update Employee</button>
+        <a href="{% url 'employee_list' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}
