@@ -1,0 +1,34 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Add Designation{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4>Add Designation</h4>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label>Department *</label>
+        <select name="department" class="form-select" required>
+          <option value="">-- Select Department --</option>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Designation Name *</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+
+      <button class="btn btn-primary">Save</button>
+      <a href="{% url 'designation_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

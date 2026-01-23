@@ -29,6 +29,12 @@ from app.views import (
     department_edit,
     department_delete,
 )
+from app.views import (
+    designation_list,
+    designation_add,
+    designation_edit,
+    designation_delete,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,6 +47,12 @@ urlpatterns = [
     path('department/add/', department_add, name='department_add'),
     path('department/edit/<int:pk>/', department_edit, name='department_edit'),
     path('department/delete/<int:pk>/', department_delete, name='department_delete'),
+
+    path('designation/', designation_list, name='designation_list'),
+    path('designation/add/', designation_add, name='designation_add'),
+    path('designation/edit/<int:pk>/', designation_edit, name='designation_edit'),
+    path('designation/delete/<int:pk>/', designation_delete, name='designation_delete'),
+
 ]
 
 if settings.DEBUG:

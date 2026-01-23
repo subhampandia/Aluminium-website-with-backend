@@ -1,0 +1,40 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Edit Designation{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4>Edit Designation</h4>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label>Department *</label>
+        <select name="department" class="form-select" required>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}"
+              {% if dept.id == designation.department.id %}selected{% endif %}>
+              {{ dept.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Designation Name *</label>
+        <input type="text"
+               name="name"
+               value="{{ designation.name }}"
+               class="form-control"
+               required>
+      </div>
+
+      <button class="btn btn-warning">Update</button>
+      <a href="{% url 'designation_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

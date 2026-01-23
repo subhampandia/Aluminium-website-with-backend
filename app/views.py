@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Department
+from .models import Department, Designation
 
 
 def index(request):
@@ -88,3 +88,58 @@ def department_delete(request, pk):
     department.delete()
     messages.success(request, "Department deleted successfully")
     return redirect('department_list')
+
+@never_cache
+@login_required(login_url='login')
+def designation_list(request):
+    designations = Designation.objects.select_related('department').all()
+    return render(request, 'designation/designation_list.html', {
+        'designations': designations
+    })
+
+
+@login_required(login_url='login')
+def designation_add(request):
+    departments = Department.objects.all()
+
+    if request.method == 'POST':
+        department_id = request.POST.get('department')
+        name = request.POST.get('name')
+
+        if department_id and name:
+            Designation.objects.create(
+                department_id=department_id,
+                name=name
+            )
+            messages.success(request, "Designation added successfully")
+            return redirect('designation_list')
+
+    return render(request, 'designation/designation_add.html', {
+        'departments': departments
+    })
+
+
+@login_required(login_url='login')
+def designation_edit(request, pk):
+    designation = get_object_or_404(Designation, pk=pk)
+    departments = Department.objects.all()
+
+    if request.method == 'POST':
+        designation.department_id = request.POST.get('department')
+        designation.name = request.POST.get('name')
+        designation.save()
+        messages.success(request, "Designation updated successfully")
+        return redirect('designation_list')
+
+    return render(request, 'designation/designation_edit.html', {
+        'designation': designation,
+        'departments': departments
+    })
+
+
+@login_required(login_url='login')
+def designation_delete(request, pk):
+    designation = get_object_or_404(Designation, pk=pk)
+    designation.delete()
+    messages.success(request, "Designation deleted successfully")
+    return redirect('designation_list')
