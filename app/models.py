@@ -62,3 +62,15 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.full_name()} ({self.employee_id})"
+   
+class Shift(models.Model):
+
+    name = models.CharField(max_length=100)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    break_minutes = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.start_time} - {self.end_time})"

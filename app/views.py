@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Department, Designation, Employee
+from .models import Department, Designation, Employee, Shift
 
 
 def index(request):
@@ -256,3 +256,54 @@ def employee_toggle_status(request, pk):
     messages.success(request, f"Employee {status} successfully")
 
     return redirect('employee_list')
+
+@never_cache
+@login_required(login_url='login')
+def shift_list(request):
+    shifts = Shift.objects.all().order_by('id')
+    return render(request, 'shift/shift_list.html', {
+        'shifts': shifts
+    })
+
+
+@login_required(login_url='login')
+def shift_add(request):
+    if request.method == 'POST':
+        Shift.objects.create(
+            name=request.POST.get('name'),
+            start_time=request.POST.get('start_time'),
+            end_time=request.POST.get('end_time'),
+            break_minutes=request.POST.get('break_minutes') or 0
+        )
+        messages.success(request, "Shift added successfully")
+        return redirect('shift_list')
+
+    return render(request, 'shift/shift_add.html')
+
+
+@login_required(login_url='login')
+def shift_edit(request, pk):
+    shift = get_object_or_404(Shift, pk=pk)
+
+    if request.method == 'POST':
+        shift.name = request.POST.get('name')
+        shift.start_time = request.POST.get('start_time')
+        shift.end_time = request.POST.get('end_time')
+        shift.break_minutes = request.POST.get('break_minutes') or 0
+        shift.save()
+
+        messages.success(request, "Shift updated successfully")
+        return redirect('shift_list')
+
+    return render(request, 'shift/shift_edit.html', {
+        'shift': shift
+    })
+
+
+@login_required(login_url='login')
+def shift_toggle_status(request, pk):
+    shift = get_object_or_404(Shift, pk=pk)
+    shift.is_active = not shift.is_active
+    shift.save()
+
+    return redirect('shift_list')

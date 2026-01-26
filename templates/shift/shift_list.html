@@ -1,0 +1,54 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Shift Manage{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+  <h3>Shift Manage</h3>
+  <a href="{% url 'shift_add' %}" class="btn btn-primary">
+    + Add Shift
+  </a>
+</div>
+
+<table class="table table-bordered align-middle">
+  <thead class="table-light">
+    <tr>
+      <th>Sl No</th>
+      <th>Shift Name</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Break (min)</th>
+      <th>Status</th>
+      <th width="200">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for shift in shifts %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ shift.name }}</td>
+      <td>{{ shift.start_time }}</td>
+      <td>{{ shift.end_time }}</td>
+      <td>{{ shift.break_minutes }}</td>
+      <td>
+        {% if shift.is_active %}
+          <span class="badge bg-success">Active</span>
+        {% else %}
+          <span class="badge bg-danger">Inactive</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{% url 'shift_edit' shift.id %}" class="btn btn-warning btn-sm">
+          Edit
+        </a>
+        <a href="{% url 'shift_toggle_status' shift.id %}"
+           class="btn btn-sm {% if shift.is_active %}btn-secondary{% else %}btn-success{% endif %}">
+          {% if shift.is_active %}Deactivate{% else %}Activate{% endif %}
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -43,7 +43,12 @@ from app.views import (
     employee_edit,
     employee_delete,employee_toggle_status  
 )
-
+from app.views import(
+    shift_list,
+    shift_add,
+    shift_edit,
+    shift_toggle_status
+)
 
 
 urlpatterns = [
@@ -70,6 +75,10 @@ urlpatterns = [
     path('employee/delete/<int:pk>/', employee_delete, name='employee_delete'),
     path('employee/toggle-status/<int:pk>/', employee_toggle_status, name='employee_toggle_status'),
 
+    path('shift/', shift_list, name='shift_list'),
+    path('shift/add/', shift_add, name='shift_add'),    
+    path('shift/edit/<int:pk>/', shift_edit, name='shift_edit'),
+    path('shift/toggle/<int:pk>/', shift_toggle_status, name='shift_toggle_status'),
 
 ]
 
