@@ -148,12 +148,33 @@ def employee_list(request):
     return render(request, 'employee/employee_list.html', {'employees': employees
     })
 
+
+
+
 @login_required(login_url='login')
 def employee_add(request):
     departments = Department.objects.all()
     designations = Designation.objects.all()
 
     if request.method == 'POST':
+                # 🔹 BUILD CURRENT ADDRESS
+        current_address = (
+            f"{request.POST.get('current_line1')}\n"
+            f"{request.POST.get('current_line2')}\n"
+            f"{request.POST.get('current_city')}, "
+            f"{request.POST.get('current_state')} - "
+            f"{request.POST.get('current_pin')}"
+        )
+
+# 🔹 BUILD PERMANENT ADDRESS
+        permanent_address = (
+            f"{request.POST.get('permanent_line1')}\n"
+            f"{request.POST.get('permanent_line2')}\n"
+            f"{request.POST.get('permanent_city')}, "
+            f"{request.POST.get('permanent_state')} - "
+            f"{request.POST.get('permanent_pin')}"
+        )
+
         Employee.objects.create(
             first_name=request.POST.get('first_name'),
             middle_name=request.POST.get('middle_name'),
@@ -168,8 +189,9 @@ def employee_add(request):
             email=request.POST.get('email'),
             contact_no=request.POST.get('contact_no'),
             emergency_contact=request.POST.get('emergency_contact'),
-            address=request.POST.get('address'),
-            permanent_address=request.POST.get('permanent_address'),
+            address=current_address,
+            permanent_address=permanent_address,
+
 
             bachelor_degree=request.POST.get('bachelor_degree'),
             master_degree=request.POST.get('master_degree'),
@@ -221,8 +243,6 @@ def employee_edit(request, pk):
         employee.email = request.POST.get('email')
         employee.contact_no = request.POST.get('contact_no')
         employee.emergency_contact = request.POST.get('emergency_contact')
-        employee.address = request.POST.get('address')
-        employee.permanent_address = request.POST.get('permanent_address')
         employee.date_of_birth = request.POST.get('date_of_birth') or None
         employee.date_of_joining = request.POST.get('date_of_joining') or None
 
@@ -244,6 +264,26 @@ def employee_edit(request, pk):
         # PHOTO (only update if new one is uploaded)
         if request.FILES.get('photo'):
             employee.photo = request.FILES.get('photo')
+        # 🔹 BUILD CURRENT ADDRESS
+        current_address = (
+            f"{request.POST.get('current_line1')}\n"
+            f"{request.POST.get('current_line2')}\n"
+            f"{request.POST.get('current_city')}, "
+            f"{request.POST.get('current_state')} - "
+            f"{request.POST.get('current_pin')}"
+        )
+
+# 🔹 BUILD PERMANENT ADDRESS
+        permanent_address = (
+            f"{request.POST.get('permanent_line1')}\n"
+            f"{request.POST.get('permanent_line2')}\n"
+            f"{request.POST.get('permanent_city')}, "
+            f"{request.POST.get('permanent_state')} - "
+            f"{request.POST.get('permanent_pin')}"
+        )
+
+        employee.address = current_address
+        employee.permanent_address = permanent_address
 
         employee.save()
         messages.success(request, "Employee updated successfully")

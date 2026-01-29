@@ -101,17 +101,110 @@
             required
           />
         </div>
+      </div>
+      <h6 class="text-primary mb-2">Address Details</h6>
 
+      <div class="row g-3 mb-4">
+        <!-- CURRENT ADDRESS -->
         <div class="col-md-6">
-          <label>Address</label>
-          <textarea name="address" class="form-control"></textarea>
+          <h6 class="fw-semibold">Current Address</h6>
+
+          <input
+            type="text"
+            class="form-control mb-2 mt-5"
+            name="current_line1"
+            placeholder="Address Line 1 *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="current_line2"
+            placeholder="Address Line 2"
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="current_city"
+            placeholder="City *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="current_state"
+            placeholder="State *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control"
+            name="current_pin"
+            placeholder="PIN Code *"
+            required
+          />
         </div>
 
+        <!-- PERMANENT ADDRESS -->
         <div class="col-md-6">
-          <label>Permanent Address</label>
-          <textarea name="permanent_address" class="form-control"></textarea>
+          <h6 class="fw-semibold">Permanent Address</h6>
+
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="sameAsCurrent"
+            />
+            <label class="form-check-label mb-2" for="sameAsCurrent">
+              Same as Current Address
+            </label>
+          </div>
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="permanent_line1"
+            placeholder="Address Line 1 *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="permanent_line2"
+            placeholder="Address Line 2"
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="permanent_city"
+            placeholder="City *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control mb-2"
+            name="permanent_state"
+            placeholder="State *"
+            required
+          />
+
+          <input
+            type="text"
+            class="form-control"
+            name="permanent_pin"
+            placeholder="PIN Code *"
+            required
+          />
         </div>
       </div>
+
       <h6 class="text-primary mb-2">Education</h6>
 
       <div class="row g-3 mb-4">
@@ -360,5 +453,27 @@
     </form>
   </div>
 </div>
+<script>
+  const sameCheckbox = document.getElementById("sameAsCurrent");
+
+  const fields = [
+    "line1", "line2", "city", "state", "pin"
+  ];
+
+  sameCheckbox.addEventListener("change", function () {
+    fields.forEach(f => {
+      const cur = document.querySelector(`[name="current_${f}"]`);
+      const per = document.querySelector(`[name="permanent_${f}"]`);
+
+      if (this.checked) {
+        per.value = cur.value;
+        per.setAttribute("readonly", true);
+      } else {
+        per.removeAttribute("readonly");
+        per.value = "";
+      }
+    });
+  });
+</script>
 
 {% endblock %}
