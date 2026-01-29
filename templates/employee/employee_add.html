@@ -44,7 +44,7 @@
         </div>
         <div class="col-md-4">
           <label>Blood Group</label>
-          <select name="gender" class="form-select" required>
+          <select name="blood_group" class="form-select" required>
             <option value="">-- Select --</option>
             <option>A+</option>
             <option>B+</option>
@@ -453,15 +453,37 @@
     </form>
   </div>
 </div>
+<h6 class="text-primary mb-2">System Information</h6>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <label>Created By</label>
+    <input
+      type="text"
+      class="form-control"
+      value="{{ request.user.username }}"
+      readonly
+    />
+  </div>
+
+  <div class="col-md-6">
+    <label>Created At</label>
+    <input
+      type="text"
+      class="form-control"
+      value="Will be set automatically"
+      readonly
+    />
+  </div>
+</div>
+
 <script>
   const sameCheckbox = document.getElementById("sameAsCurrent");
 
-  const fields = [
-    "line1", "line2", "city", "state", "pin"
-  ];
+  const fields = ["line1", "line2", "city", "state", "pin"];
 
   sameCheckbox.addEventListener("change", function () {
-    fields.forEach(f => {
+    fields.forEach((f) => {
       const cur = document.querySelector(`[name="current_${f}"]`);
       const per = document.querySelector(`[name="permanent_${f}"]`);
 
