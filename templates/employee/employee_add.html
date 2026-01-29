@@ -112,6 +112,121 @@
           <textarea name="permanent_address" class="form-control"></textarea>
         </div>
       </div>
+      <h6 class="text-primary mb-2">Education</h6>
+
+      <div class="row g-3 mb-4">
+        <!-- Bachelor Degree -->
+        <div class="col-md-6">
+          <label>Bachelor Degree</label>
+          <select name="bachelor_degree" class="form-select">
+            <option value="">-- Select Bachelor Degree --</option>
+            <option
+              value="BCom"
+              {%
+              if
+              employee.bachelor_degree=""
+              ="BCom"
+              %}selected{%
+              endif
+              %}
+            >
+              B.Com
+            </option>
+            <option
+              value="BSc"
+              {%
+              if
+              employee.bachelor_degree=""
+              ="BSc"
+              %}selected{%
+              endif
+              %}
+            >
+              B.Sc
+            </option>
+            <option
+              value="BA"
+              {%
+              if
+              employee.bachelor_degree=""
+              ="BA"
+              %}selected{%
+              endif
+              %}
+            >
+              B.A
+            </option>
+            <option
+              value="BTech"
+              {%
+              if
+              employee.bachelor_degree=""
+              ="BTech"
+              %}selected{%
+              endif
+              %}
+            >
+              B.Tech
+            </option>
+          </select>
+        </div>
+
+        <!-- Master Degree -->
+        <div class="col-md-6">
+          <label>Master Degree</label>
+          <select name="master_degree" class="form-select">
+            <option value="">-- Select Master Degree --</option>
+            <option
+              value="MCom"
+              {%
+              if
+              employee.master_degree=""
+              ="MCom"
+              %}selected{%
+              endif
+              %}
+            >
+              M.Com
+            </option>
+            <option
+              value="MSc"
+              {%
+              if
+              employee.master_degree=""
+              ="MSc"
+              %}selected{%
+              endif
+              %}
+            >
+              M.Sc
+            </option>
+            <option
+              value="MA"
+              {%
+              if
+              employee.master_degree=""
+              ="MA"
+              %}selected{%
+              endif
+              %}
+            >
+              M.A
+            </option>
+            <option
+              value="MTech"
+              {%
+              if
+              employee.master_degree=""
+              ="MTech"
+              %}selected{%
+              endif
+              %}
+            >
+              M.Tech
+            </option>
+          </select>
+        </div>
+      </div>
 
       <!-- WORK DETAILS -->
       <h6 class="text-primary mb-2">Work Details</h6>
@@ -120,15 +235,15 @@
           <label>Employee ID *</label>
           <input type="text" name="employee_id" class="form-control" required />
         </div>
-         <div class="col-md-4">
-    <label>Date of Joining</label>
-    <input
-      type="date"
-      name="date_of_joining"
-      class="form-control"
-      value="{{ employee.date_of_joining|date:'Y-m-d' }}"
-    />
-  </div>
+        <div class="col-md-4">
+          <label>Date of Joining</label>
+          <input
+            type="date"
+            name="date_of_joining"
+            class="form-control"
+            value="{{ employee.date_of_joining|date:'Y-m-d' }}"
+          />
+        </div>
         <div class="col-md-4">
           <label>Department *</label>
           <select name="department" class="form-select" required>

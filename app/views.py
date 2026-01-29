@@ -171,6 +171,9 @@ def employee_add(request):
             address=request.POST.get('address'),
             permanent_address=request.POST.get('permanent_address'),
 
+            bachelor_degree=request.POST.get('bachelor_degree'),
+            master_degree=request.POST.get('master_degree'),
+
             employee_id=request.POST.get('employee_id'),
             department_id=request.POST.get('department'),
             designation_id=request.POST.get('designation'),
@@ -220,7 +223,17 @@ def employee_edit(request, pk):
         employee.emergency_contact = request.POST.get('emergency_contact')
         employee.address = request.POST.get('address')
         employee.permanent_address = request.POST.get('permanent_address')
+        employee.date_of_birth = request.POST.get('date_of_birth') or None
+        employee.date_of_joining = request.POST.get('date_of_joining') or None
 
+        employee.bachelor_degree = request.POST.get('bachelor_degree')
+        employee.master_degree = request.POST.get('master_degree')
+        employee.pan_no=request.POST.get('pan_no'),
+        employee.Aadhaar_no=request.POST.get('Aadhaar_no'),
+        employee.Bank_name=request.POST.get('Bank_name'),
+        employee.branch_name=request.POST.get('branch_name'),
+        employee.acc_no=request.POST.get('acc_no'),
+        employee.ifsc_code=request.POST.get('ifsc_code'),
         employee.employee_id = request.POST.get('employee_id')
         employee.department_id = request.POST.get('department')
         employee.designation_id = request.POST.get('designation')

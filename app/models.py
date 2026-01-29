@@ -25,19 +25,20 @@ class Employee(models.Model):
         ('O+', 'O+'), ('O-', 'O-'),
         ('AB+', 'AB+'), ('AB-', 'AB-'),
     ]
-    EDUCATION_CHOICES = [
-        # Bachelor
+    BACHELOR_CHOICES = [
         ('BCom', 'B.Com'),
         ('BSc', 'B.Sc'),
         ('BA', 'B.A'),
         ('BTech', 'B.Tech'),
+    ]
 
-        # Master
+    MASTER_CHOICES = [
         ('MCom', 'M.Com'),
         ('MSc', 'M.Sc'),
         ('MA', 'M.A'),
         ('MTech', 'M.Tech'),
     ]
+
     # Personal
     first_name = models.CharField(max_length=50)
     middle_name = models.CharField(max_length=50, blank=True)
@@ -57,7 +58,8 @@ class Employee(models.Model):
     permanent_address = models.TextField(blank=True, null=True)
 
     #education
-    education = models.CharField(max_length=10, choices=EDUCATION_CHOICES, blank=True, null=True)
+    bachelor_degree = models.CharField(max_length=10, choices=BACHELOR_CHOICES, blank=True, null=True)
+    master_degree = models.CharField(max_length=10, choices=MASTER_CHOICES, blank=True, null=True)
     # Work
     employee_id = models.CharField(max_length=20, unique=True)
     department = models.ForeignKey(Department, on_delete=models.PROTECT)
