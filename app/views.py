@@ -44,8 +44,7 @@ def dashboard(request):
 @login_required(login_url='login')
 def department_list(request):
     departments = Department.objects.all().order_by('id')
-    return render(request, 'department/department_list.html', {
-        'departments': departments
+    return render(request, 'department/department_list.html', {'departments': departments
     })
 
 
@@ -77,8 +76,7 @@ def department_edit(request, pk):
         messages.success(request, "Department updated successfully")
         return redirect('department_list')
 
-    return render(request, 'department/department_edit.html', {
-        'department': department
+    return render(request, 'department/department_edit.html', {'department': department
     })
 
 
@@ -93,8 +91,7 @@ def department_delete(request, pk):
 @login_required(login_url='login')
 def designation_list(request):
     designations = Designation.objects.select_related('department').all()
-    return render(request, 'designation/designation_list.html', {
-        'designations': designations
+    return render(request, 'designation/designation_list.html', {'designations': designations
     })
 
 
@@ -114,8 +111,7 @@ def designation_add(request):
             messages.success(request, "Designation added successfully")
             return redirect('designation_list')
 
-    return render(request, 'designation/designation_add.html', {
-        'departments': departments
+    return render(request, 'designation/designation_add.html', {'departments': departments
     })
 
 
@@ -131,9 +127,7 @@ def designation_edit(request, pk):
         messages.success(request, "Designation updated successfully")
         return redirect('designation_list')
 
-    return render(request, 'designation/designation_edit.html', {
-        'designation': designation,
-        'departments': departments
+    return render(request, 'designation/designation_edit.html', {'designation': designation,'departments': departments
     })
 
 
@@ -151,8 +145,7 @@ def employee_list(request):
         'department', 'designation'
     ).all()
 
-    return render(request, 'employee/employee_list.html', {
-        'employees': employees
+    return render(request, 'employee/employee_list.html', {'employees': employees
     })
 
 @login_required(login_url='login')
@@ -165,9 +158,12 @@ def employee_add(request):
             first_name=request.POST.get('first_name'),
             middle_name=request.POST.get('middle_name'),
             last_name=request.POST.get('last_name'),
+            date_of_birth=request.POST.get('date_of_birth') or None,
             gender=request.POST.get('gender'),
             blood_group=request.POST.get('blood_group'),
-            photo=request.FILES.get('photo'),   # ✅ THIS LINE
+            photo=request.FILES.get('photo'),
+            user_id=request.POST.get('user_id'),
+            password = request.POST.get('password'),   # ✅ THIS LINE
 
             email=request.POST.get('email'),
             contact_no=request.POST.get('contact_no'),
@@ -178,7 +174,16 @@ def employee_add(request):
             employee_id=request.POST.get('employee_id'),
             department_id=request.POST.get('department'),
             designation_id=request.POST.get('designation'),
+            date_of_joining=request.POST.get('date_of_joining') or None,
 
+
+            pan_no=request.POST.get('pan_no'),
+            Aadhaar_no=request.POST.get('Aadhaar_no'),
+
+            Bank_name=request.POST.get('Bank_name'),
+            branch_name=request.POST.get('branch_name'),
+            acc_no=request.POST.get('acc_no'),
+            ifsc_code=request.POST.get('ifsc_code'),
             father_name=request.POST.get('father_name'),
             mother_name=request.POST.get('mother_name'),
 
@@ -188,15 +193,13 @@ def employee_add(request):
         messages.success(request, "Employee added successfully")
         return redirect('employee_list')
 
-    return render(request, 'employee/employee_add.html', {
-        'departments': departments,
-        'designations': designations
+    return render(request, 'employee/employee_add.html', {'departments': departments,'designations': designations
     })
+
 @login_required(login_url='login')
 def employee_view(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
-    return render(request, 'employee/employee_view.html', {
-        'employee': employee
+    return render(request, 'employee/employee_view.html', {'employee': employee
     })
 
 @login_required(login_url='login')
@@ -233,10 +236,7 @@ def employee_edit(request, pk):
         messages.success(request, "Employee updated successfully")
         return redirect('employee_list')
 
-    return render(request, 'employee/employee_edit.html', {
-        'employee': employee,
-        'departments': departments,
-        'designations': designations
+    return render(request, 'employee/employee_edit.html', {'employee': employee,'departments': departments,'designations': designations
     })
 
 @login_required(login_url='login')
@@ -261,8 +261,7 @@ def employee_toggle_status(request, pk):
 @login_required(login_url='login')
 def shift_list(request):
     shifts = Shift.objects.all().order_by('id')
-    return render(request, 'shift/shift_list.html', {
-        'shifts': shifts
+    return render(request, 'shift/shift_list.html', {'shifts': shifts
     })
 
 
@@ -295,8 +294,7 @@ def shift_edit(request, pk):
         messages.success(request, "Shift updated successfully")
         return redirect('shift_list')
 
-    return render(request, 'shift/shift_edit.html', {
-        'shift': shift
+    return render(request, 'shift/shift_edit.html', {'shift': shift
     })
 
 
