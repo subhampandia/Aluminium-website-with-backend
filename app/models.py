@@ -48,8 +48,9 @@ class Employee(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     father_name = models.CharField(max_length=100, blank=True)
     mother_name = models.CharField(max_length=100, blank=True)
-    user_id = models.CharField(max_length=20)
-    password = models.CharField(max_length=10)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='employee_profile') 
+
+    
     # Contact
     email = models.EmailField(unique=True)
     contact_no = models.CharField(max_length=15)
@@ -83,14 +84,14 @@ class Employee(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     generated_at = models.DateField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_employees')
 
     def full_name(self):
         return f"{self.first_name} {self.middle_name} {self.last_name}".strip()
 
     def __str__(self):
         return f"{self.full_name()} ({self.employee_id})"
-   
+
 class Shift(models.Model):
 
     name = models.CharField(max_length=100)

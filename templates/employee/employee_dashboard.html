@@ -1,0 +1,40 @@
+{% extends 'employee/base_employee_dashboard.html' %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h3 class="mb-3">Welcome, {{ employee.full_name }}</h3>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6>Employee ID</h6>
+          <p class="mb-0">{{ employee.employee_id }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6>Department</h6>
+          <p class="mb-0">{{ employee.department.name }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6>Designation</h6>
+          <p class="mb-0">{{ employee.designation.name }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

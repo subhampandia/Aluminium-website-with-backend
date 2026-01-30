@@ -2,80 +2,122 @@
 {% block title %}Assign Shift{% endblock %}
 
 {% block content %}
-<h5 class="mb-3">Assign Shift</h5>
+<h5 class="mb-4">Assign Shift</h5>
 
-<form method="post">
+<form method="post" class="card shadow-sm p-4" style="max-width: 720px;">
   {% csrf_token %}
 
-  <table class="table table-bordered">
-    <thead class="table-light">
-      <tr>
-        <th>Select</th>
-        <th>Emp ID</th>
-        <th>Name</th>
-        <th>Department</th>
-        <th>Designation</th>
-      </tr>
-    </thead>
-    <tbody id="employeeTable">
-      <tr>
-        <td colspan="5" class="text-center text-muted">
-          Loading employees...
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <label class="fw-bold">Shift</label>
-  <select name="shift" class="form-select mb-3" required>
-    <option value="">Select Shift</option>
-    {% for s in shifts %}
-      <option value="{{ s.id }}">{{ s.name }}</option>
+  <!-- ================= EMPLOYEE ================= -->
+  <label class="fw-bold mb-1">Employee</label>
+  <select
+    name="employee"
+    id="employeeSelect"
+    class="form-select mb-2"
+    required
+  >
+    <option value="">Select Employee</option>
+    {% for emp in employees %}
+      <option
+        value="{{ emp.id }}"
+        data-dept="{{ emp.department.name }}"
+        data-desg="{{ emp.designation.name }}"
+      >
+        {{ emp.employee_id }} - {{ emp.first_name }} {{ emp.last_name }}
+      </option>
     {% endfor %}
   </select>
 
-  <button class="btn btn-success" onclick="return validateAssign()">
-    Assign Shift
-  </button>
+  <!-- Employee Preview -->
+  <div
+    id="empPreview"
+    class="alert alert-light border d-flex align-items-center mb-3"
+  >
+    <i class="bi bi-person-badge me-2 text-primary"></i>
+    <small>
+      <strong>Department:</strong> —
+      &nbsp; | &nbsp;
+      <strong>Designation:</strong> —
+    </small>
+  </div>
+
+  <!-- ================= SHIFT ================= -->
+  <label class="fw-bold mb-1">Shift</label>
+  <select
+    name="shift"
+    id="shiftSelect"
+    class="form-select mb-2"
+    required
+  >
+    <option value="">Select Shift</option>
+    {% for s in shifts %}
+      <option
+        value="{{ s.id }}"
+        data-start="{{ s.start_time|time:'h:i A' }}"
+        data-end="{{ s.end_time|time:'h:i A' }}"
+      >
+        {{ s.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- Shift Preview -->
+  <div
+    id="shiftPreview"
+    class="alert alert-light border d-flex align-items-center mb-4"
+  >
+    <i class="bi bi-clock me-2 text-success"></i>
+    <small>
+      <strong>Shift Time:</strong> —
+    </small>
+  </div>
+
+  <!-- ================= ACTIONS ================= -->
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-success">
+      Assign Shift
+    </button>
+    <a href="{% url 'shift_assign_list' %}" class="btn btn-secondary">
+      Cancel
+    </a>
+  </div>
 </form>
 
+<!-- ================= SCRIPT ================= -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  fetch('/ajax/employees/all/', {
-    credentials: 'same-origin'
-  })
-    .then(res => res.json())
-    .then(data => {
-      let rows = '';
-      if (data.length === 0) {
-        rows = `<tr>
-                  <td colspan="5" class="text-center text-muted">
-                    No employees found
-                  </td>
-                </tr>`;
-      } else {
-        data.forEach(emp => {
-          rows += `
-            <tr>
-              <td><input type="checkbox" name="employees" value="${emp.id}"></td>
-              <td>${emp.emp_id}</td>
-              <td>${emp.name}</td>
-              <td>${emp.department}</td>
-              <td>${emp.designation}</td>
-            </tr>`;
-        });
-      }
-      document.getElementById('employeeTable').innerHTML = rows;
-    });
+document.getElementById('employeeSelect').addEventListener('change', function () {
+  const opt = this.options[this.selectedIndex];
+  const dept = opt.getAttribute('data-dept');
+  const desg = opt.getAttribute('data-desg');
+
+  document.getElementById('empPreview').innerHTML = dept
+    ? `<i class="bi bi-person-badge me-2 text-primary"></i>
+       <small>
+         <strong>Department:</strong> ${dept}
+         &nbsp; | &nbsp;
+         <strong>Designation:</strong> ${desg}
+       </small>`
+    : `<i class="bi bi-person-badge me-2 text-primary"></i>
+       <small>
+         <strong>Department:</strong> —
+         &nbsp; | &nbsp;
+         <strong>Designation:</strong> —
+       </small>`;
 });
 
-function validateAssign() {
-  const checked = document.querySelectorAll('input[name="employees"]:checked');
-  if (checked.length === 0) {
-    alert("Please select at least one employee");
-    return false;
-  }
-  return true;
-}
+document.getElementById('shiftSelect').addEventListener('change', function () {
+  const opt = this.options[this.selectedIndex];
+  const start = opt.getAttribute('data-start');
+  const end = opt.getAttribute('data-end');
+
+  document.getElementById('shiftPreview').innerHTML = start
+    ? `<i class="bi bi-clock me-2 text-success"></i>
+       <small>
+         <strong>Shift Time:</strong> ${start} – ${end}
+       </small>`
+    : `<i class="bi bi-clock me-2 text-success"></i>
+       <small>
+         <strong>Shift Time:</strong> —
+       </small>`;
+});
 </script>
 {% endblock %}
