@@ -82,6 +82,7 @@ class Employee(models.Model):
     # System
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    generated_at = models.DateField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def full_name(self):
