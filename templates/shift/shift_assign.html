@@ -1,0 +1,81 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Assign Shift{% endblock %}
+
+{% block content %}
+<h5 class="mb-3">Assign Shift</h5>
+
+<form method="post">
+  {% csrf_token %}
+
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>Select</th>
+        <th>Emp ID</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Designation</th>
+      </tr>
+    </thead>
+    <tbody id="employeeTable">
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          Loading employees...
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <label class="fw-bold">Shift</label>
+  <select name="shift" class="form-select mb-3" required>
+    <option value="">Select Shift</option>
+    {% for s in shifts %}
+      <option value="{{ s.id }}">{{ s.name }}</option>
+    {% endfor %}
+  </select>
+
+  <button class="btn btn-success" onclick="return validateAssign()">
+    Assign Shift
+  </button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('/ajax/employees/all/', {
+    credentials: 'same-origin'
+  })
+    .then(res => res.json())
+    .then(data => {
+      let rows = '';
+      if (data.length === 0) {
+        rows = `<tr>
+                  <td colspan="5" class="text-center text-muted">
+                    No employees found
+                  </td>
+                </tr>`;
+      } else {
+        data.forEach(emp => {
+          rows += `
+            <tr>
+              <td><input type="checkbox" name="employees" value="${emp.id}"></td>
+              <td>${emp.emp_id}</td>
+              <td>${emp.name}</td>
+              <td>${emp.department}</td>
+              <td>${emp.designation}</td>
+            </tr>`;
+        });
+      }
+      document.getElementById('employeeTable').innerHTML = rows;
+    });
+});
+
+function validateAssign() {
+  const checked = document.querySelectorAll('input[name="employees"]:checked');
+  if (checked.length === 0) {
+    alert("Please select at least one employee");
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}

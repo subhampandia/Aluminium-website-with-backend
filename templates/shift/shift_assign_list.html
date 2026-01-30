@@ -1,0 +1,57 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}
+Shift Assignment List
+{% endblock %} 
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Shift Assignment List</h5>
+  <a href="{% url 'shift_assign' %}" class="btn btn-primary">
+    + Assign Shift
+  </a>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Sl No</th>
+      <th>Emp ID</th>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Designation</th>
+      <th>Shift</th>
+      <th>In Time</th>
+      <th>Out Time</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in assignments %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ s.employee.employee_id }}</td>
+      <td>{{ s.employee.first_name }} {{ s.employee.last_name }}</td>
+      <td>{{ s.employee.department.name }}</td>
+      <td>{{ s.employee.designation.name }}</td>
+      <td>{{ s.shift.name }}</td>
+      <td>{{ s.shift.start_time|time:"h:i A" }}</td>
+      <td>{{ s.shift.end_time|time:"h:i A" }}</td>
+      <td>
+        <a
+          href="{% url 'shift_assign_edit' s.id %}"
+          class="btn btn-warning btn-sm"
+        >
+          Edit
+        </a>
+      </td>
+    </tr>
+
+    {% empty %}
+    <tr>
+      <td colspan="8" class="text-center text-muted">
+        No shift assignments found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

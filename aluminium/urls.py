@@ -18,37 +18,43 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from app.views import *
+    
+# from app.views import (
+#     index,
+#     login_view,
+#     logout_view,
+#     dashboard,
+#     department_list,
+#     department_add,
+#     department_edit,
+#     department_delete,
+# )
+# from app.views import (
+#     designation_list,
+#     designation_add,
+#     designation_edit,
+#     designation_delete,
+# )
 
-from app.views import (
-    index,
-    login_view,
-    logout_view,
-    dashboard,
-    department_list,
-    department_add,
-    department_edit,
-    department_delete,
-)
-from app.views import (
-    designation_list,
-    designation_add,
-    designation_edit,
-    designation_delete,
-)
-
-from app.views import (
-    employee_list,
-    employee_add,
-    employee_view,
-    employee_edit,
-    employee_delete,employee_toggle_status  
-)
-from app.views import(
-    shift_list,
-    shift_add,
-    shift_edit,
-    shift_toggle_status
-)
+# from app.views import (
+#     employee_list,
+#     employee_add,
+#     employee_view,
+#     employee_edit,
+#     employee_delete,employee_toggle_status  
+# )
+# from app.views import(
+#     shift_list,
+#     shift_add,
+#     shift_edit,
+#     shift_toggle_status
+# )
+# from app.views import (
+#     shift_assign,
+#     shift_assign_list,
+#     get_employees_by_department
+# )
 
 
 urlpatterns = [
@@ -79,6 +85,14 @@ urlpatterns = [
     path('shift/add/', shift_add, name='shift_add'),    
     path('shift/edit/<int:pk>/', shift_edit, name='shift_edit'),
     path('shift/toggle/<int:pk>/', shift_toggle_status, name='shift_toggle_status'),
+    
+    path('shift-assign/', shift_assign, name='shift_assign'),
+    path('shift-assign/list/', shift_assign_list, name='shift_assign_list'),
+    path('ajax/employees/all/', get_all_employees, name='get_all_employees'),
+    path('shift-assign/edit/<int:pk>/',shift_assign_edit,name='shift_assign_edit'),
+
+
+
 
 ]
 

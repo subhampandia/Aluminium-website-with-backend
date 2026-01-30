@@ -1,0 +1,46 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}Edit Assigned Shift{% endblock %}
+
+{% block content %}
+<h4 class="mb-3">Edit Assigned Shift</h4>
+
+<div class="card">
+  <div class="card-body">
+
+    <p><strong>Employee:</strong>
+      {{ assignment.employee.first_name }}
+      {{ assignment.employee.last_name }}
+      ({{ assignment.employee.employee_id }})
+    </p>
+
+    <p><strong>Department:</strong>
+      {{ assignment.employee.department.name }}
+    </p>
+
+    <p><strong>Designation:</strong>
+      {{ assignment.employee.designation.name }}
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <label class="fw-bold">Shift</label>
+      <select name="shift" class="form-select mb-3" required>
+        {% for s in shifts %}
+          <option value="{{ s.id }}"
+            {% if s.id == assignment.shift.id %}selected{% endif %}
+          >
+            {{ s.name }} ({{ s.start_time|time:"h:i A" }} - {{ s.end_time|time:"h:i A" }})
+          </option>
+        {% endfor %}
+      </select>
+
+      <button class="btn btn-success">Update Shift</button>
+      <a href="{% url 'shift_assign_list' %}" class="btn btn-secondary">
+        Cancel
+      </a>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
