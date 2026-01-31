@@ -47,6 +47,15 @@ urlpatterns = [
 
     # AJAX
     path('ajax/employees/all/', views.get_all_employees, name='get_all_employees'),
+    
+    # Employee Leave
+    path('employee/leave/apply/', views.apply_leave, name='apply_leave'),
+    path('employee/leaves/', views.my_leaves, name='my_leaves'),
+
+    # Admin Leave
+    path('leave/manage/', views.admin_leave_list, name='admin_leave_list'),
+    path('leave/manage/<int:pk>/<str:action>/', views.admin_leave_action, name='admin_leave_action'),
+
 ]
 
 if settings.DEBUG:

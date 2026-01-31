@@ -1,0 +1,29 @@
+{% extends 'employee/base_employee_dashboard.html' %}
+{% block title %}Apply Leave{% endblock %}
+
+{% block content %}
+<h4>Apply Leave</h4>
+
+<form method="post" class="mt-3">
+  {% csrf_token %}
+
+  <label>Leave Type</label>
+  <select name="leave_type" class="form-select mb-3" required>
+    <option value="">Select</option>
+    <option value="CL">Casual Leave</option>
+    <option value="SL">Sick Leave</option>
+    <option value="PL">Paid Leave</option>
+  </select>
+
+  <label>From</label>
+  <input type="date" name="start_date" class="form-control mb-3" required>
+
+  <label>To</label>
+  <input type="date" name="end_date" class="form-control mb-3" required>
+
+  <label>Reason</label>
+  <textarea name="reason" class="form-control mb-3" required></textarea>
+
+  <button class="btn btn-primary">Apply Leave</button>
+</form>
+{% endblock %}

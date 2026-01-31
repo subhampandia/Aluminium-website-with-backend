@@ -240,6 +240,30 @@
           </select>
         </div>
       </div>
+      <hr />
+      <h5 class="mt-4">Login Details</h5>
+
+      <div class="row">
+        <div class="col-md-6">
+          <label class="fw-bold">User ID (Username)</label>
+          <input
+            type="text"
+            name="username"
+            class="form-control"
+            value="{{ employee.user.username }}"
+          />
+        </div>
+
+        <div class="col-md-6">
+          <label class="fw-bold">New Password</label>
+          <input
+            type="password"
+            name="new_password"
+            class="form-control"
+            placeholder="Leave blank to keep unchanged"
+          />
+        </div>
+      </div>
 
       <!-- WORK DETAILS -->
       <h6 class="text-primary">Work Details</h6>
@@ -534,6 +558,30 @@
           />
         </div>
       </div>
+      <h6 class="text-primary mb-2">System Information</h6>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label>Created By</label>
+          <input
+            type="text"
+            class="form-control"
+            value="{{ employee.created_by.username }}"
+            readonly
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Generated Date</label>
+          <input
+            type="date"
+            name="generated_at"
+            class="form-control"
+            value="{{ employee.generated_at|date:'Y-m-d' }}"
+            required
+          />
+        </div>
+      </div>
       <!-- ACTION -->
       <div class="d-flex gap-2">
         <button class="btn btn-primary">Update Employee</button>
@@ -541,31 +589,6 @@
       </div>
     </form>
   </div>
-</div>
-<h6 class="text-primary mb-2">System Information</h6>
-
-<div class="row g-3 mb-4">
-  <div class="col-md-6">
-    <label>Created By</label>
-    <input
-      type="text"
-      class="form-control"
-      value="{{ employee.created_by.username }}"
-      readonly
-    />
-  </div>
-
-  <div class="mb-3">
-  <label class="form-label">Generated Date</label>
-  <input
-    type="date"
-    name="generated_at"
-    class="form-control"
-    value="{{ employee.generated_at|date:'Y-m-d' }}"
-    required
-  >
-</div>
-
 </div>
 
 {% endblock %}

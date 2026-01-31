@@ -114,3 +114,47 @@ class ShiftAssignment(models.Model):
 
     def __str__(self):
         return f"{self.employee.first_name} - {self.shift.name}"
+
+class Leave(models.Model):
+
+    LEAVE_TYPE_CHOICES = [
+        ('CL', 'Casual Leave'),
+        ('SL', 'Sick Leave'),
+        ('PL', 'Paid Leave'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='leaves'
+    )
+    leave_type = models.CharField(
+        max_length=20,
+        choices=LEAVE_TYPE_CHOICES
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Pending'
+    )
+
+    applied_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.employee.employee_id} - {self.leave_type} ({self.status})"

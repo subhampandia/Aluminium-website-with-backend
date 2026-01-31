@@ -4,9 +4,10 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.http import JsonResponse
 
-from .models import Department, Designation, Employee, Shift, ShiftAssignment
+from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave
 
 
 # ================= AUTH =================
@@ -210,21 +211,69 @@ def employee_view(request, pk):
 
 @login_required(login_url='login')
 def employee_edit(request, pk):
-    emp = get_object_or_404(Employee, pk=pk)
+    employee = get_object_or_404(Employee, pk=pk)
+    departments = Department.objects.all()
+    designations = Designation.objects.all()
+
     if request.method == 'POST':
-        for field in request.POST:
-            if hasattr(emp, field):
-                setattr(emp, field, request.POST.get(field))
+
+        # ================= EMPLOYEE FIELDS =================
+        employee.first_name = request.POST.get('first_name')
+        employee.middle_name = request.POST.get('middle_name')
+        employee.last_name = request.POST.get('last_name')
+        employee.gender = request.POST.get('gender')
+        employee.blood_group = request.POST.get('blood_group')
+        employee.email = request.POST.get('email')
+        employee.contact_no = request.POST.get('contact_no')
+        employee.emergency_contact = request.POST.get('emergency_contact')
+        employee.date_of_birth = request.POST.get('date_of_birth') or None
+        employee.date_of_joining = request.POST.get('date_of_joining') or None
+        employee.generated_at = request.POST.get('generated_at') or None
+
+        employee.employee_id = request.POST.get('employee_id')
+        employee.department_id = request.POST.get('department')
+        employee.designation_id = request.POST.get('designation')
+
+        employee.pan_no = request.POST.get('pan_no')
+        employee.Aadhar_no = request.POST.get('Aadhar_no')
+        employee.Bank_name = request.POST.get('Bank_name')
+        employee.branch_name = request.POST.get('branch_name')
+        employee.acc_no = request.POST.get('acc_no')
+        employee.ifsc_no = request.POST.get('ifsc_no')
+
+        employee.father_name = request.POST.get('father_name')
+        employee.mother_name = request.POST.get('mother_name')
+
         if request.FILES.get('photo'):
-            emp.photo = request.FILES.get('photo')
-        emp.save()
-        messages.success(request, "Employee updated")
+            employee.photo = request.FILES.get('photo')
+
+        # ================= USER (LOGIN) FIELDS =================
+        username = request.POST.get('username')
+        new_password = request.POST.get('new_password')
+
+        if employee.user:
+            user = employee.user
+
+            # Update username
+            if username:
+                user.username = username
+
+            # Update password ONLY if entered
+            if new_password:
+                user.set_password(new_password)
+
+            user.save()
+
+        employee.save()
+        messages.success(request, "Employee updated successfully")
         return redirect('employee_list')
+
     return render(request, 'employee/employee_edit.html', {
-        'employee': emp,
-        'departments': Department.objects.all(),
-        'designations': Designation.objects.all()
+        'employee': employee,
+        'departments': departments,
+        'designations': designations
     })
+
 
 
 @login_required(login_url='login')
@@ -355,3 +404,54 @@ def employee_dashboard(request):
     return render(request, 'employee/employee_dashboard.html', {
         'employee': employee
     })
+@login_required(login_url='login')
+def apply_leave(request):
+    employee = get_object_or_404(Employee, user=request.user)
+
+    if request.method == 'POST':
+        Leave.objects.create(
+            employee=employee,
+            leave_type=request.POST.get('leave_type'),
+            start_date=request.POST.get('start_date'),
+            end_date=request.POST.get('end_date'),
+            reason=request.POST.get('reason')
+        )
+        messages.success(request, "Leave applied successfully")
+        return redirect('my_leaves')
+
+    return render(request, 'employee/apply_leave.html')
+@login_required(login_url='login')
+def my_leaves(request):
+    employee = get_object_or_404(Employee, user=request.user)
+    leaves = employee.leaves.all().order_by('-applied_at')
+
+    return render(request, 'employee/my_leaves.html', {
+        'leaves': leaves
+    })
+
+@login_required(login_url='login')
+def admin_leave_list(request):
+    leaves = Leave.objects.select_related(
+        'employee__department',
+        'employee__designation'
+    ).order_by('-applied_at')
+
+    return render(request, 'leave/admin_leave_list.html', {
+        'leaves': leaves
+    })
+
+@login_required(login_url='login')
+def admin_leave_action(request, pk, action):
+    leave = get_object_or_404(Leave, pk=pk)
+
+    if action == 'approve':
+        leave.status = 'Approved'
+    elif action == 'reject':
+        leave.status = 'Rejected'
+
+    leave.reviewed_by = request.user
+    leave.reviewed_at = timezone.now()
+    leave.save()
+
+    messages.success(request, f"Leave {action}d successfully")
+    return redirect('admin_leave_list')
