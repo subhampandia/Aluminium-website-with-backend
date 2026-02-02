@@ -1,0 +1,134 @@
+{% extends 'employee/base_employee_dashboard.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<style>
+  .profile-card {
+    border-radius: 12px;
+  }
+  .profile-header {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+  }
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    margin-top: -60px;
+    background: #f8f9fa;
+  }
+  .info-label {
+    font-weight: 600;
+    color: #6c757d;
+  }
+</style>
+
+<div class="container-fluid">
+
+  <!-- Header -->
+  <div class="card profile-card shadow-sm mb-4">
+    <div class="profile-header p-4 text-center">
+      <h3 class="mb-0">My Profile</h3>
+      <small>Employee Details</small>
+    </div>
+
+    <!-- Avatar -->
+    <div class="text-center">
+      {% if employee.photo %}
+        <img src="{{ employee.photo.url }}" class="profile-avatar" alt="Profile Photo">
+      {% else %}
+        <img src="https://via.placeholder.com/120" class="profile-avatar" alt="Profile Photo">
+      {% endif %}
+    </div>
+
+    <!-- Body -->
+    <div class="card-body mt-4">
+
+      <!-- BASIC INFO -->
+      <h5 class="mb-3 border-bottom pb-2">Basic Information</h5>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <p class="info-label">Employee ID</p>
+          <p>{{ employee.employee_id }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Full Name</p>
+          <p>{{ employee.name }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Gender</p>
+          <p>{{ employee.gender }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <p class="info-label">Date of Birth</p>
+          <p>{{ employee.dob|date:"d M Y" }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Mobile Number</p>
+          <p>{{ employee.mobile }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Email</p>
+          <p>{{ employee.user.email }}</p>
+        </div>
+      </div>
+
+      <!-- WORK INFO -->
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Work Information</h5>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <p class="info-label">Department</p>
+          <p>{{ employee.department }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Designation</p>
+          <p>{{ employee.designation }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Shift</p>
+          <p>{{ employee.shift }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <p class="info-label">Date of Joining</p>
+          <p>{{ employee.joining_date|date:"d M Y" }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Employment Type</p>
+          <p>{{ employee.employment_type }}</p>
+        </div>
+        <div class="col-md-4">
+          <p class="info-label">Status</p>
+          <p>
+            {% if employee.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-danger">Inactive</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- ADDRESS -->
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Address</h5>
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <p class="info-label">Current Address</p>
+          <p>{{ employee.address }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

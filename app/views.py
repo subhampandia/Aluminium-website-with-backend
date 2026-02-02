@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -34,7 +35,16 @@ def login_view(request):
 
     return render(request, 'login.html')
 
+@login_required
+def employee_profile(request):
+    employee = Employee.objects.filter(user=request.user).first()
 
+    if not employee:
+        return redirect('employee_add')  # safety fallback
+
+    return render(request, 'employee/profile.html', {
+        'employee': employee
+    })
 
 @never_cache
 def logout_view(request):
@@ -261,8 +271,9 @@ def employee_edit(request, pk):
             # Update password ONLY if entered
             if new_password:
                 user.set_password(new_password)
-
             user.save()
+            update_session_auth_hash(request, user)  # 🔥 THIS LINE
+
 
         employee.save()
         messages.success(request, "Employee updated successfully")

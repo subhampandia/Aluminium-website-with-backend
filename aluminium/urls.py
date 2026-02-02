@@ -55,6 +55,10 @@ urlpatterns = [
     # Admin Leave
     path('leave/manage/', views.admin_leave_list, name='admin_leave_list'),
     path('leave/manage/<int:pk>/<str:action>/', views.admin_leave_action, name='admin_leave_action'),
+    
+    # urls.py
+    path('employee/profile/', views.employee_profile, name='employee_profile')
+
 
 ]
 
