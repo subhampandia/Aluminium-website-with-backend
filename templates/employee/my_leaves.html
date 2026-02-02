@@ -1,7 +1,5 @@
-{% extends 'employee/base_employee_dashboard.html' %}
-{% block title %}My Leaves{% endblock %}
-
-{% block content %}
+{% extends 'employee/base_employee_dashboard.html' %} {% block title %}My
+Leaves{% endblock %} {% block content %}
 <h4>My Leave Requests</h4>
 
 <table class="table table-bordered mt-3">
@@ -20,12 +18,16 @@
       <td>{{ leave.start_date }}</td>
       <td>{{ leave.end_date }}</td>
       <td>
-        <span class="badge 
-          {% if leave.status == 'Approved' %}bg-success
-          {% elif leave.status == 'Rejected' %}bg-danger
-          {% else %}bg-warning{% endif %}">
+        <span
+          class="badge {% if leave.status == 'Approved' %}bg-success {% elif leave.status == 'Rejected' %}bg-danger {% else %}bg-warning{% endif %}"
+        >
           {{ leave.status }}
         </span>
+        {% if leave.status == 'Rejected' %}
+        <div class="text-danger small mt-1">
+          Reason: {{ leave.rejection_reason }}
+        </div>
+        {% endif %}
       </td>
     </tr>
     {% empty %}

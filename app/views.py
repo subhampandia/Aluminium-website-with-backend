@@ -455,14 +455,19 @@ def admin_leave_list(request):
 def admin_leave_action(request, pk, action):
     leave = get_object_or_404(Leave, pk=pk)
 
-    if action == 'approve':
-        leave.status = 'Approved'
-    elif action == 'reject':
-        leave.status = 'Rejected'
+    if request.method == 'POST':
+        if action == 'approve':
+            leave.status = 'Approved'
+            leave.rejection_reason = None
 
-    leave.reviewed_by = request.user
-    leave.reviewed_at = timezone.now()
-    leave.save()
+        elif action == 'reject':
+            leave.status = 'Rejected'
+            leave.rejection_reason = request.POST.get('rejection_reason')
 
-    messages.success(request, f"Leave {action}d successfully")
+        leave.reviewed_by = request.user
+        leave.reviewed_at = timezone.now()
+        leave.save()
+
+        messages.success(request, f"Leave {leave.status.lower()} successfully")
+
     return redirect('admin_leave_list')

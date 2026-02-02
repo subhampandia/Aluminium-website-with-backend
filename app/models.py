@@ -129,31 +129,16 @@ class Leave(models.Model):
         ('Rejected', 'Rejected'),
     ]
 
-    employee = models.ForeignKey(
-        Employee,
-        on_delete=models.CASCADE,
-        related_name='leaves'
-    )
-    leave_type = models.CharField(
-        max_length=20,
-        choices=LEAVE_TYPE_CHOICES
-    )
+    employee = models.ForeignKey(Employee,on_delete=models.CASCADE,related_name='leaves')
+    leave_type = models.CharField(max_length=20,choices=LEAVE_TYPE_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField()
     reason = models.TextField()
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='Pending'
-    )
+    status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='Pending')
+    rejection_reason = models.TextField(blank=True, null=True)
 
     applied_at = models.DateTimeField(auto_now_add=True)
-    reviewed_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    reviewed_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
