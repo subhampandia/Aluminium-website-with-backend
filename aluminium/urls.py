@@ -76,6 +76,12 @@ urlpatterns = [
     views.admin_employee_attendance_calendar,
     name='admin_employee_attendance_calendar'
 ),
+    path(
+    'employee/attendance/calendar/',
+    views.employee_attendance_calendar,
+    name='employee_attendance_calendar'
+),
+
 
 
 ]

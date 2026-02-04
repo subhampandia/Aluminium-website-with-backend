@@ -489,20 +489,38 @@ from django.utils import timezone
 @login_required
 def employee_attendance_history(request):
     employee = request.user.employee_profile
-    attendances = Attendance.objects.filter(employee=employee)
+    attendances = Attendance.objects.filter(employee=employee).order_by('-date')
 
-    today = timezone.localdate()
-    today_attendance = Attendance.objects.filter(
-        employee=employee,
-        date=today
-    ).first()
+    # 👇 Calendar events
+    events = []
+    for att in attendances:
+        color = '#198754'  # Present
+
+        if att.status == 'Late':
+            color = '#ffc107'
+        elif att.status == 'Half Day':
+            color = '#dc3545'
+        elif att.status == 'Absent':
+            color = '#212529'
+
+        events.append({
+            'title': att.status,
+            'start': att.date.strftime('%Y-%m-%d'),
+            'color': color,
+            'extendedProps': {
+                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
+                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
+                'hours': att.working_hours if att.working_hours else '-',
+                'status': att.status,
+            }
+        })
 
     return render(
         request,
         'attendance/employee_attendance_history.html',
         {
             'attendances': attendances,
-            'today_attendance': today_attendance
+            'events': events
         }
     )
 
@@ -648,6 +666,42 @@ def admin_employee_attendance_calendar(request, emp_id):
         'admin/attendance/employee_calendar.html',
         {
             'employee': employee,
+            'events': events
+        }
+    )
+    
+@login_required
+def employee_attendance_calendar(request):
+    employee = request.user.employee_profile
+    attendances = Attendance.objects.filter(employee=employee)
+
+    events = []
+    for att in attendances:
+        color = '#198754'  # Present (green)
+
+        if att.status == 'Late':
+            color = '#ffc107'
+        elif att.status == 'Half Day':
+            color = '#dc3545'
+        elif att.status == 'Absent':
+            color = '#212529'
+
+        events.append({
+            'title': att.status,
+            'start': att.date.strftime('%Y-%m-%d'),
+            'color': color,
+            'extendedProps': {
+                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
+                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
+                'hours': att.working_hours if att.working_hours else '-',
+                'status': att.status,
+            }
+        })
+
+    return render(
+        request,
+        'employee/attendance_calendar.html',
+        {
             'events': events
         }
     )

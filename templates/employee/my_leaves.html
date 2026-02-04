@@ -1,10 +1,11 @@
 {% extends 'employee/base_employee_dashboard.html' %} {% block title %}My
 Leaves{% endblock %} {% block content %}
-<h4>My Leave Requests</h4>
-<a href="{% url 'apply_leave' %}" class="btn btn-primary">
-  <i class="bi bi-pencil-square me-2"></i> Apply Leave
-</a>
-
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>My Leaves List</h3>
+  <a href="{% url 'apply_leave' %}" class="btn btn-primary">
+    + Apply Leave
+  </a>
+</div>
 <table class="table table-bordered mt-3">
   <thead class="table-light">
     <tr>
