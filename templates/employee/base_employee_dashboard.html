@@ -87,13 +87,12 @@
         box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
       }
       .attendance-btn {
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-}
-
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 12px;
+        border-radius: 10px;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+      }
     </style>
   </head>
 
@@ -110,9 +109,10 @@
         <i class="bi bi-person me-2"></i> My Profile
       </a>
 
-      <a href="#"> <i class="bi bi-clock me-2"></i> My Shift </a>
+      <a href="{% url 'employee_shift_details' %}">
+        <i class="bi bi-clock me-2"></i> My Shift
+      </a>
 
-      
       <a href="{% url 'employee_attendance_history' %}"> My Attendance </a>
 
       <a href="{% url 'my_leaves' %}">

@@ -81,6 +81,11 @@ urlpatterns = [
     views.employee_attendance_calendar,
     name='employee_attendance_calendar'
 ),
+    path(
+    'employee/shift/',
+    views.employee_shift_details,
+    name='employee_shift_details'
+),
 
 
 

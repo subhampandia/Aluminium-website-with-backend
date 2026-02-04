@@ -1,0 +1,68 @@
+{% extends 'employee/base_employee_dashboard.html' %}
+{% block title %}My Shift{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">My Shift Details</h3>
+
+<!-- ACTIVE SHIFT -->
+<div class="card shadow-sm border-info border-2 mb-4">
+  <div class="card-body">
+    <h5 class="fw-bold text-info">
+      <i class="bi bi-clock me-1"></i> Current Shift
+    </h5>
+
+    {% if active_shift %}
+      <p><strong>Shift Name:</strong> {{ active_shift.shift.name }}</p>
+      <p>
+        <strong>Timing:</strong>
+        {{ active_shift.shift.start_time|time:"h:i A" }}
+        –
+        {{ active_shift.shift.end_time|time:"h:i A" }}
+      </p>
+      <p>
+        <strong>Break:</strong>
+        {{ active_shift.shift.break_minutes }} minutes
+      </p>
+      <p class="mb-0">
+        <strong>Assigned On:</strong>
+        {{ active_shift.assigned_date }}
+      </p>
+    {% else %}
+      <p class="text-muted mb-0">No active shift assigned.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- SHIFT HISTORY -->
+<h5 class="mb-3">Shift History</h5>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Shift</th>
+      <th>Timing</th>
+      <th>Break</th>
+      <th>Assigned Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sh in shift_history %}
+    <tr>
+      <td>{{ sh.shift.name }}</td>
+      <td>
+        {{ sh.shift.start_time|time:"h:i A" }} –
+        {{ sh.shift.end_time|time:"h:i A" }}
+      </td>
+      <td>{{ sh.shift.break_minutes }} mins</td>
+      <td>{{ sh.assigned_date }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4" class="text-center text-muted">
+        No previous shifts
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

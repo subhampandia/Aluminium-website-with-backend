@@ -136,3 +136,6 @@ LOGIN_URL = '/login/'
 ATTENDANCE_PUNCH_IN_TIME = (9, 30)      # 09:30 AM
 ATTENDANCE_GRACE_TIME = (9, 45)         # 09:45 AM
 ATTENDANCE_HALF_DAY_HOURS = 4           # 4 hours
+# Attendance settings
+SHIFT_GRACE_MINUTES = 15
+MIN_HALF_DAY_HOURS = 4

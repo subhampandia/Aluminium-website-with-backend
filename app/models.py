@@ -104,6 +104,7 @@ class Shift(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.start_time} - {self.end_time})"
+    
 class ShiftAssignment(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)

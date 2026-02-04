@@ -7,6 +7,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime, timedelta
+from django.conf import settings
 from django.http import JsonResponse
 
 from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance
@@ -536,6 +538,18 @@ def punch_in(request):
     today = timezone.localdate()
     now_time = timezone.localtime().time()
 
+    # 🔹 Get active shift
+    shift_assignment = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=True
+    ).select_related('shift').first()
+
+    if not shift_assignment:
+        messages.error(request, "No shift assigned. Contact HR.")
+        return redirect('employee_dashboard')
+
+    shift = shift_assignment.shift
+
     attendance, created = Attendance.objects.get_or_create(
         employee=employee,
         date=today
@@ -547,9 +561,15 @@ def punch_in(request):
 
     attendance.punch_in = now_time
 
-    grace_time = time(*settings.ATTENDANCE_GRACE_TIME)
+    # 🔹 Calculate late based on shift
+    shift_start_dt = datetime.combine(today, shift.start_time)
+    grace_dt = shift_start_dt + timedelta(
+        minutes=settings.SHIFT_GRACE_MINUTES
+    )
 
-    if now_time > grace_time:
+    now_dt = datetime.combine(today, now_time)
+
+    if now_dt > grace_dt:
         attendance.status = 'Late'
     else:
         attendance.status = 'Present'
@@ -557,10 +577,10 @@ def punch_in(request):
     attendance.save()
     messages.success(request, "Punch in successful.")
 
-    return redirect('employee_dashboard')
+    return redirect('employee_dashboard')       
 
-from datetime import datetime
-from django.conf import settings
+
+from decimal import Decimal
 
 @login_required
 def punch_out(request):
@@ -586,24 +606,34 @@ def punch_out(request):
 
     attendance.punch_out = now_time
 
-    # calculate working hours
-    in_dt = datetime.combine(today, attendance.punch_in)
-    out_dt = datetime.combine(today, attendance.punch_out)
+    # 🔹 Calculate working hours
+    shift_assignment = ShiftAssignment.objects.filter(employee=employee,is_active=True).select_related('shift').first()
+    shift = shift_assignment.shift
+
+# detect night shift
+    is_night_shift = shift.end_time < shift.start_time
+
+    in_dt = datetime.combine(attendance.date, attendance.punch_in)
+
+    if is_night_shift and now_time < attendance.punch_in:
+    # punch-out is next day
+        out_dt = datetime.combine(attendance.date + timedelta(days=1), now_time)
+    else:
+        out_dt = datetime.combine(attendance.date, now_time)
 
     diff = out_dt - in_dt
     hours = round(diff.total_seconds() / 3600, 2)
-    attendance.working_hours = hours
+    attendance.working_hours = Decimal(hours)
 
-    # FINAL STATUS DECISION
-    if hours < settings.ATTENDANCE_HALF_DAY_HOURS:
+    # 🔹 Half-day rule
+    if hours < settings.MIN_HALF_DAY_HOURS:
         attendance.status = 'Half Day'
-    elif attendance.status not in ['Late']:
-        attendance.status = 'Present'
 
     attendance.save()
     messages.success(request, "Punch out successful.")
 
     return redirect('employee_dashboard')
+
 @staff_member_required
 def admin_employee_attendance_list(request):
     employees = Employee.objects.all().order_by('employee_id')
@@ -703,5 +733,29 @@ def employee_attendance_calendar(request):
         'employee/attendance_calendar.html',
         {
             'events': events
+        }
+    )
+@login_required
+def employee_shift_details(request):
+    employee = request.user.employee_profile
+
+    # Active shift
+    active_shift = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=True
+    ).select_related('shift').first()
+
+    # Shift history (optional but good)
+    shift_history = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=False
+    ).select_related('shift')
+
+    return render(
+        request,
+        'employee/employee_shift_details.html',
+        {
+            'active_shift': active_shift,
+            'shift_history': shift_history
         }
     )
