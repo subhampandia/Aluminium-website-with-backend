@@ -1,0 +1,41 @@
+{% extends 'base_dashboard.html' %} {% block content %}
+
+<h3 class="mb-3">Employee Attendance</h3>
+
+<table class="table table-bordered table-hover">
+  <thead class="table-light">
+    <tr>
+      <th>Employee ID</th>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for emp in employees %}
+    <tr>
+      <td>{{ emp.employee_id }}</td>
+      <td>{{ emp.full_name }}</td>
+      <td>{{ emp.department.name }}</td>
+
+      <td>
+        <a
+          href="{% url 'admin_employee_attendance_detail' emp.id %}"
+          class="btn btn-sm btn-primary"
+        >
+          Table View
+        </a>
+
+        <a
+          href="{% url 'admin_employee_attendance_calendar' emp.id %}"
+          class="btn btn-sm btn-success"
+        >
+          Calendar
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

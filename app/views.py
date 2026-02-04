@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -585,3 +586,68 @@ def punch_out(request):
     messages.success(request, "Punch out successful.")
 
     return redirect('employee_dashboard')
+@staff_member_required
+def admin_employee_attendance_list(request):
+    employees = Employee.objects.all().order_by('employee_id')
+    return render(
+        request,
+        'admin/attendance/employee_list.html',
+        {'employees': employees}
+    )
+from .models import Attendance
+from django.shortcuts import get_object_or_404
+
+@staff_member_required
+def admin_employee_attendance_detail(request, emp_id):
+    employee = get_object_or_404(Employee, id=emp_id)
+
+    attendances = Attendance.objects.filter(
+        employee=employee
+    ).order_by('-date')
+
+    return render(
+        request,
+        'admin/attendance/employee_attendance_detail.html',
+        {
+            'employee': employee,
+            'attendances': attendances
+        }
+    )
+
+@staff_member_required
+def admin_employee_attendance_calendar(request, emp_id):
+    employee = get_object_or_404(Employee, id=emp_id)
+    attendances = Attendance.objects.filter(employee=employee)
+
+    events = []
+    for att in attendances:
+        color = '#198754'  # green = Present
+
+        if att.status == 'Late':
+            color = '#ffc107'
+        elif att.status == 'Half Day':
+            color = '#dc3545'
+        elif att.status == 'Absent':
+            color = '#212529'
+
+        events.append({
+            'title': att.status,
+            'start': att.date.strftime('%Y-%m-%d'),
+            'color': color,
+            
+            'extendedProps': {
+            'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
+            'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
+            'hours': att.working_hours if att.working_hours else '-',
+            'status': att.status,
+            }
+        })
+
+    return render(
+        request,
+        'admin/attendance/employee_calendar.html',
+        {
+            'employee': employee,
+            'events': events
+        }
+    )

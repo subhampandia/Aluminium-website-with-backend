@@ -1,0 +1,47 @@
+{% extends 'base_dashboard.html' %}
+{% block content %}
+
+<h3 class="mb-3">
+  Attendance – {{ employee.full_name }} ({{ employee.employee_id }})
+</h3>
+
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th>Date</th>
+      <th>Punch In</th>
+      <th>Punch Out</th>
+      <th>Working Hours</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in attendances %}
+    <tr>
+      <td>{{ a.date }}</td>
+      <td>{{ a.punch_in|default:"-" }}</td>
+      <td>{{ a.punch_out|default:"-" }}</td>
+      <td>{{ a.working_hours|default:"-" }}</td>
+      <td>
+        <span class="badge
+          {% if a.status == 'Late' %}bg-warning
+          {% elif a.status == 'Half Day' %}bg-danger
+          {% elif a.status == 'Absent' %}bg-dark
+          {% else %}bg-success{% endif %}">
+          {{ a.status }}
+        </span>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="text-center">No attendance records</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{% url 'admin_employee_attendance_list' %}" class="btn btn-secondary">
+  Back
+</a>
+
+{% endblock %}

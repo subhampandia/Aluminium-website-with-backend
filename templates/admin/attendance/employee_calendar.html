@@ -1,0 +1,110 @@
+{% extends 'base_dashboard.html' %}
+{% block content %}
+
+<h3 class="mb-3">
+  Attendance Calendar – {{ employee.full_name }}
+</h3>
+
+<div id="calendar"></div>
+<!-- Attendance Detail Modal -->
+<div class="modal fade" id="attendanceModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Attendance Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Date:</strong> <span id="modalDate"></span></p>
+        <p><strong>Punch In:</strong> <span id="modalPunchIn"></span></p>
+        <p><strong>Punch Out:</strong> <span id="modalPunchOut"></span></p>
+        <p><strong>Working Hours:</strong> <span id="modalHours"></span></p>
+        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar');
+
+    var events = {{ events|safe }};
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 'auto',
+      events: events,
+
+      // ✅ CLICK ON EVENT (existing attendance)
+      eventClick: function (info) {
+        const event = info.event;
+
+        showModal(
+          event.startStr,
+          event.extendedProps.punch_in,
+          event.extendedProps.punch_out,
+          event.extendedProps.hours,
+          event.extendedProps.status
+        );
+      },
+
+      // ✅ CLICK ANYWHERE IN DATE BOX
+      dateClick: function (info) {
+        const date = info.dateStr;
+
+        // Try to find attendance for this date
+        const event = events.find(e => e.start === date);
+
+        if (event) {
+          showModal(
+            date,
+            event.extendedProps.punch_in,
+            event.extendedProps.punch_out,
+            event.extendedProps.hours,
+            event.extendedProps.status
+          );
+        } else {
+          // No attendance → Absent / No record
+          showModal(
+            date,
+            '-',
+            '-',
+            '-',
+            'No Attendance'
+          );
+        }
+      }
+    });
+
+    calendar.render();
+
+    // 🔹 Modal handler (reusable)
+    function showModal(date, punchIn, punchOut, hours, status) {
+      document.getElementById('modalDate').innerText = date;
+      document.getElementById('modalPunchIn').innerText = punchIn;
+      document.getElementById('modalPunchOut').innerText = punchOut;
+      document.getElementById('modalHours').innerText = hours;
+      document.getElementById('modalStatus').innerText = status;
+
+      const modal = new bootstrap.Modal(
+        document.getElementById('attendanceModal')
+      );
+      modal.show();
+    }
+  });
+</script>
+
+
+<a href="{% url 'admin_employee_attendance_list' %}" class="btn btn-secondary mt-3">
+  Back
+</a>
+
+{% endblock %}
