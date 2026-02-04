@@ -149,8 +149,7 @@ class Attendance(models.Model):
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE,
-        related_name="attendance_records"
-    )
+        related_name="attendance_records")
     date = models.DateField(default=timezone.now)
     punch_in = models.TimeField(null=True, blank=True)
     punch_out = models.TimeField(null=True, blank=True)
@@ -158,12 +157,20 @@ class Attendance(models.Model):
         max_digits=5,
         decimal_places=2,
         null=True,
-        blank=True
-    )
-
+        blank=True)
+    status = models.CharField(
+    max_length=20,
+    choices=[
+        ('Present', 'Present'),
+        ('Late', 'Late'),
+        ('Half Day', 'Half Day'),
+    ],
+    default='Present')
     class Meta:
         ordering = ['-date']
         unique_together = ('employee', 'date')
 
     def __str__(self):
         return f"{self.employee} - {self.date}"
+    
+

@@ -7,6 +7,7 @@
 
   <h3 class="mb-3">Welcome, {{ employee.full_name }}</h3>
 
+  <!-- BASIC INFO CARDS -->
   <div class="row">
     <div class="col-md-4">
       <div class="card shadow-sm">
@@ -31,6 +32,73 @@
         <div class="card-body">
           <h6>Designation</h6>
           <p class="mb-0">{{ employee.designation.name }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE CARD -->
+  <div class="row mt-4 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow border-primary border-2">
+        <div class="card-body text-center">
+
+          <h5 class="fw-bold mb-2">
+            <i class="bi bi-clock-history me-1"></i> Attendance
+          </h5>
+
+          <!-- STATUS BADGE -->
+          {% if today_attendance and today_attendance.status %}
+            <span class="badge mb-3
+              {% if today_attendance.status == 'Late' %}bg-warning
+              {% elif today_attendance.status == 'Half Day' %}bg-danger
+              {% else %}bg-success{% endif %}">
+              {{ today_attendance.status }}
+            </span>
+          {% endif %}
+
+          <!-- PUNCH BUTTONS -->
+          {% if not today_attendance %}
+            <!-- Punch In -->
+            <form method="post" action="{% url 'punch_in' %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-success w-100 attendance-btn"
+                      onclick="this.disabled=true; this.form.submit();">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Punch In
+              </button>
+            </form>
+
+          {% elif today_attendance and not today_attendance.punch_out %}
+            <!-- Punch Out -->
+            <form method="post" action="{% url 'punch_out' %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="btn btn-danger w-100 attendance-btn"
+                      onclick="this.disabled=true; this.form.submit();">
+                <i class="bi bi-box-arrow-right me-1"></i> Punch Out
+              </button>
+            </form>
+
+          {% else %}
+            <!-- Completed -->
+            <button class="btn btn-secondary w-100" disabled>
+              Attendance Completed
+            </button>
+          {% endif %}
+
+          <!-- TIME INFO -->
+          {% if today_attendance %}
+            <p class="text-muted mt-3 mb-0">
+              {% if today_attendance.punch_in %}
+                In: {{ today_attendance.punch_in }}
+              {% endif %}
+              {% if today_attendance.punch_out %}
+                | Out: {{ today_attendance.punch_out }}
+              {% endif %}
+            </p>
+          {% endif %}
+
         </div>
       </div>
     </div>

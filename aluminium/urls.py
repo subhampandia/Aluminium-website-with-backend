@@ -60,12 +60,8 @@ urlpatterns = [
     path('employee/profile/', views.employee_profile, name='employee_profile'),
 
     path('attendance/my/',views.employee_attendance_history,name='employee_attendance_history'),
-    path(
-    'attendance/punch-in/',
-    views.punch_in,
-    name='punch_in'
-),
-
+    path('attendance/punch-in/',views.punch_in,name='punch_in'),
+    path('attendance/punch-out/',views.punch_out,name='punch_out'),
 
 
 ]

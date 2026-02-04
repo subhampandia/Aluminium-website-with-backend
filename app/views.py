@@ -408,13 +408,24 @@ def get_all_employees(request):
     } for e in Employee.objects.select_related('department', 'designation')]
     return JsonResponse(data, safe=False)
 
+from django.utils import timezone
 
 @login_required(login_url='login')
 def employee_dashboard(request):
     employee = get_object_or_404(Employee, user=request.user)
+    today = timezone.localdate()
+
+    today_attendance = Attendance.objects.filter(
+        employee=employee,
+        date=today
+    ).first()
+
     return render(request, 'employee/employee_dashboard.html', {
-        'employee': employee
+        'employee': employee,
+        'today_attendance': today_attendance,   # ✅ THIS WAS MISSING
     })
+
+    
 @login_required(login_url='login')
 def apply_leave(request):
     employee = get_object_or_404(Employee, user=request.user)
@@ -472,18 +483,36 @@ def admin_leave_action(request, pk, action):
 
     return redirect('admin_leave_list')
 
+from django.utils import timezone
+
 @login_required
 def employee_attendance_history(request):
     employee = request.user.employee_profile
     attendances = Attendance.objects.filter(employee=employee)
 
+    today = timezone.localdate()
+    today_attendance = Attendance.objects.filter(
+        employee=employee,
+        date=today
+    ).first()
+
     return render(
         request,
         'attendance/employee_attendance_history.html',
-        {'attendances': attendances}    
+        {
+            'attendances': attendances,
+            'today_attendance': today_attendance
+        }
     )
+
+from datetime import time
+from django.conf import settings
+
 @login_required
 def punch_in(request):
+    if request.method != "POST":
+        return redirect('employee_dashboard')
+
     employee = request.user.employee_profile
     today = timezone.localdate()
     now_time = timezone.localtime().time()
@@ -495,9 +524,64 @@ def punch_in(request):
 
     if attendance.punch_in:
         messages.warning(request, "You have already punched in today.")
-    else:
-        attendance.punch_in = now_time
-        attendance.save()
-        messages.success(request, "Punch in successful.")
+        return redirect('employee_dashboard')
 
-    return redirect('employee_attendance_history')
+    attendance.punch_in = now_time
+
+    grace_time = time(*settings.ATTENDANCE_GRACE_TIME)
+
+    if now_time > grace_time:
+        attendance.status = 'Late'
+    else:
+        attendance.status = 'Present'
+
+    attendance.save()
+    messages.success(request, "Punch in successful.")
+
+    return redirect('employee_dashboard')
+
+from datetime import datetime
+from django.conf import settings
+
+@login_required
+def punch_out(request):
+    if request.method != "POST":
+        return redirect('employee_dashboard')
+
+    employee = request.user.employee_profile
+    today = timezone.localdate()
+    now_time = timezone.localtime().time()
+
+    try:
+        attendance = Attendance.objects.get(
+            employee=employee,
+            date=today
+        )
+    except Attendance.DoesNotExist:
+        messages.error(request, "You must punch in first.")
+        return redirect('employee_dashboard')
+
+    if attendance.punch_out:
+        messages.warning(request, "You have already punched out today.")
+        return redirect('employee_dashboard')
+
+    attendance.punch_out = now_time
+
+    # calculate working hours
+    in_dt = datetime.combine(today, attendance.punch_in)
+    out_dt = datetime.combine(today, attendance.punch_out)
+
+    diff = out_dt - in_dt
+    hours = round(diff.total_seconds() / 3600, 2)
+    attendance.working_hours = hours
+
+    # FINAL STATUS DECISION
+    if hours < settings.ATTENDANCE_HALF_DAY_HOURS:
+        attendance.status = 'Half Day'
+    elif attendance.status not in ['Late']:
+        attendance.status = 'Present'
+
+    attendance.save()
+    messages.success(request, "Punch out successful.")
+
+    return redirect('employee_dashboard')
