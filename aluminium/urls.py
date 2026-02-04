@@ -57,7 +57,15 @@ urlpatterns = [
     path('leave/manage/<int:pk>/<str:action>/', views.admin_leave_action, name='admin_leave_action'),
     
     # urls.py
-    path('employee/profile/', views.employee_profile, name='employee_profile')
+    path('employee/profile/', views.employee_profile, name='employee_profile'),
+
+    path('attendance/my/',views.employee_attendance_history,name='employee_attendance_history'),
+    path(
+    'attendance/punch-in/',
+    views.punch_in,
+    name='punch_in'
+),
+
 
 
 ]

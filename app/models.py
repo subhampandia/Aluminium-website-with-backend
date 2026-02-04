@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -143,3 +144,26 @@ class Leave(models.Model):
 
     def __str__(self):
         return f"{self.employee.employee_id} - {self.leave_type} ({self.status})"
+
+class Attendance(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="attendance_records"
+    )
+    date = models.DateField(default=timezone.now)
+    punch_in = models.TimeField(null=True, blank=True)
+    punch_out = models.TimeField(null=True, blank=True)
+    working_hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['-date']
+        unique_together = ('employee', 'date')
+
+    def __str__(self):
+        return f"{self.employee} - {self.date}"

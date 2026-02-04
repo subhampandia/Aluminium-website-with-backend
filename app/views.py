@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.http import JsonResponse
 
-from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave
+from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance
 
 
 # ================= AUTH =================
@@ -471,3 +471,33 @@ def admin_leave_action(request, pk, action):
         messages.success(request, f"Leave {leave.status.lower()} successfully")
 
     return redirect('admin_leave_list')
+
+@login_required
+def employee_attendance_history(request):
+    employee = request.user.employee_profile
+    attendances = Attendance.objects.filter(employee=employee)
+
+    return render(
+        request,
+        'attendance/employee_attendance_history.html',
+        {'attendances': attendances}    
+    )
+@login_required
+def punch_in(request):
+    employee = request.user.employee_profile
+    today = timezone.localdate()
+    now_time = timezone.localtime().time()
+
+    attendance, created = Attendance.objects.get_or_create(
+        employee=employee,
+        date=today
+    )
+
+    if attendance.punch_in:
+        messages.warning(request, "You have already punched in today.")
+    else:
+        attendance.punch_in = now_time
+        attendance.save()
+        messages.success(request, "Punch in successful.")
+
+    return redirect('employee_attendance_history')
