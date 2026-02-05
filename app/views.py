@@ -154,13 +154,30 @@ def employee_list(request):
     })
 
 
+def generate_employee_id():
+    year = timezone.now().year % 100  # 2026 → 26
+    prefix = f"EMP{year}"
+
+    last_employee = Employee.objects.filter(
+        employee_id__startswith=prefix
+    ).order_by('-employee_id').first()
+
+    if last_employee:
+        last_number = int(last_employee.employee_id[-4:])
+        new_number = last_number + 1
+    else:
+        new_number = 1
+
+    return f"{prefix}{new_number:04d}"
+
 @login_required(login_url='login')
 def employee_add(request):
     departments = Department.objects.all()
     designations = Designation.objects.all()
 
-    if request.method == 'POST':
+    generated_emp_id = generate_employee_id()
 
+    if request.method == 'POST':
         # CREATE USER
         username = request.POST.get('user_id')
         password = request.POST.get('password')
@@ -187,7 +204,7 @@ def employee_add(request):
             email=request.POST.get('email'),
             contact_no=request.POST.get('contact_no'),
             emergency_contact=request.POST.get('emergency_contact'),
-            employee_id=request.POST.get('employee_id'),
+            employee_id=generated_emp_id,
             department_id=request.POST.get('department'),
             designation_id=request.POST.get('designation'),
             bachelor_degree=request.POST.get('bachelor_degree'),
@@ -211,7 +228,9 @@ def employee_add(request):
 
     return render(request, 'employee/employee_add.html', {
         'departments': departments,
-        'designations': designations
+        'designations': designations,
+        'generated_emp_id': generated_emp_id,  # ✅ REQUIRED
+
     })
 
 
@@ -396,6 +415,28 @@ def shift_assign_edit(request, pk):
         'assignment': assignment,
         'shifts': Shift.objects.filter(is_active=True)
     })
+@login_required
+def employee_shift_details(request):
+    employee = request.user.employee_profile
+
+    active_shift = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=True
+    ).select_related('shift').first()
+
+    shift_history = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=False
+    ).select_related('shift')
+
+    return render(
+        request,
+        'employee/employee_shift_details.html',
+        {
+            'active_shift': active_shift,
+            'shift_history': shift_history
+        }
+    )
 
 
 # ================= AJAX =================
@@ -486,48 +527,49 @@ def admin_leave_action(request, pk, action):
 
     return redirect('admin_leave_list')
 
-from django.utils import timezone
-
 @login_required
 def employee_attendance_history(request):
     employee = request.user.employee_profile
-    attendances = Attendance.objects.filter(employee=employee).order_by('-date')
 
-    # 👇 Calendar events
-    events = []
+    attendances = Attendance.objects.filter(employee=employee)
+    leaves = Leave.objects.filter(employee=employee, status='Approved')
+
+    rows = {}
+
+    # Attendance rows
     for att in attendances:
-        color = '#198754'  # Present
+        rows[att.date] = {
+            'date': att.date,
+            'punch_in': att.punch_in,
+            'punch_out': att.punch_out,
+            'hours': att.working_hours,
+            'status': att.status
+        }
 
-        if att.status == 'Late':
-            color = '#ffc107'
-        elif att.status == 'Half Day':
-            color = '#dc3545'
-        elif att.status == 'Absent':
-            color = '#212529'
-
-        events.append({
-            'title': att.status,
-            'start': att.date.strftime('%Y-%m-%d'),
-            'color': color,
-            'extendedProps': {
-                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
-                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
-                'hours': att.working_hours if att.working_hours else '-',
-                'status': att.status,
+    # Leave rows (override attendance)
+    for leave in leaves:
+        current = leave.start_date
+        while current <= leave.end_date:
+            rows[current] = {
+                'date': current,
+                'punch_in': None,
+                'punch_out': None,
+                'hours': None,
+                'status': 'Leave'
             }
-        })
+            current += timedelta(days=1)
+
+    # Sort by date (latest first)
+    history = sorted(rows.values(), key=lambda x: x['date'], reverse=True)
 
     return render(
         request,
         'attendance/employee_attendance_history.html',
         {
-            'attendances': attendances,
-            'events': events
+            'history': history
         }
     )
 
-from datetime import time
-from django.conf import settings
 
 @login_required
 def punch_in(request):
@@ -537,6 +579,16 @@ def punch_in(request):
     employee = request.user.employee_profile
     today = timezone.localdate()
     now_time = timezone.localtime().time()
+
+    # 🔹 Check approved leave
+    if Leave.objects.filter(
+        employee=employee,
+        start_date__lte=today,
+        end_date__gte=today,
+        status='Approved'
+    ).exists():
+        messages.error(request, "You are on approved leave today.")
+        return redirect('employee_dashboard')
 
     # 🔹 Get active shift
     shift_assignment = ShiftAssignment.objects.filter(
@@ -550,6 +602,22 @@ def punch_in(request):
 
     shift = shift_assignment.shift
 
+    # 🔹 Punch-in time window
+    shift_start_dt = datetime.combine(today, shift.start_time)
+
+    early_limit = shift_start_dt - timedelta(
+        minutes=settings.PUNCH_EARLY_MINUTES
+    )
+    late_limit = shift_start_dt + timedelta(
+        minutes=settings.PUNCH_LATE_MINUTES
+    )
+
+    now_dt = datetime.combine(today, now_time)
+
+    if not (early_limit <= now_dt <= late_limit):
+        messages.error("Punch-in not allowed at this time.")
+        return redirect('employee_dashboard')
+
     attendance, created = Attendance.objects.get_or_create(
         employee=employee,
         date=today
@@ -561,13 +629,10 @@ def punch_in(request):
 
     attendance.punch_in = now_time
 
-    # 🔹 Calculate late based on shift
-    shift_start_dt = datetime.combine(today, shift.start_time)
+    # 🔹 Late calculation (shift-based)
     grace_dt = shift_start_dt + timedelta(
         minutes=settings.SHIFT_GRACE_MINUTES
     )
-
-    now_dt = datetime.combine(today, now_time)
 
     if now_dt > grace_dt:
         attendance.status = 'Late'
@@ -577,7 +642,8 @@ def punch_in(request):
     attendance.save()
     messages.success(request, "Punch in successful.")
 
-    return redirect('employee_dashboard')       
+    return redirect('employee_dashboard')
+    
 
 
 from decimal import Decimal
@@ -634,6 +700,45 @@ def punch_out(request):
 
     return redirect('employee_dashboard')
 
+
+def get_calendar_events(employee):
+    events = {}
+    color_map = {
+        'Present': '#198754',
+        'Late': '#ffc107',
+        'Half Day': '#212529',
+        'Absent': '#dc3545',
+        'Leave': '#0dcaf0',
+    }
+
+    attendances = Attendance.objects.filter(employee=employee)
+    for att in attendances:
+        events[str(att.date)] = {
+            'title': att.status,
+            'start': att.date.strftime('%Y-%m-%d'),
+            'color': color_map.get(att.status),
+            'extendedProps': {
+                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
+                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
+                'hours': float(att.working_hours) if att.working_hours else None,
+                'status': att.status,
+            }
+        }
+
+    leaves = Leave.objects.filter(employee=employee, status='Approved')
+    for leave in leaves:
+        current = leave.start_date
+        while current <= leave.end_date:
+            events[str(current)] = {
+                'title': 'Leave',
+                'start': current.strftime('%Y-%m-%d'),
+                'color': color_map['Leave'],
+                'extendedProps': {'status': 'Leave'}
+            }
+            current += timedelta(days=1)
+
+    return list(events.values())
+
 @staff_member_required
 def admin_employee_attendance_list(request):
     employees = Employee.objects.all().order_by('employee_id')
@@ -642,120 +747,74 @@ def admin_employee_attendance_list(request):
         'admin/attendance/employee_list.html',
         {'employees': employees}
     )
-from .models import Attendance
-from django.shortcuts import get_object_or_404
 
 @staff_member_required
 def admin_employee_attendance_detail(request, emp_id):
     employee = get_object_or_404(Employee, id=emp_id)
 
-    attendances = Attendance.objects.filter(
-        employee=employee
-    ).order_by('-date')
+    attendances = Attendance.objects.filter(employee=employee)
+    leaves = Leave.objects.filter(employee=employee, status='Approved')
+
+    rows = {}
+
+    # Attendance
+    for att in attendances:
+        rows[att.date] = {
+            'date': att.date,
+            'punch_in': att.punch_in,
+            'punch_out': att.punch_out,
+            'hours': att.working_hours,
+            'status': att.status
+        }
+
+    # Leave (override)
+    current_dates = set()
+    for leave in leaves:
+        current = leave.start_date
+        while current <= leave.end_date:
+            rows[current] = {
+                'date': current,
+                'punch_in': None,
+                'punch_out': None,
+                'hours': None,
+                'status': 'Leave'
+            }
+            current += timedelta(days=1)
+
+    history = sorted(rows.values(), key=lambda x: x['date'], reverse=True)
 
     return render(
         request,
         'admin/attendance/employee_attendance_detail.html',
         {
             'employee': employee,
-            'attendances': attendances
+            'history': history
         }
     )
+
 
 @staff_member_required
 def admin_employee_attendance_calendar(request, emp_id):
     employee = get_object_or_404(Employee, id=emp_id)
-    attendances = Attendance.objects.filter(employee=employee)
-
-    events = []
-    for att in attendances:
-        color = '#198754'  # green = Present
-
-        if att.status == 'Late':
-            color = '#ffc107'
-        elif att.status == 'Half Day':
-            color = '#dc3545'
-        elif att.status == 'Absent':
-            color = '#212529'
-
-        events.append({
-            'title': att.status,
-            'start': att.date.strftime('%Y-%m-%d'),
-            'color': color,
-            
-            'extendedProps': {
-            'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
-            'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
-            'hours': att.working_hours if att.working_hours else '-',
-            'status': att.status,
-            }
-        })
+    events = get_calendar_events(employee)
 
     return render(
         request,
         'admin/attendance/employee_calendar.html',
-        {
-            'employee': employee,
-            'events': events
-        }
+        {'employee': employee, 'events': events}
     )
-    
+
+
 @login_required
 def employee_attendance_calendar(request):
     employee = request.user.employee_profile
-    attendances = Attendance.objects.filter(employee=employee)
-
-    events = []
-    for att in attendances:
-        color = '#198754'  # Present (green)
-
-        if att.status == 'Late':
-            color = '#ffc107'
-        elif att.status == 'Half Day':
-            color = '#dc3545'
-        elif att.status == 'Absent':
-            color = '#212529'
-
-        events.append({
-            'title': att.status,
-            'start': att.date.strftime('%Y-%m-%d'),
-            'color': color,
-            'extendedProps': {
-                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
-                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
-                'hours': att.working_hours if att.working_hours else '-',
-                'status': att.status,
-            }
-        })
+    events = get_calendar_events(employee)
 
     return render(
         request,
         'employee/attendance_calendar.html',
-        {
-            'events': events
-        }
+        {'events': events}
     )
-@login_required
-def employee_shift_details(request):
-    employee = request.user.employee_profile
 
-    # Active shift
-    active_shift = ShiftAssignment.objects.filter(
-        employee=employee,
-        is_active=True
-    ).select_related('shift').first()
 
-    # Shift history (optional but good)
-    shift_history = ShiftAssignment.objects.filter(
-        employee=employee,
-        is_active=False
-    ).select_related('shift')
 
-    return render(
-        request,
-        'employee/employee_shift_details.html',
-        {
-            'active_shift': active_shift,
-            'shift_history': shift_history
-        }
-    )

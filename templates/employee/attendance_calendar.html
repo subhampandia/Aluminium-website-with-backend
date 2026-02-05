@@ -29,45 +29,40 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    const events = {{ events|safe }};
+document.addEventListener('DOMContentLoaded', function () {
+  const calendarEl = document.getElementById('calendar');
+  const modalEl = document.getElementById('attendanceModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      height: 'auto',
-      events: events,
+const events = {{ events|default:"[]"|safe }};
 
-      dateClick: function (info) {
-        const event = events.find(e => e.start === info.dateStr);
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    events: events,
 
-        if (event) {
-          showModal(info.dateStr, event.extendedProps);
-        } else {
-          showModal(info.dateStr, {
-            punch_in: '-',
-            punch_out: '-',
-            hours: '-',
-            status: 'No Attendance'
-          });
-        }
+    dateClick: function (info) {
+      const event = events.find(e => e.start === info.dateStr);
+
+      if (event && event.extendedProps) {
+        updateModal(info.dateStr, event.extendedProps);
+      } else {
+        updateModal(info.dateStr, {});
       }
-    });
-
-    calendar.render();
-
-    function showModal(date, data) {
-      document.getElementById('modalDate').innerText = date;
-      document.getElementById('modalPunchIn').innerText = data.punch_in;
-      document.getElementById('modalPunchOut').innerText = data.punch_out;
-      document.getElementById('modalHours').innerText = data.hours;
-      document.getElementById('modalStatus').innerText = data.status;
-
-      new bootstrap.Modal(
-        document.getElementById('attendanceModal')
-      ).show();
+      modal.show();
     }
   });
+
+  calendar.render();
+
+  function updateModal(date, data) {
+    document.getElementById('modalDate').innerText = date;
+    document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
+    document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
+    document.getElementById('modalHours').innerText = data.hours || '-';
+    document.getElementById('modalStatus').innerText = data.status || 'No Attendance';
+  }
+});
 </script>
 
 {% endblock %}

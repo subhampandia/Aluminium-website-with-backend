@@ -165,6 +165,8 @@ class Attendance(models.Model):
         ('Present', 'Present'),
         ('Late', 'Late'),
         ('Half Day', 'Half Day'),
+        ('Absent', 'Absent'),   # ✅ ADD THIS
+
     ],
     default='Present')
     class Meta:
@@ -174,4 +176,23 @@ class Attendance(models.Model):
     def __str__(self):
         return f"{self.employee} - {self.date}"
     
+class Salary(models.Model):
+    employee = models.OneToOneField(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='salary'
+    )
+
+    basic = models.DecimalField(max_digits=10, decimal_places=2)
+    hra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def total_salary(self):
+        return self.basic + self.hra + self.allowance
+
+    def __str__(self):
+        return f"Salary - {self.employee.employee_id}"
 

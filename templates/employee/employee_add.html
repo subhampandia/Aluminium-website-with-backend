@@ -325,9 +325,15 @@
       <h6 class="text-primary mb-2">Work Details</h6>
       <div class="row g-3 mb-3">
         <div class="col-md-4">
-          <label>Employee ID *</label>
-          <input type="text" name="employee_id" class="form-control" required />
+          <label class="form-label">Employee ID</label>
+          <input
+            type="text"
+            class="form-control"
+            value="{{ generated_emp_id }}"
+            readonly
+          />
         </div>
+
         <div class="col-md-4">
           <label>Date of Joining</label>
           <input

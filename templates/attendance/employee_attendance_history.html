@@ -1,17 +1,7 @@
 {% extends 'employee/base_employee_dashboard.html' %}
-{% load static %}
 {% block content %}
-<h3>My Attendance History</h3>
 
-{% if messages %} {% for message in messages %}
-<div
-  class="alert alert-{{ message.tags }} alert-dismissible fade show"
-  role="alert"
->
-  {{ message }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-{% endfor %} {% endif %}
+<h3>My Attendance History</h3>
 
 <table class="table table-bordered">
   <thead>
@@ -19,38 +9,30 @@
       <th>Date</th>
       <th>Punch In</th>
       <th>Punch Out</th>
-      <th>Working Hours</th>
+      <th>Hours</th>
       <th>Status</th>
     </tr>
   </thead>
   <tbody>
-    {% for a in attendances %}
+    {% for a in history %}
     <tr>
       <td>{{ a.date }}</td>
       <td>{{ a.punch_in|default:"-" }}</td>
       <td>{{ a.punch_out|default:"-" }}</td>
-      <td>{{ a.working_hours|default:"-" }}</td>
-      <td>
-        <span
-          class="badge {% if a.status == 'Late' %}bg-warning {% elif a.status == 'Half Day' %}bg-danger {% else %}bg-success{% endif %}"
-        >
-          {{ a.status }}
-        </span>
-      </td>
-    </tr>
-
-    {% empty %}
-    <tr>
-      <td colspan="4" class="text-center">No attendance records</td>
+      <td>{{ a.hours|default:"-" }}</td>
+      <td>{{ a.status }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-<hr class="my-4">
 
-<h4 class="mb-3">Attendance Calendar</h4>
+<hr class="my-4">
+<h4>Attendance Calendar</h4>
 
 <div id="calendar"></div>
+
+<!-- reuse SAME modal + JS as Template 1 -->
+ <!-- Modal -->
 <div class="modal fade" id="attendanceModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -68,49 +50,46 @@
     </div>
   </div>
 </div>
+
+<!-- FullCalendar -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    const events = {{ events|safe }};
+document.addEventListener('DOMContentLoaded', function () {
+  const calendarEl = document.getElementById('calendar');
+  const modalEl = document.getElementById('attendanceModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      height: 'auto',
-      events: events,
+const events = {{ events|default:"[]"|safe }};
 
-      dateClick: function (info) {
-        const event = events.find(e => e.start === info.dateStr);
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    events: events,
 
-        if (event) {
-          showModal(info.dateStr, event.extendedProps);
-        } else {
-          showModal(info.dateStr, {
-            punch_in: '-',
-            punch_out: '-',
-            hours: '-',
-            status: 'No Attendance'
-          });
-        }
+    dateClick: function (info) {
+      const event = events.find(e => e.start === info.dateStr);
+
+      if (event && event.extendedProps) {
+        updateModal(info.dateStr, event.extendedProps);
+      } else {
+        updateModal(info.dateStr, {});
       }
-    });
-
-    calendar.render();
-
-    function showModal(date, data) {
-      document.getElementById('modalDate').innerText = date;
-      document.getElementById('modalPunchIn').innerText = data.punch_in;
-      document.getElementById('modalPunchOut').innerText = data.punch_out;
-      document.getElementById('modalHours').innerText = data.hours;
-      document.getElementById('modalStatus').innerText = data.status;
-
-      new bootstrap.Modal(
-        document.getElementById('attendanceModal')
-      ).show();
+      modal.show();
     }
   });
+
+  calendar.render();
+
+  function updateModal(date, data) {
+    document.getElementById('modalDate').innerText = date;
+    document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
+    document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
+    document.getElementById('modalHours').innerText = data.hours || '-';
+    document.getElementById('modalStatus').innerText = data.status || 'No Attendance';
+  }
+});
 </script>
 
 {% endblock %}
