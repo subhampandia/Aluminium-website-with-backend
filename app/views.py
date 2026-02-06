@@ -469,6 +469,9 @@ def employee_dashboard(request):
         'today_attendance': today_attendance,   # ✅ THIS WAS MISSING
     })
 
+
+# ================= LEAVE  =================
+
     
 @login_required(login_url='login')
 def apply_leave(request):
@@ -486,6 +489,8 @@ def apply_leave(request):
         return redirect('my_leaves')
 
     return render(request, 'employee/apply_leave.html')
+
+
 @login_required(login_url='login')
 def my_leaves(request):
     employee = get_object_or_404(Employee, user=request.user)
@@ -526,6 +531,10 @@ def admin_leave_action(request, pk, action):
         messages.success(request, f"Leave {leave.status.lower()} successfully")
 
     return redirect('admin_leave_list')
+
+
+# ================= ATTENDANCE =================
+
 
 @login_required
 def employee_attendance_history(request):
@@ -569,6 +578,8 @@ def employee_attendance_history(request):
             'history': history
         }
     )
+
+# ================= PUNCH IN =================
 
 
 @login_required
@@ -615,7 +626,7 @@ def punch_in(request):
     now_dt = datetime.combine(today, now_time)
 
     if not (early_limit <= now_dt <= late_limit):
-        messages.error("Punch-in not allowed at this time.")
+        messages.error(request, "Punch-in not allowed at this time.")
         return redirect('employee_dashboard')
 
     attendance, created = Attendance.objects.get_or_create(
@@ -644,6 +655,7 @@ def punch_in(request):
 
     return redirect('employee_dashboard')
     
+# ================= PUNCH OUT =================
 
 
 from decimal import Decimal
@@ -816,5 +828,70 @@ def employee_attendance_calendar(request):
         {'events': events}
     )
 
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import localdate
+from datetime import date
+import calendar
+
+from app.models import Employee
+from .models import Attendance
+from .utils import get_working_days_of_month, get_used_pl
+
+
+@login_required
+def process_attendance_view(request):
+    employees = Employee.objects.all().order_by('employee_id')
+
+    selected_employee = None
+    summary = None
+    records = Attendance.objects.none()
+    used_pl = 0
+    # 🔹 Month & Year (default = current)
+    today = localdate()
+    selected_month = int(request.GET.get('month', today.month))
+    selected_year = int(request.GET.get('year', today.year))
+
+    emp_id = request.GET.get('employee_id')
+
+    if emp_id:
+        selected_employee = Employee.objects.get(id=emp_id)
+
+        records = Attendance.objects.filter(
+            employee=selected_employee,
+            date__year=selected_year,
+            date__month=selected_month,
+            is_processed=True
+        )
+
+        used_pl = get_used_pl(
+        selected_employee,
+        date(selected_year, selected_month, 1)
+        )
+
+    summary = {
+        'working_days': get_working_days_of_month(selected_year, selected_month),
+        'present_days': records.filter(status__in=['Present', 'Late']).count(),
+        'lwp_days': records.filter(status='LWP').count(),
+        'absent_days': records.filter(status='Absent').count(),
+
+    # 🔹 LWP balance
+        'lwp_used': used_pl,
+        'lwp_limit': settings.PL_LIMIT_PER_MONTH,
+        'lwp_remaining': max(
+        settings.PL_LIMIT_PER_MONTH - used_pl, 0
+    ),
+    }
+
+    context = {
+        'employees': employees,
+        'selected_employee': selected_employee,
+        'summary': summary,
+        'selected_month': selected_month,
+        'selected_year': selected_year,
+        'months': list(enumerate(calendar.month_name))[1:],  # [(1, Jan), ...]
+        'years': range(today.year - 1, today.year + 4),      # last 3 years
+    }
+
+    return render(request, 'attendance/process_attendance.html', context)
 
 

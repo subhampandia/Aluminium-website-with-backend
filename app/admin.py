@@ -6,6 +6,8 @@ from .models import (
     Shift,
     ShiftAssignment,
     Attendance,
+    Holiday,
+    Leave
 )
 
 # ------------------------
@@ -87,7 +89,34 @@ class AttendanceAdmin(admin.ModelAdmin):
         'punch_out',
         'working_hours',
         'status',
+        'is_processed'
     )
     list_filter = ('status', 'date')
-    search_fields = ('employee__employee_id',)
+    search_fields = ('employee__employee_id','employee_first_name')
     date_hierarchy = 'date'
+
+# ------------------------
+# Holiday
+# ------------------------
+
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date')
+    list_filter = ('date',)
+    
+    
+# ------------------------
+# Leave
+# ------------------------    
+    
+@admin.register(Leave)
+class LeaveAdmin(admin.ModelAdmin):
+    list_display = (
+        'employee',
+        'leave_type',
+        'start_date',
+        'end_date',
+        'status'
+    )
+    list_filter = ('leave_type', 'status')
+    search_fields = ('employee__employee_id', 'employee__first_name')

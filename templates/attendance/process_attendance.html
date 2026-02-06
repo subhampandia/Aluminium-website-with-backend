@@ -1,0 +1,88 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Process Attendance{% endblock %}
+
+{% block content %}
+
+<h4 class="mb-3">Process Attendance</h4>
+
+<form method="get" class="row mb-4">
+  <div class="col-md-4">
+    <label class="form-label">Employee</label>
+    <select name="employee_id" class="form-select" onchange="this.form.submit()">
+      <option value="">-- Select Employee --</option>
+      {% for emp in employees %}
+        <option value="{{ emp.id }}"
+          {% if selected_employee and emp.id == selected_employee.id %}selected{% endif %}>
+          {{ emp.employee_id }} - {{ emp.first_name }} {{ emp.last_name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Month</label>
+    <select name="month" class="form-select" onchange="this.form.submit()">
+      {% for num, name in months %}
+        <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>
+          {{ name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Year</label>
+    <select name="year" class="form-select" onchange="this.form.submit()">
+      {% for y in years %}
+        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+          {{ y }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+{% if selected_employee %}
+<div class="card">
+  <div class="card-body">
+
+    <h5>{{ selected_employee.first_name }} {{ selected_employee.last_name }}</h5>
+    <p class="mb-1"><strong>Employee ID:</strong> {{ selected_employee.employee_id }}</p>
+    <p class="mb-3"><strong>Department:</strong> {{ selected_employee.department.name }}</p>
+
+    <hr>
+
+    <div class="row text-center mb-3">
+  <div class="col-md-3">
+    <div class="fw-bold">Working Days</div>
+    <div>{{ summary.working_days }}</div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="fw-bold">Present</div>
+    <div>{{ summary.present_days }}</div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="fw-bold">LWP (Paid)</div>
+    <div>{{ summary.lwp_days }}</div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="fw-bold">Absent</div>
+    <div>{{ summary.absent_days }}</div>
+  </div>
+</div>
+<div class="alert alert-info text-center">
+  <strong>LWP Balance:</strong>
+  {{ summary.lwp_used }} / {{ summary.lwp_limit }}
+  &nbsp; | &nbsp;
+  <strong>Remaining:</strong> {{ summary.lwp_remaining }}
+</div>
+
+
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

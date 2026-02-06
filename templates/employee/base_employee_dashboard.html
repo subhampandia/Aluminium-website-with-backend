@@ -169,6 +169,16 @@
           </div>
         </div>
       </nav>
+      {% if messages %}
+<div class="container-fluid px-4 mt-3">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
 
       <!-- PAGE CONTENT -->
       {% block content %}{% endblock %}
@@ -214,6 +224,12 @@
           content.style.marginLeft = "0";
         }
       }
+      setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+      alert.classList.remove('show');
+      alert.classList.add('fade');
+    });
+  }, 3000);
     </script>
   </body>
 </html>

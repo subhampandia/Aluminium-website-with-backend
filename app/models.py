@@ -150,31 +150,43 @@ class Attendance(models.Model):
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE,
-        related_name="attendance_records")
-    date = models.DateField(default=timezone.now)
+        related_name="attendance_records"
+    )
+
+    date = models.DateField(default=timezone.localdate)
+
     punch_in = models.TimeField(null=True, blank=True)
     punch_out = models.TimeField(null=True, blank=True)
+
     working_hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         null=True,
-        blank=True)
-    status = models.CharField(
-    max_length=20,
-    choices=[
-        ('Present', 'Present'),
-        ('Late', 'Late'),
-        ('Half Day', 'Half Day'),
-        ('Absent', 'Absent'),   # ✅ ADD THIS
+        blank=True
+    )
 
-    ],
-    default='Present')
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('Present', 'Present'),
+            ('Late', 'Late'),
+            ('Half Day', 'Half Day'),
+            ('LWP', 'Leave With Pay'),
+            ('Leave', 'Leave'),
+            ('Holiday', 'Holiday'),
+            ('Absent', 'Absent'),
+        ],
+        default='Absent'
+    )
+
+    is_processed = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-date']
         unique_together = ('employee', 'date')
 
     def __str__(self):
-        return f"{self.employee} - {self.date}"
+        return f"{self.employee.employee_id} - {self.date} - {self.status}"
     
 class Salary(models.Model):
     employee = models.OneToOneField(
@@ -196,3 +208,11 @@ class Salary(models.Model):
     def __str__(self):
         return f"Salary - {self.employee.employee_id}"
 
+
+
+class Holiday(models.Model):
+    name = models.CharField(max_length=100)
+    date = models.DateField(unique=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.date}"

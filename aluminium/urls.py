@@ -87,6 +87,7 @@ urlpatterns = [
     name='employee_shift_details'
 ),
 
+    path('attendance/process/', views.process_attendance_view, name='process_attendance'),
 
 
 ]
