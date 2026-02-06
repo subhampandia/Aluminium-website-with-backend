@@ -110,6 +110,8 @@ body {
       .toggle-btn:hover {
         transform: scale(1.2);
       }
+      /* Remove dropdown arrow */
+
 
       /* CONTENT */
       .content {
@@ -183,4 +185,13 @@ body {
 
 .form-label {
   margin-bottom: 4px;
+}
+/* Remove Bootstrap dropdown arrow */
+.profile-toggle::after {
+  display: none !important;
+}
+
+/* Optional: cleaner click feel */
+.profile-toggle {
+  padding: 0;
 }
