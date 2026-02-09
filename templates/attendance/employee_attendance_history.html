@@ -74,21 +74,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const modalEl = document.getElementById('attendanceModal');
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-const events = {{ events|default:"[]"|safe }};
+  const events = {{ events|default:"[]"|safe }};
 
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     height: 'auto',
     events: events,
 
-    dateClick: function (info) {
-      const event = events.find(e => e.start === info.dateStr);
+    eventClick: function (info) {
+      updateModal(
+        info.event.startStr,
+        info.event.extendedProps
+      );
+      modal.show();
+    },
 
-      if (event && event.extendedProps) {
-        updateModal(info.dateStr, event.extendedProps);
-      } else {
-        updateModal(info.dateStr, {});
-      }
+    dateClick: function (info) {
+      updateModal(info.dateStr, {});
       modal.show();
     }
   });
@@ -99,26 +101,32 @@ const events = {{ events|default:"[]"|safe }};
     document.getElementById('modalDate').innerText = date;
     document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
     document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
-    document.getElementById('modalHours').innerText = data.working_hours || '-';
-const statusEl = document.getElementById('modalStatus');
+    document.getElementById('modalHours').innerText =
+      data.working_hours !== undefined && data.working_hours !== null
+        ? data.working_hours
+        : '-';
 
-if (!data.status) {
-  statusEl.innerHTML = '<span class="badge bg-light text-dark">No Attendance</span>';
-} else {
-  const status = data.status;
-  let cls = 'bg-success';
+    const statusEl = document.getElementById('modalStatus');
 
-  if (status === 'Late') cls = 'bg-warning text-dark';
-  else if (status === 'Half Day') cls = 'bg-secondary';
-  else if (status === 'Absent') cls = 'bg-danger';
-  else if (status === 'Leave') cls = 'bg-info text-dark';
-  else if (status === 'LWP') cls = 'bg-primary';
-  else if (status === 'Holiday') cls = 'bg-dark';
+    if (!data.status) {
+      statusEl.innerHTML =
+        '<span class="badge bg-light text-dark">No Attendance</span>';
+    } else {
+      const status = data.status;
+      let cls = 'bg-success';
 
-  statusEl.innerHTML = `<span class="badge ${cls}">${status}</span>`;
-}
+      if (status === 'Late') cls = 'bg-warning text-dark';
+      else if (status === 'Half Day') cls = 'bg-secondary';
+      else if (status === 'Absent') cls = 'bg-danger';
+      else if (status === 'Leave') cls = 'bg-info text-dark';
+      else if (status === 'LWP') cls = 'bg-primary';
+      else if (status === 'Holiday') cls = 'bg-dark';
+
+      statusEl.innerHTML = `<span class="badge ${cls}">${status}</span>`;
+    }
   }
 });
 </script>
+
 
 {% endblock %}

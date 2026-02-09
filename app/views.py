@@ -746,6 +746,8 @@ def get_calendar_events(employee):
         'Half Day': '#212529',
         'Absent': '#dc3545',
         'Leave': '#0dcaf0',
+        'Holiday': "#0FF845",
+
     }
 
     attendances = Attendance.objects.filter(employee=employee)
@@ -757,7 +759,7 @@ def get_calendar_events(employee):
             'extendedProps': {
                     'punch_in': att.punch_in.strftime('%I:%M %p') if att.punch_in else '-',
                     'punch_out': att.punch_out.strftime('%I:%M %p') if att.punch_out else '-',
-                    'working_hours': float(att.working_hours) if att.working_hours else None,
+                    'working_hours': float(att.working_hours) if att.working_hours else 0,
                     'status': att.status,
                 }
         }

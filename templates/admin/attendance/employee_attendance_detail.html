@@ -1,4 +1,5 @@
-{% extends 'base_dashboard.html' %} {% block content %}
+{% extends 'base_dashboard.html' %}
+{% block content %}
 
 <h3 class="mb-3">
   Attendance – {{ employee.full_name }} ({{ employee.employee_id }})
@@ -21,23 +22,24 @@
       <td>{{ a.punch_in|date:"d M Y, h:i A"|default:"-" }}</td>
       <td>{{ a.punch_out|date:"d M Y, h:i A"|default:"-" }}</td>
       <td>
-        {% if a.working_hours %} {{ a.working_hours }} hrs {% else %} - {% endif
-        %}
+        {% if a.working_hours %}
+          {{ a.working_hours }} hrs
+        {% else %}
+          -
+        {% endif %}
       </td>
-
       <td>
         <span class="badge
-  {% if a.status == 'Present' %}bg-success
-  {% elif a.status == 'Late' %}bg-warning text-dark
-  {% elif a.status == 'Half Day' %}bg-secondary
-  {% elif a.status == 'Absent' %}bg-danger
-  {% elif a.status == 'Leave' %}bg-info text-dark
-  {% elif a.status == 'LWP' %}bg-primary
-  {% elif a.status == 'Holiday' %}bg-dark
-  {% else %}bg-light text-dark{% endif %}">
-  {{ a.status }}
-</span>
-
+          {% if a.status == 'Present' %}bg-success
+          {% elif a.status == 'Late' %}bg-warning text-dark
+          {% elif a.status == 'Half Day' %}bg-secondary
+          {% elif a.status == 'Absent' %}bg-danger
+          {% elif a.status == 'Leave' %}bg-info text-dark
+          {% elif a.status == 'LWP' %}bg-primary
+          {% elif a.status == 'Holiday' %}bg-dark
+          {% else %}bg-light text-dark{% endif %}">
+          {{ a.status }}
+        </span>
       </td>
     </tr>
     {% empty %}
