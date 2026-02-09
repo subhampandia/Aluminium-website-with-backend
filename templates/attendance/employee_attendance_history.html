@@ -17,10 +17,23 @@
     {% for a in history %}
     <tr>
       <td>{{ a.date }}</td>
-      <td>{{ a.punch_in|default:"-" }}</td>
-      <td>{{ a.punch_out|default:"-" }}</td>
-      <td>{{ a.hours|default:"-" }}</td>
-      <td>{{ a.status }}</td>
+    <td>{{ a.punch_in|date:"d M Y, h:i A"|default:"-" }}</td>
+<td>{{ a.punch_out|date:"d M Y, h:i A"|default:"-" }}</td>
+
+<td>{{ a.working_hours|default:"-" }}</td>
+<td>
+  <span class="badge
+    {% if a.status == 'Present' %}bg-success
+    {% elif a.status == 'Late' %}bg-warning text-dark
+    {% elif a.status == 'Half Day' %}bg-secondary
+    {% elif a.status == 'Absent' %}bg-danger
+    {% elif a.status == 'Leave' %}bg-info text-dark
+    {% elif a.status == 'LWP' %}bg-primary
+    {% elif a.status == 'Holiday' %}bg-dark
+    {% else %}bg-light text-dark{% endif %}">
+    {{ a.status }}
+  </span>
+</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -86,8 +99,24 @@ const events = {{ events|default:"[]"|safe }};
     document.getElementById('modalDate').innerText = date;
     document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
     document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
-    document.getElementById('modalHours').innerText = data.hours || '-';
-    document.getElementById('modalStatus').innerText = data.status || 'No Attendance';
+    document.getElementById('modalHours').innerText = data.working_hours || '-';
+const statusEl = document.getElementById('modalStatus');
+
+if (!data.status) {
+  statusEl.innerHTML = '<span class="badge bg-light text-dark">No Attendance</span>';
+} else {
+  const status = data.status;
+  let cls = 'bg-success';
+
+  if (status === 'Late') cls = 'bg-warning text-dark';
+  else if (status === 'Half Day') cls = 'bg-secondary';
+  else if (status === 'Absent') cls = 'bg-danger';
+  else if (status === 'Leave') cls = 'bg-info text-dark';
+  else if (status === 'LWP') cls = 'bg-primary';
+  else if (status === 'Holiday') cls = 'bg-dark';
+
+  statusEl.innerHTML = `<span class="badge ${cls}">${status}</span>`;
+}
   }
 });
 </script>

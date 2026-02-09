@@ -59,7 +59,7 @@ const events = {{ events|default:"[]"|safe }};
     document.getElementById('modalDate').innerText = date;
     document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
     document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
-    document.getElementById('modalHours').innerText = data.hours || '-';
+    document.getElementById('modalHours').innerText = data.working_hours || '-';
     document.getElementById('modalStatus').innerText = data.status || 'No Attendance';
   }
 });

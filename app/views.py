@@ -10,7 +10,12 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.http import JsonResponse
+from django.utils.timezone import localdate
+from datetime import date
+import calendar
+from decimal import Decimal
 
+from .utils import get_working_days_of_month, get_used_pl
 from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance
 
 
@@ -452,7 +457,6 @@ def get_all_employees(request):
     } for e in Employee.objects.select_related('department', 'designation')]
     return JsonResponse(data, safe=False)
 
-from django.utils import timezone
 
 @login_required(login_url='login')
 def employee_dashboard(request):
@@ -551,7 +555,7 @@ def employee_attendance_history(request):
             'date': att.date,
             'punch_in': att.punch_in,
             'punch_out': att.punch_out,
-            'hours': att.working_hours,
+            'working_hours': att.working_hours,
             'status': att.status
         }
 
@@ -563,7 +567,7 @@ def employee_attendance_history(request):
                 'date': current,
                 'punch_in': None,
                 'punch_out': None,
-                'hours': None,
+                'working_hours': None,
                 'status': 'Leave'
             }
             current += timedelta(days=1)
@@ -638,7 +642,7 @@ def punch_in(request):
         messages.warning(request, "You have already punched in today.")
         return redirect('employee_dashboard')
 
-    attendance.punch_in = now_time
+    attendance.punch_in = timezone.now()
 
     # 🔹 Late calculation (shift-based)
     grace_dt = shift_start_dt + timedelta(
@@ -658,8 +662,6 @@ def punch_in(request):
 # ================= PUNCH OUT =================
 
 
-from decimal import Decimal
-
 @login_required
 def punch_out(request):
     if request.method != "POST":
@@ -667,13 +669,9 @@ def punch_out(request):
 
     employee = request.user.employee_profile
     today = timezone.localdate()
-    now_time = timezone.localtime().time()
 
     try:
-        attendance = Attendance.objects.get(
-            employee=employee,
-            date=today
-        )
+        attendance = Attendance.objects.get(employee=employee, date=today)
     except Attendance.DoesNotExist:
         messages.error(request, "You must punch in first.")
         return redirect('employee_dashboard')
@@ -682,28 +680,31 @@ def punch_out(request):
         messages.warning(request, "You have already punched out today.")
         return redirect('employee_dashboard')
 
-    attendance.punch_out = now_time
+    attendance.punch_out = timezone.now()
 
-    # 🔹 Calculate working hours
-    shift_assignment = ShiftAssignment.objects.filter(employee=employee,is_active=True).select_related('shift').first()
-    shift = shift_assignment.shift
+    # ✅ Use stored datetimes directly
+    in_dt = attendance.punch_in
+    out_dt = attendance.punch_out
 
-# detect night shift
-    is_night_shift = shift.end_time < shift.start_time
+    # ✅ Night shift handling
+    shift_assignment = ShiftAssignment.objects.filter(
+        employee=employee,
+        is_active=True
+    ).select_related('shift').first()
 
-    in_dt = datetime.combine(attendance.date, attendance.punch_in)
+    if shift_assignment:
+        shift = shift_assignment.shift
+        is_night_shift = shift.end_time < shift.start_time
 
-    if is_night_shift and now_time < attendance.punch_in:
-    # punch-out is next day
-        out_dt = datetime.combine(attendance.date + timedelta(days=1), now_time)
-    else:
-        out_dt = datetime.combine(attendance.date, now_time)
+        if is_night_shift and out_dt < in_dt:
+            out_dt += timedelta(days=1)
 
+    # ✅ Working hours calculation
     diff = out_dt - in_dt
     hours = round(diff.total_seconds() / 3600, 2)
-    attendance.working_hours = Decimal(hours)
+    attendance.working_hours = Decimal(str(hours))
 
-    # 🔹 Half-day rule
+    # ✅ Half-day rule
     if hours < settings.MIN_HALF_DAY_HOURS:
         attendance.status = 'Half Day'
 
@@ -712,7 +713,31 @@ def punch_out(request):
 
     return redirect('employee_dashboard')
 
+def mark_absent_for_today():
+    today = timezone.localdate()
 
+    employees = Employee.objects.filter(is_active=True)
+
+    for emp in employees:
+        # Skip if approved leave
+        if Leave.objects.filter(
+            employee=emp,
+            start_date__lte=today,
+            end_date__gte=today,
+            status='Approved'
+        ).exists():
+            continue
+
+        attendance, created = Attendance.objects.get_or_create(
+            employee=emp,
+            date=today
+        )
+
+        if not attendance.punch_in and not attendance.punch_out:
+            attendance.status = 'Absent'
+            attendance.save()
+            
+            
 def get_calendar_events(employee):
     events = {}
     color_map = {
@@ -730,11 +755,11 @@ def get_calendar_events(employee):
             'start': att.date.strftime('%Y-%m-%d'),
             'color': color_map.get(att.status),
             'extendedProps': {
-                'punch_in': att.punch_in.strftime('%H:%M') if att.punch_in else '-',
-                'punch_out': att.punch_out.strftime('%H:%M') if att.punch_out else '-',
-                'hours': float(att.working_hours) if att.working_hours else None,
-                'status': att.status,
-            }
+                    'punch_in': att.punch_in.strftime('%I:%M %p') if att.punch_in else '-',
+                    'punch_out': att.punch_out.strftime('%I:%M %p') if att.punch_out else '-',
+                    'working_hours': float(att.working_hours) if att.working_hours else None,
+                    'status': att.status,
+                }
         }
 
     leaves = Leave.objects.filter(employee=employee, status='Approved')
@@ -775,7 +800,7 @@ def admin_employee_attendance_detail(request, emp_id):
             'date': att.date,
             'punch_in': att.punch_in,
             'punch_out': att.punch_out,
-            'hours': att.working_hours,
+            'working_hours': att.working_hours,
             'status': att.status
         }
 
@@ -788,7 +813,7 @@ def admin_employee_attendance_detail(request, emp_id):
                 'date': current,
                 'punch_in': None,
                 'punch_out': None,
-                'hours': None,
+                'working_hours': None,
                 'status': 'Leave'
             }
             current += timedelta(days=1)
@@ -828,14 +853,7 @@ def employee_attendance_calendar(request):
         {'events': events}
     )
 
-from django.contrib.auth.decorators import login_required
-from django.utils.timezone import localdate
-from datetime import date
-import calendar
 
-from app.models import Employee
-from .models import Attendance
-from .utils import get_working_days_of_month, get_used_pl
 
 
 @login_required

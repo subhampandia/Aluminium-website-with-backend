@@ -94,16 +94,31 @@ class Employee(models.Model):
         return f"{self.full_name()} ({self.employee_id})"
 
 class Shift(models.Model):
-
     name = models.CharField(max_length=100)
     start_time = models.TimeField()
     end_time = models.TimeField()
     break_minutes = models.PositiveIntegerField(default=0)
+
+    weekly_off = models.CharField(
+        max_length=10,
+        choices=[
+            ('Monday','Monday'),
+            ('Tuesday','Tuesday'),
+            ('Wednesday','Wednesday'),
+            ('Thursday','Thursday'),
+            ('Friday','Friday'),
+            ('Saturday','Saturday'),
+            ('Sunday','Sunday'),
+        ],
+        default='Sunday'
+    )
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} ({self.start_time} - {self.end_time})"
+
     
 class ShiftAssignment(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
@@ -155,8 +170,9 @@ class Attendance(models.Model):
 
     date = models.DateField(default=timezone.localdate)
 
-    punch_in = models.TimeField(null=True, blank=True)
-    punch_out = models.TimeField(null=True, blank=True)
+    punch_in = models.DateTimeField(null=True, blank=True)
+    punch_out = models.DateTimeField(null=True, blank=True)
+
 
     working_hours = models.DecimalField(
         max_digits=5,
@@ -216,3 +232,4 @@ class Holiday(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.date}"
+
