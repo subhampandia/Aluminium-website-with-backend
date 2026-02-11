@@ -62,30 +62,11 @@ urlpatterns = [
     path('attendance/my/',views.employee_attendance_history,name='employee_attendance_history'),
     path('attendance/punch-in/',views.punch_in,name='punch_in'),
     path('attendance/punch-out/',views.punch_out,name='punch_out'),
-    path(
-    'dashboard/attendance/employees/',
-    views.admin_employee_attendance_list,
-    name='admin_employee_attendance_list'),
-    path(
-    'dashboard/attendance/employee/<int:emp_id>/',
-    views.admin_employee_attendance_detail,
-    name='admin_employee_attendance_detail'),
+    path('dashboard/attendance/employees/',views.admin_employee_attendance_list,name='admin_employee_attendance_list'),
+    path('dashboard/attendance/employee/<int:emp_id>/',views.admin_employee_attendance_detail,name='admin_employee_attendance_detail'),
 
-    path(
-    'dashboard/attendance/calendar/<int:emp_id>/',
-    views.admin_employee_attendance_calendar,
-    name='admin_employee_attendance_calendar'
-),
-    path(
-    'employee/attendance/calendar/',
-    views.employee_attendance_calendar,
-    name='employee_attendance_calendar'
-),
-    path(
-    'employee/shift/',
-    views.employee_shift_details,
-    name='employee_shift_details'
-),
+    path('dashboard/attendance/calendar/<int:emp_id>/',views.admin_employee_attendance_calendar,name='admin_employee_attendance_calendar'),
+    path('employee/shift/',views.employee_shift_details,name='employee_shift_details'),
 
     path('attendance/process/', views.process_attendance_view, name='process_attendance'),
 

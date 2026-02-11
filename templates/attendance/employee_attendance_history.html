@@ -70,6 +70,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
   const calendarEl = document.getElementById('calendar');
   const modalEl = document.getElementById('attendanceModal');
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -96,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   calendar.render();
+
 
   function updateModal(date, data) {
     document.getElementById('modalDate').innerText = date;

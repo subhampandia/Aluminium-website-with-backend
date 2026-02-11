@@ -13,10 +13,11 @@ from django.http import JsonResponse
 from django.utils.timezone import localdate
 from datetime import date
 import calendar
+import json
 from decimal import Decimal
 
 from .utils import get_working_days_of_month, get_used_pl
-from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance
+from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday
 
 
 # ================= AUTH =================
@@ -546,10 +547,11 @@ def employee_attendance_history(request):
 
     attendances = Attendance.objects.filter(employee=employee)
     leaves = Leave.objects.filter(employee=employee, status='Approved')
+    holidays = Holiday.objects.all()
 
     rows = {}
 
-    # Attendance rows
+    # Attendance
     for att in attendances:
         rows[att.date] = {
             'date': att.date,
@@ -559,7 +561,7 @@ def employee_attendance_history(request):
             'status': att.status
         }
 
-    # Leave rows (override attendance)
+    # Leave override
     for leave in leaves:
         current = leave.start_date
         while current <= leave.end_date:
@@ -572,16 +574,30 @@ def employee_attendance_history(request):
             }
             current += timedelta(days=1)
 
-    # Sort by date (latest first)
+    # Holiday (only if no attendance or leave)
+    for holiday in holidays:
+        if holiday.date not in rows:
+            rows[holiday.date] = {
+                'date': holiday.date,
+                'punch_in': None,
+                'punch_out': None,
+                'working_hours': None,
+                'status': 'Holiday'
+            }
+
     history = sorted(rows.values(), key=lambda x: x['date'], reverse=True)
+
+    events = get_calendar_events(employee)
 
     return render(
         request,
-        'attendance/employee_attendance_history.html',
+        'employee/attendance_calendar.html',  # ← make sure this matches template
         {
-            'history': history
+            'history': history,
+            'events': json.dumps(events)
         }
     )
+
 
 # ================= PUNCH IN =================
 
@@ -740,16 +756,20 @@ def mark_absent_for_today():
             
 def get_calendar_events(employee):
     events = {}
+    
     color_map = {
         'Present': '#198754',
         'Late': '#ffc107',
         'Half Day': '#212529',
         'Absent': '#dc3545',
         'Leave': '#0dcaf0',
-        'Holiday': "#0FF845",
-
+        'Holiday': '#0FF845',
+        'Sunday': '#6c757d',
     }
 
+    # -----------------------
+    # 1️⃣ Attendance (Highest Priority)
+    # -----------------------
     attendances = Attendance.objects.filter(employee=employee)
     for att in attendances:
         events[str(att.date)] = {
@@ -757,13 +777,16 @@ def get_calendar_events(employee):
             'start': att.date.strftime('%Y-%m-%d'),
             'color': color_map.get(att.status),
             'extendedProps': {
-                    'punch_in': att.punch_in.strftime('%I:%M %p') if att.punch_in else '-',
-                    'punch_out': att.punch_out.strftime('%I:%M %p') if att.punch_out else '-',
-                    'working_hours': float(att.working_hours) if att.working_hours else 0,
-                    'status': att.status,
-                }
+                'punch_in': att.punch_in.strftime('%I:%M %p') if att.punch_in else '-',
+                'punch_out': att.punch_out.strftime('%I:%M %p') if att.punch_out else '-',
+                'working_hours': float(att.working_hours) if att.working_hours else 0,
+                'status': att.status,
+            }
         }
 
+    # -----------------------
+    # 2️⃣ Approved Leave (Override Attendance)
+    # -----------------------
     leaves = Leave.objects.filter(employee=employee, status='Approved')
     for leave in leaves:
         current = leave.start_date
@@ -776,7 +799,44 @@ def get_calendar_events(employee):
             }
             current += timedelta(days=1)
 
+    # -----------------------
+    # 3️⃣ Holidays (Only if not already marked)
+    # -----------------------
+    holidays = Holiday.objects.all()
+    for holiday in holidays:
+        key = str(holiday.date)
+        if key not in events:
+            events[key] = {
+                'title': f"Holiday - {holiday.name}",
+                'start': holiday.date.strftime('%Y-%m-%d'),
+                'color': color_map['Holiday'],
+                'extendedProps': {'status': 'Holiday'}
+            }
+
+    # -----------------------
+    # 4️⃣ Sundays (Auto Weekly Off)
+    # -----------------------
+    today = date.today()
+    year = today.year
+
+    start_date = date(year, 1, 1)
+    end_date = date(year, 12, 31)
+
+    current = start_date
+    while current <= end_date:
+        if current.weekday() == 6:  # Sunday
+            key = str(current)
+            if key not in events:
+                events[key] = {
+                    'title': 'Sunday',
+                    'start': current.strftime('%Y-%m-%d'),
+                    'color': color_map['Sunday'],
+                    'extendedProps': {'status': 'Sunday'}
+                }
+        current += timedelta(days=1)
+
     return list(events.values())
+
 
 @staff_member_required
 def admin_employee_attendance_list(request):
@@ -842,19 +902,6 @@ def admin_employee_attendance_calendar(request, emp_id):
         'admin/attendance/employee_calendar.html',
         {'employee': employee, 'events': events}
     )
-
-
-@login_required
-def employee_attendance_calendar(request):
-    employee = request.user.employee_profile
-    events = get_calendar_events(employee)
-
-    return render(
-        request,
-        'employee/attendance_calendar.html',
-        {'events': events}
-    )
-
 
 
 
