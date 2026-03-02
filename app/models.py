@@ -234,3 +234,28 @@ class Holiday(models.Model):
     def __str__(self):
         return f"{self.name} - {self.date}"
 
+class AttendanceRegularization(models.Model):
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
+
+    requested_punch_in = models.DateTimeField(null=True, blank=True)
+    requested_punch_out = models.DateTimeField(null=True, blank=True)
+    requested_status = models.CharField(max_length=20, blank=True)
+
+    reason = models.TextField()
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+    applied_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.employee.employee_id} - {self.attendance.date} - {self.status}"

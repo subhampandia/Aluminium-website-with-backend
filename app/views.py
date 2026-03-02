@@ -17,7 +17,7 @@ import json
 from decimal import Decimal
 
 from .utils import get_working_days_of_month, get_used_pl
-from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday
+from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization
 
 
 # ================= AUTH =================
@@ -600,7 +600,7 @@ def employee_attendance_history(request):
 
     return render(
         request,
-        'employee/attendance_calendar.html',  # ← make sure this matches template
+        'employee/attendance_history.html',  # ← make sure this matches template
         {
             'history': history,
             'events': json.dumps(events)
@@ -1007,6 +1007,74 @@ def process_attendance_view(request):
     }
 
     return render(request, 'attendance/process_attendance.html', context)
+@login_required
+def apply_regularization(request, date):
+    employee = request.user.employee_profile
 
+    attendance = Attendance.objects.filter(
+        employee=employee,
+        date=date
+    ).first()
 
+    if not attendance:
+        attendance = Attendance.objects.create(
+            employee=employee,
+            date=date
+        )
 
+    if request.method == "POST":
+        AttendanceRegularization.objects.create(
+            employee=employee,
+            attendance=attendance,
+            requested_punch_in=request.POST.get("punch_in") or None,
+            requested_punch_out=request.POST.get("punch_out") or None,
+            requested_status=request.POST.get("status"),
+            reason=request.POST.get("reason")
+        )
+
+        messages.success(request, "Request submitted successfully.")
+        return redirect("employee_attendance_history")
+
+    return render(request, "attendance/apply_regularization.html", {
+        "attendance": attendance
+    })
+
+@staff_member_required
+def admin_regularization_list(request):
+    requests = AttendanceRegularization.objects.all().order_by('-applied_at')
+
+    return render(
+        request,
+        'admin/attendance/regularization_list.html',
+        {'requests': requests}
+    )
+@staff_member_required
+def admin_regularization_action(request, pk, action):
+    reg = get_object_or_404(AttendanceRegularization, pk=pk)
+
+    if reg.status == "Pending":
+
+        if action == "approve":
+            attendance = reg.attendance
+
+            if reg.requested_punch_in:
+                attendance.punch_in = reg.requested_punch_in
+
+            if reg.requested_punch_out:
+                attendance.punch_out = reg.requested_punch_out
+
+            if reg.requested_status:
+                attendance.status = reg.requested_status
+
+            attendance.save()
+
+            reg.status = "Approved"
+
+        elif action == "reject":
+            reg.status = "Rejected"
+
+        reg.reviewed_by = request.user
+        reg.reviewed_at = timezone.now()
+        reg.save()
+
+    return redirect('admin_regularization_list')

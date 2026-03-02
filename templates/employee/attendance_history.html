@@ -1,0 +1,179 @@
+{% extends 'employee/base_employee_dashboard.html' %}
+{% block content %}
+
+<h3 class="mb-3">My Attendance</h3>
+
+<!-- ✅ Bootstrap Tabs -->
+<ul class="nav nav-tabs" id="attendanceTabs">
+  <li class="nav-item">
+    <button class="nav-link active"
+            data-bs-toggle="tab"
+            data-bs-target="#listTab"
+            type="button">
+      📋 List View
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link"
+            data-bs-toggle="tab"
+            data-bs-target="#calendarTab"
+            type="button">
+      📅 Calendar View
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content mt-3">
+
+  <!-- ================= LIST TAB ================= -->
+  <div class="tab-pane fade show active" id="listTab">
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Punch In</th>
+          <th>Punch Out</th>
+          <th>Hours</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in history %}
+        <tr>
+          <td>{{ a.date }}</td>
+          <td>{{ a.punch_in|date:"d M Y, h:i A"|default:"-" }}</td>
+          <td>{{ a.punch_out|date:"d M Y, h:i A"|default:"-" }}</td>
+          <td>{{ a.working_hours|default:"-" }}</td>
+          <td>
+            <span class="badge
+              {% if a.status == 'Present' %}bg-success
+              {% elif a.status == 'Late' %}bg-warning text-dark
+              {% elif a.status == 'Half Day' %}bg-secondary
+              {% elif a.status == 'Absent' %}bg-danger
+              {% elif a.status == 'Leave' %}bg-info text-dark
+              {% elif a.status == 'LWP' %}bg-primary
+              {% elif a.status == 'Holiday' %}bg-dark
+              {% else %}bg-light text-dark{% endif %}">
+              {{ a.status }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center">No attendance records</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+
+  <!-- ================= CALENDAR TAB ================= -->
+  <div class="tab-pane fade" id="calendarTab">
+    <div id="calendar"></div>
+  </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="attendanceModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Attendance Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Date:</strong> <span id="modalDate"></span></p>
+        <p><strong>Punch In:</strong> <span id="modalPunchIn"></span></p>
+        <p><strong>Punch Out:</strong> <span id="modalPunchOut"></span></p>
+        <p><strong>Working Hours:</strong> <span id="modalHours"></span></p>
+        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+      </div>
+
+      <div class="modal-footer">
+        <a id="regularizeBtn" class="btn btn-warning">
+          Raise Regularization Request
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= FULLCALENDAR ================= -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const calendarEl = document.getElementById('calendar');
+  const modalEl = document.getElementById('attendanceModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+  const events = {{ events|default:"[]"|safe }};
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    events: events,
+
+    eventClick: function (info) {
+      updateModal(info.event.startStr, info.event.extendedProps);
+      modal.show();
+    },
+
+    dateClick: function (info) {
+      updateModal(info.dateStr, {});
+      modal.show();
+    }
+  });
+
+  // 🔥 Render calendar only when Calendar tab is opened
+  const calendarTabBtn = document.querySelector('[data-bs-target="#calendarTab"]');
+
+  calendarTabBtn.addEventListener('shown.bs.tab', function () {
+    calendar.render();
+  });
+
+  function updateModal(date, data) {
+    document.getElementById('modalDate').innerText = date;
+    document.getElementById('modalPunchIn').innerText = data.punch_in || '-';
+    document.getElementById('modalPunchOut').innerText = data.punch_out || '-';
+    document.getElementById('modalHours').innerText =
+      data.working_hours ?? '-';
+
+    const statusEl = document.getElementById('modalStatus');
+
+    if (!data.status) {
+      statusEl.innerHTML =
+        '<span class="badge bg-light text-dark">No Attendance</span>';
+    } else {
+      const status = data.status;
+      let cls = 'bg-success';
+
+      if (status === 'Late') cls = 'bg-warning text-dark';
+      else if (status === 'Half Day') cls = 'bg-secondary';
+      else if (status === 'Absent') cls = 'bg-danger';
+      else if (status === 'Leave') cls = 'bg-info text-dark';
+      else if (status === 'LWP') cls = 'bg-primary';
+      else if (status === 'Holiday') cls = 'bg-dark';
+
+      statusEl.innerHTML = `<span class="badge ${cls}">${status}</span>`;
+    }
+
+    const regBtn = document.getElementById('regularizeBtn');
+    regBtn.href = `/attendance/regularize/${date}/`;
+  }
+
+});
+</script>
+
+{% endblock %}

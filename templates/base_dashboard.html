@@ -84,17 +84,23 @@
         <i class="bi bi-diagram-3"></i>
         <span>Shift Assign</span>
       </a>
-      <a href="{% url 'admin_employee_attendance_list' %}"class="{% if request.resolver_match.url_name == 'admin_employee_attendance_list' %}active{% endif %}">
+      <a
+        href="{% url 'admin_employee_attendance_list' %}"
+        class="{% if request.resolver_match.url_name == 'admin_employee_attendance_list' %}active{% endif %}"
+      >
         <i class="bi bi-calendar-check me-2"></i> Attendance
       </a>
       <a
-  href="{% url 'process_attendance' %}"
-  class="{% if request.resolver_match.url_name == 'process_attendance' %}active{% endif %}"
->
-  <i class="bi bi-gear me-2"></i> Process Attendance
-</a>
-
-
+        href="{% url 'process_attendance' %}"
+        class="{% if request.resolver_match.url_name == 'process_attendance' %}active{% endif %}"
+      >
+        <i class="bi bi-gear me-2"></i> Process Attendance
+      </a>
+      <li>
+  <a href="{% url 'admin_regularization_list' %}">
+    Attendance Regularization
+  </a>
+</li>
       <a href="{% url 'admin_leave_list' %}"> 📝 Leave Requests </a>
     </div>
 
@@ -119,8 +125,7 @@
                 height="38"
                 class="rounded-circle shadow bg-body-secondary"
                 alt="Profile"
-                style="cursor: pointer;"
-
+                style="cursor: pointer"
               />
             </a>
 

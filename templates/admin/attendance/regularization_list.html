@@ -1,0 +1,50 @@
+{% extends "base_dashboard.html" %}
+{% block content %}
+
+<h4>Attendance Regularization Requests</h4>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Date</th>
+      <th>Requested In</th>
+      <th>Requested Out</th>
+      <th>Status</th>
+      <th>Reason</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td>{{ r.employee.employee_id }}</td>
+      <td>{{ r.attendance.date }}</td>
+      <td>{{ r.requested_punch_in|default:"-" }}</td>
+      <td>{{ r.requested_punch_out|default:"-" }}</td>
+      <td>
+        <span class="badge
+          {% if r.status == 'Pending' %}bg-warning
+          {% elif r.status == 'Approved' %}bg-success
+          {% elif r.status == 'Rejected' %}bg-danger
+          {% endif %}">
+          {{ r.status }}
+        </span>
+      </td>
+      <td>{{ r.reason }}</td>
+      <td>
+        {% if r.status == 'Pending' %}
+          <a href="{% url 'admin_regularization_action' r.id 'approve' %}" class="btn btn-success btn-sm">Approve</a>
+          <a href="{% url 'admin_regularization_action' r.id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center">No requests</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

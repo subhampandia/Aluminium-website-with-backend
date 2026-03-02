@@ -1,0 +1,36 @@
+{% extends "employee/base_employee_dashboard.html" %}
+{% block content %}
+
+<h4>Regularization for {{ attendance.date }}</h4>
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="mb-3">
+    <label>Punch In</label>
+    <input type="datetime-local" name="punch_in" class="form-control">
+  </div>
+
+  <div class="mb-3">
+    <label>Punch Out</label>
+    <input type="datetime-local" name="punch_out" class="form-control">
+  </div>
+
+  <div class="mb-3">
+    <label>Status</label>
+    <select name="status" class="form-control">
+      <option value="Present">Present</option>
+      <option value="Half Day">Half Day</option>
+      <option value="Absent">Absent</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Reason</label>
+    <textarea name="reason" class="form-control" required></textarea>
+  </div>
+
+  <button class="btn btn-success">Submit</button>
+</form>
+
+{% endblock %}

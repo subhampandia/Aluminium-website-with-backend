@@ -69,6 +69,9 @@ urlpatterns = [
     path('employee/shift/',views.employee_shift_details,name='employee_shift_details'),
 
     path('attendance/process/', views.process_attendance_view, name='process_attendance'),
+    path('attendance/regularize/<str:date>/', views.apply_regularization, name='apply_regularization'),
+    path('dashboard/regularization/', views.admin_regularization_list, name='admin_regularization_list'),
+    path('dashboard/regularization/<int:pk>/<str:action>/', views.admin_regularization_action, name='admin_regularization_action'),
 
 
 ]
