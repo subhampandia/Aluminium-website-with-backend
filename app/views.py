@@ -521,9 +521,18 @@ def admin_leave_action(request, pk, action):
     leave = get_object_or_404(Leave, pk=pk)
 
     if request.method == 'POST':
-        if action == 'approve':
+
+        if action == 'approve' and leave.status != 'Approved':
             leave.status = 'Approved'
             leave.rejection_reason = None
+
+            # 🔥 Calculate total leave days
+            total_days = (leave.end_date - leave.start_date).days + 1
+
+            # 🔥 Deduct from LWP balance (can go negative)
+            employee = leave.employee
+            employee.lwp_balance -= total_days
+            employee.save()
 
         elif action == 'reject':
             leave.status = 'Rejected'
@@ -853,10 +862,11 @@ def admin_employee_attendance_detail(request, emp_id):
 
     attendances = Attendance.objects.filter(employee=employee)
     leaves = Leave.objects.filter(employee=employee, status='Approved')
+    holidays = Holiday.objects.all()
 
     rows = {}
 
-    # Attendance
+    # 1️⃣ Attendance (Highest priority)
     for att in attendances:
         rows[att.date] = {
             'date': att.date,
@@ -866,8 +876,7 @@ def admin_employee_attendance_detail(request, emp_id):
             'status': att.status
         }
 
-    # Leave (override)
-    current_dates = set()
+    # 2️⃣ Leave (Override Attendance)
     for leave in leaves:
         current = leave.start_date
         while current <= leave.end_date:
@@ -880,6 +889,34 @@ def admin_employee_attendance_detail(request, emp_id):
             }
             current += timedelta(days=1)
 
+    # 3️⃣ Holidays (Only if not already marked)
+    for holiday in holidays:
+        if holiday.date not in rows:
+            rows[holiday.date] = {
+                'date': holiday.date,
+                'punch_in': None,
+                'punch_out': None,
+                'working_hours': None,
+                'status': 'Holiday'
+            }
+
+    # 4️⃣ Sundays (Only if not already marked)
+    start_date = date.today().replace(month=1, day=1)
+    end_date = date.today()
+
+    current = start_date
+    while current <= end_date:
+        if current.weekday() == 6:  # Sunday
+            if current not in rows:
+                rows[current] = {
+                    'date': current,
+                    'punch_in': None,
+                    'punch_out': None,
+                    'working_hours': None,
+                    'status': 'Sunday'
+                }
+        current += timedelta(days=1)
+
     history = sorted(rows.values(), key=lambda x: x['date'], reverse=True)
 
     return render(
@@ -890,6 +927,7 @@ def admin_employee_attendance_detail(request, emp_id):
             'history': history
         }
     )
+
 
 
 @staff_member_required
@@ -904,7 +942,6 @@ def admin_employee_attendance_calendar(request, emp_id):
     )
 
 
-
 @login_required
 def process_attendance_view(request):
     employees = Employee.objects.all().order_by('employee_id')
@@ -912,8 +949,7 @@ def process_attendance_view(request):
     selected_employee = None
     summary = None
     records = Attendance.objects.none()
-    used_pl = 0
-    # 🔹 Month & Year (default = current)
+
     today = localdate()
     selected_month = int(request.GET.get('month', today.month))
     selected_year = int(request.GET.get('year', today.year))
@@ -923,17 +959,29 @@ def process_attendance_view(request):
     if emp_id:
         selected_employee = Employee.objects.get(id=emp_id)
 
-        records = Attendance.objects.filter(
-            employee=selected_employee,
-            date__year=selected_year,
-            date__month=selected_month,
-            is_processed=True
-        )
+    records = Attendance.objects.filter(
+        employee=selected_employee,
+        date__year=selected_year,
+        date__month=selected_month,
+        is_processed=True
+    )
 
-        used_pl = get_used_pl(
-        selected_employee,
-        date(selected_year, selected_month, 1)
-        )
+    # 🔥 Assigned (from settings)
+    assigned = settings.PL_LIMIT_PER_MONTH
+
+    # 🔥 Count approved leave days for selected month
+    approved_leaves = Leave.objects.filter(
+        employee=selected_employee,
+        status='Approved',
+        start_date__year=selected_year,
+        start_date__month=selected_month
+    )
+
+    used = 0
+    for leave in approved_leaves:
+        used += (leave.end_date - leave.start_date).days + 1
+
+    remaining = assigned - used
 
     summary = {
         'working_days': get_working_days_of_month(selected_year, selected_month),
@@ -941,13 +989,12 @@ def process_attendance_view(request):
         'lwp_days': records.filter(status='LWP').count(),
         'absent_days': records.filter(status='Absent').count(),
 
-    # 🔹 LWP balance
-        'lwp_used': used_pl,
-        'lwp_limit': settings.PL_LIMIT_PER_MONTH,
-        'lwp_remaining': max(
-        settings.PL_LIMIT_PER_MONTH - used_pl, 0
-    ),
+        # 🔥 New LWP Display
+        'lwp_assigned': assigned,
+        'lwp_used': used,
+        'lwp_remaining': remaining,
     }
+
 
     context = {
         'employees': employees,
@@ -955,10 +1002,11 @@ def process_attendance_view(request):
         'summary': summary,
         'selected_month': selected_month,
         'selected_year': selected_year,
-        'months': list(enumerate(calendar.month_name))[1:],  # [(1, Jan), ...]
-        'years': range(today.year - 1, today.year + 4),      # last 3 years
+        'months': list(enumerate(calendar.month_name))[1:],
+        'years': range(today.year - 1, today.year + 4),
     }
 
     return render(request, 'attendance/process_attendance.html', context)
+
 
 

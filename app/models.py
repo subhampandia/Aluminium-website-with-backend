@@ -84,6 +84,7 @@ class Employee(models.Model):
     # System
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    lwp_balance = models.IntegerField(default=0)
     generated_at = models.DateField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_employees')
 

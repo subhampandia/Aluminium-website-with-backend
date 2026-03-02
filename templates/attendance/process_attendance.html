@@ -65,7 +65,7 @@
 
   <div class="col-md-2">
     <div class="fw-bold">LWP (Paid)</div>
-    <div>{{ summary.lwp_days }}</div>
+    <div>{{ summary.lwp_assigned }}</div>
   </div>
 
   <div class="col-md-2">
@@ -74,13 +74,17 @@
   </div>
 </div>
 <div class="alert alert-info text-center">
-  <strong>LWP Balance:</strong>
-  {{ summary.lwp_used }} / {{ summary.lwp_limit }}
+  <strong>Assigned:</strong> {{ summary.lwp_assigned }}
   &nbsp; | &nbsp;
-  <strong>Remaining:</strong> {{ summary.lwp_remaining }}
+  <strong>Used:</strong> {{ summary.lwp_used }}
+  &nbsp; | &nbsp;
+  <strong>Remaining:</strong>
+  {% if summary.lwp_remaining < 0 %}
+      <span class="text-danger fw-bold">{{ summary.lwp_remaining }}</span>
+  {% else %}
+      {{ summary.lwp_remaining }}
+  {% endif %}
 </div>
-
-
   </div>
 </div>
 {% endif %}

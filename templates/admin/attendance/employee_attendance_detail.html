@@ -36,6 +36,7 @@
           {% elif a.status == 'Absent' %}bg-danger
           {% elif a.status == 'Leave' %}bg-info text-dark
           {% elif a.status == 'LWP' %}bg-primary
+          {% elif a.status == 'Sunday' %}bg-secondary
           {% elif a.status == 'Holiday' %}bg-dark
           {% else %}bg-light text-dark{% endif %}">
           {{ a.status }}
