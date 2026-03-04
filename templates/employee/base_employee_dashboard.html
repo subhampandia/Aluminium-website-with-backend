@@ -18,80 +18,99 @@
 
     <style>
       body {
-        background-color: #f4f8fb;
+        background: #f1f5f9;
+        font-family: "Segoe UI", sans-serif;
       }
 
+      /* SIDEBAR */
       .sidebar {
         width: 240px;
         height: 100vh;
-        background: #0d6efd;
-        color: #fff;
+        background: linear-gradient(180deg, #1e293b, #0f172a);
+        color: white;
         position: fixed;
-        top: 0;
         left: 0;
-        transition: all 0.3s ease;
-        z-index: 1000;
+        top: 0;
+        padding-top: 10px;
+        transition: 0.3s;
       }
 
       .sidebar h5 {
-        padding: 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 18px;
+        text-align: center;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .sidebar a {
-        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        margin: 6px 10px;
+        border-radius: 8px;
+        color: #e2e8f0;
         text-decoration: none;
-        padding: 12px 16px;
-        display: block;
-        border-radius: 6px;
-        margin: 4px 8px;
+        transition: 0.25s;
       }
 
       .sidebar a:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: #2563eb;
+        color: white;
+        transform: translateX(3px);
       }
 
+      /* CONTENT */
       .content {
         margin-left: 240px;
         padding: 20px;
-        transition: all 0.3s ease;
       }
 
+      /* NAVBAR */
       .navbar-custom {
-        background: #4789e6;
-        border-bottom: 1px solid #ddd;
-      }
-
-      .toggle-btn {
-        font-size: 1.5rem;
-        cursor: pointer;
-      }
-      .attendance-card {
-        background: rgba(255, 255, 255, 0.15);
+        background: white;
         border-radius: 10px;
-        padding: 12px;
-        margin: 10px;
+        padding: 10px 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
 
+      /* SIDEBAR TOGGLE */
+      .toggle-btn {
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #1e293b;
+      }
+
+      /* PROFILE IMAGE */
+      .navbar img {
+        border: 2px solid #2563eb;
+      }
+
+      /* ATTENDANCE CARD */
+      .attendance-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      /* ATTENDANCE BUTTON */
       .attendance-btn {
         font-weight: 600;
-        letter-spacing: 0.3px;
-        padding: 8px 12px;
+        padding: 10px 15px;
         border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        transition: all 0.2s ease;
+        transition: 0.25s;
       }
 
       .attendance-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
-      .attendance-btn {
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        padding: 12px;
-        border-radius: 10px;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+
+      /* ALERT MESSAGE */
+      .alert {
+        border-radius: 8px;
       }
     </style>
   </head>
@@ -99,8 +118,7 @@
   <body>
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-      <h5 class="text-center">Employee Panel</h5>
-
+      <h5><i class="bi bi-person-workspace me-2"></i> Employee Panel</h5>
       <a href="{% url 'employee_dashboard' %}">
         <i class="bi bi-house me-2"></i> Dashboard
       </a>
@@ -113,8 +131,9 @@
         <i class="bi bi-clock me-2"></i> My Shift
       </a>
 
-      <a href="{% url 'employee_attendance_history' %}"> My Attendance </a>
-
+      <a href="{% url 'employee_attendance_history' %}">
+        <i class="bi bi-calendar-check"></i> My Attendance
+      </a>
       <a href="{% url 'my_leaves' %}">
         <i class="bi bi-file-text me-2"></i> My Leaves
       </a>
@@ -139,11 +158,10 @@
             <div class="dropdown">
               <a href="#" data-bs-toggle="dropdown">
                 <img
-                  src="https://via.placeholder.com/40"
+                  src="https://ui-avatars.com/api/?name={{request.user.username}}&background=2563eb&color=fff"
                   width="40"
                   height="40"
                   class="rounded-circle shadow"
-                  alt="Profile"
                 />
               </a>
 
@@ -170,15 +188,22 @@
         </div>
       </nav>
       {% if messages %}
-<div class="container-fluid px-4 mt-3">
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {% endfor %}
-</div>
-{% endif %}
+      <div class="container-fluid px-4 mt-3">
+        {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       <!-- PAGE CONTENT -->
       {% block content %}{% endblock %}
@@ -225,11 +250,11 @@
         }
       }
       setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(alert => {
-      alert.classList.remove('show');
-      alert.classList.add('fade');
-    });
-  }, 3000);
+        document.querySelectorAll(".alert").forEach((alert) => {
+          alert.classList.remove("show");
+          alert.classList.add("fade");
+        });
+      }, 3000);
     </script>
   </body>
 </html>

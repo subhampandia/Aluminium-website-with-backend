@@ -4,130 +4,238 @@
 {% block content %}
 
 <style>
-  .profile-card {
-    border-radius: 12px;
-  }
-  .profile-header {
-    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-    color: #fff;
-    border-radius: 12px 12px 0 0;
-  }
-  .profile-avatar {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid #fff;
-    margin-top: -60px;
-    background: #f8f9fa;
-  }
-  .info-label {
-    font-weight: 600;
-    color: #6c757d;
-  }
+
+.profile-header{
+    background: linear-gradient(135deg,#1e66f5,#5fa8ff);
+    height:200px;
+    border-radius:12px 12px 0 0;
+    position:relative;
+}
+
+.profile-avatar{
+    position:absolute;
+    left:50%;
+    bottom:-60px;
+    transform:translateX(-50%);
+}
+
+.profile-avatar img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    border:6px solid #fff;
+    object-fit:cover;
+    background:#f8f9fa;
+}
+
+.profile-info{
+    margin-top:80px;
+    text-align:center;
+}
+
+.section-title{
+    font-weight:600;
+    font-size:18px;
+    border-bottom:1px solid #eee;
+    padding-bottom:6px;
+    margin-bottom:20px;
+}
+
+.label{
+    font-size:13px;
+    color:#6c757d;
+}
+
+.value{
+    font-weight:500;
+}
+
+.info-card{
+    border-radius:12px;
+    transition:0.2s;
+}
+
+.info-card:hover{
+    transform:translateY(-3px);
+}
+
+.info-title{
+    font-weight:600;
+    font-size:18px;
+    border-bottom:1px solid #eee;
+    padding-bottom:6px;
+    margin-bottom:20px;
+}
+
+.field-label{
+    font-size:13px;
+    color:#6c757d;
+}
+
+.field-value{
+    font-weight:500;
+}
+
+.icon{
+    color:#1e66f5;
+    margin-right:6px;
+}
+
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid mt-3">
 
-  <!-- Header -->
-  <div class="card profile-card shadow-sm mb-4">
-    <div class="profile-header p-4 text-center">
-      <h3 class="mb-0">My Profile</h3>
-      <small>Employee Details</small>
-    </div>
+<!-- PROFILE HEADER -->
 
-    <!-- Avatar -->
-    <div class="text-center">
-      {% if employee.photo %}
-        <img src="{{ employee.photo.url }}" class="profile-avatar" alt="Profile Photo">
-      {% else %}
-        <img src="https://via.placeholder.com/120" class="profile-avatar" alt="Profile Photo">
-      {% endif %}
-    </div>
+<div class="card shadow-sm border-0 mb-4">
 
-    <!-- Body -->
-    <div class="card-body mt-4">
+<div class="profile-header">
 
-      <!-- BASIC INFO -->
-      <h5 class="mb-3 border-bottom pb-2">Basic Information</h5>
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <p class="info-label">Employee ID</p>
-          <p>{{ employee.employee_id }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Full Name</p>
-          <p>{{ employee.name }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Gender</p>
-          <p>{{ employee.gender }}</p>
-        </div>
-      </div>
+<div class="profile-avatar">
 
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <p class="info-label">Date of Birth</p>
-          <p>{{ employee.dob|date:"d M Y" }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Mobile Number</p>
-          <p>{{ employee.mobile }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Email</p>
-          <p>{{ employee.user.email }}</p>
-        </div>
-      </div>
+{% if employee.photo %}
+<img src="{{ employee.photo.url }}">
+{% else %}
+<img src="https://ui-avatars.com/api/?name={{employee.first_name}}">
+{% endif %}
 
-      <!-- WORK INFO -->
-      <h5 class="mt-4 mb-3 border-bottom pb-2">Work Information</h5>
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <p class="info-label">Department</p>
-          <p>{{ employee.department }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Designation</p>
-          <p>{{ employee.designation }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Shift</p>
-          <p>{{ employee.shift }}</p>
-        </div>
-      </div>
+</div>
 
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <p class="info-label">Date of Joining</p>
-          <p>{{ employee.joining_date|date:"d M Y" }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Employment Type</p>
-          <p>{{ employee.employment_type }}</p>
-        </div>
-        <div class="col-md-4">
-          <p class="info-label">Status</p>
-          <p>
-            {% if employee.is_active %}
-              <span class="badge bg-success">Active</span>
-            {% else %}
-              <span class="badge bg-danger">Inactive</span>
-            {% endif %}
-          </p>
-        </div>
-      </div>
+</div>
 
-      <!-- ADDRESS -->
-      <h5 class="mt-4 mb-3 border-bottom pb-2">Address</h5>
-      <div class="row mb-3">
-        <div class="col-md-12">
-          <p class="info-label">Current Address</p>
-          <p>{{ employee.address }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="card-body profile-info">
+
+<h4 class="mb-1">
+{{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}
+</h4>
+
+<span class="badge bg-primary">
+{{ employee.employee_id }}
+</span>
+
+<div class="mt-2">
+
+{% if employee.is_active %}
+<span class="badge bg-success">Active</span>
+{% else %}
+<span class="badge bg-danger">Inactive</span>
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- BASIC INFORMATION -->
+
+<div class="card shadow-sm info-card mb-4">
+<div class="card-body">
+
+<div class="info-title">
+<i class="bi bi-person-circle icon"></i> Basic Information
+</div>
+
+<div class="row">
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Gender</div>
+<div class="field-value">{{ employee.gender }}</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Date of Birth</div>
+<div class="field-value">
+{{ employee.date_of_birth|date:"d M Y"|default:"—" }}
+</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Mobile Number</div>
+<div class="field-value">{{ employee.contact_no }}</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Email</div>
+<div class="field-value">{{ employee.email }}</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+
+
+<!-- WORK INFORMATION -->
+
+<div class="card shadow-sm info-card mb-4">
+<div class="card-body">
+
+<div class="info-title">
+<i class="bi bi-briefcase icon"></i> Work Information
+</div>
+
+<div class="row">
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Department</div>
+<div class="field-value">{{ employee.department.name }}</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Designation</div>
+<div class="field-value">{{ employee.designation.name }}</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Shift</div>
+<div class="field-value">
+{% if shift_assignment %}
+{{ shift_assignment.shift.name }}
+{% else %}
+—
+{% endif %}
+</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="field-label">Date of Joining</div>
+<div class="field-value">
+{{ employee.date_of_joining|date:"d M Y"|default:"—" }}
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+
+
+<!-- ADDRESS -->
+
+<div class="card shadow-sm info-card mb-4">
+<div class="card-body">
+
+<div class="info-title">
+<i class="bi bi-geo-alt icon"></i> Address
+</div>
+
+<div class="row">
+
+<div class="col-md-12">
+<div class="field-label">Current Address</div>
+<div class="field-value" style="white-space:pre-line;">
+{{ employee.address|default:"—" }}
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
 
 </div>
 
