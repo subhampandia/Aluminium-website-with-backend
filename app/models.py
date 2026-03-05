@@ -204,27 +204,6 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.employee.employee_id} - {self.date} - {self.status}"
-    
-class Salary(models.Model):
-    employee = models.OneToOneField(
-        Employee,
-        on_delete=models.CASCADE,
-        related_name='salary'
-    )
-
-    basic = models.DecimalField(max_digits=10, decimal_places=2)
-    hra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def total_salary(self):
-        return self.basic + self.hra + self.allowance
-
-    def __str__(self):
-        return f"Salary - {self.employee.employee_id}"
-
 
 
 class Holiday(models.Model):
@@ -259,3 +238,107 @@ class AttendanceRegularization(models.Model):
 
     def __str__(self):
         return f"{self.employee.employee_id} - {self.attendance.date} - {self.status}"
+    
+class Salary(models.Model):
+
+    employee = models.OneToOneField(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='salary'
+    )
+
+    basic = models.DecimalField(max_digits=10, decimal_places=2)
+    hra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    # deductions
+    emp_pf = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    employer_pf = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    emp_esic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    employer_esic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def gross_salary(self):
+        return self.basic + self.hra + self.allowance
+
+    def __str__(self):
+        return f"Salary - {self.employee.employee_id}"
+    
+class MonthlySalary(models.Model):
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+    month = models.IntegerField()
+    year = models.IntegerField()
+
+    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
+
+    lwp_days = models.IntegerField(default=0)
+    lwp_deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    emp_pf = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    employer_pf = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    emp_esic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    employer_esic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    net_salary = models.DecimalField(max_digits=10, decimal_places=2)
+
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('employee', 'month', 'year')
+
+    def __str__(self):
+        return f"{self.employee.employee_id} - {self.month}/{self.year}"
+
+def generate_salary(employee, month, year):
+
+    salary = employee.salary
+
+    gross = salary.basic + salary.hra + salary.allowance
+
+    per_day = gross / 26
+
+    lwp_days = Attendance.objects.filter(
+        employee=employee,
+        date__year=year,
+        date__month=month,
+        status='LWP'
+    ).count()
+
+    lwp_deduction = lwp_days * per_day
+
+    # PF
+    emp_pf = 0
+    employer_pf = 0
+    if salary.pf_applicable:
+        emp_pf = salary.basic * salary.emp_pf_percent / 100
+        employer_pf = salary.basic * salary.employer_pf_percent / 100
+
+    # ESIC
+    emp_esic = 0
+    employer_esic = 0
+    if salary.esic_applicable:
+        emp_esic = gross * salary.emp_esic_percent / 100
+        employer_esic = gross * salary.employer_esic_percent / 100
+
+    net_salary = gross - lwp_deduction - emp_pf - emp_esic
+
+    MonthlySalary.objects.update_or_create(
+        employee=employee,
+        month=month,
+        year=year,
+        defaults={
+            'gross_salary': gross,
+            'lwp_days': lwp_days,
+            'lwp_deduction': lwp_deduction,
+            'emp_pf': emp_pf,
+            'employer_pf': employer_pf,
+            'emp_esic': emp_esic,
+            'employer_esic': employer_esic,
+            'net_salary': net_salary
+        }
+    )

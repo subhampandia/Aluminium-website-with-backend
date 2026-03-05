@@ -64,7 +64,7 @@
   </div>
 
   <div class="col-md-2">
-    <div class="fw-bold">LWP (Paid)</div>
+    <div class="fw-bold">Leave Assigned  </div>
     <div>{{ summary.lwp_assigned }}</div>
   </div>
 
@@ -86,6 +86,36 @@
   {% endif %}
 </div>
   </div>
+{% if records.exists %}
+
+    {% if not processed %}
+
+        <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="employee_id" value="{{ selected_employee.id }}">
+        <input type="hidden" name="month" value="{{ selected_month }}">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+
+        <button class="btn btn-success mt-3">
+        Process Attendance
+        </button>
+        </form>
+
+    {% else %}
+
+        <div class="alert alert-success mt-3">
+        Attendance already processed for this month
+        </div>
+
+    {% endif %}
+
+{% else %}
+
+<div class="alert alert-warning mt-3">
+No attendance records found for this month
+</div>
+
+{% endif %}
 </div>
 {% endif %}
 

@@ -944,61 +944,106 @@ def admin_employee_attendance_calendar(request, emp_id):
 
 @login_required
 def process_attendance_view(request):
+
     employees = Employee.objects.all().order_by('employee_id')
-
-    selected_employee = None
-    summary = None
-    records = Attendance.objects.none()
-
     today = localdate()
+
     selected_month = int(request.GET.get('month', today.month))
     selected_year = int(request.GET.get('year', today.year))
-
     emp_id = request.GET.get('employee_id')
 
+    selected_employee = None
+    records = Attendance.objects.none()
+    summary = None
+    processed = False
+
+    # =====================
+    # PROCESS ATTENDANCE
+    # =====================
+    if request.method == "POST":
+
+        emp_id = request.POST.get("employee_id")
+        month = request.POST.get("month")
+        year = request.POST.get("year")
+
+        employee = Employee.objects.get(id=emp_id)
+
+        Attendance.objects.filter(
+            employee=employee,
+            date__year=year,
+            date__month=month
+        ).update(is_processed=True)
+
+        messages.success(request, "Attendance processed successfully and locked.")
+
+        return redirect(
+            f"/attendance/process/?employee_id={emp_id}&month={month}&year={year}"
+        )
+
+    # =====================
+    # DISPLAY DATA
+    # =====================
     if emp_id:
+
         selected_employee = Employee.objects.get(id=emp_id)
 
-    records = Attendance.objects.filter(
-        employee=selected_employee,
-        date__year=selected_year,
-        date__month=selected_month,
-        is_processed=True
-    )
+        records = Attendance.objects.filter(
+            employee=selected_employee,
+            date__year=selected_year,
+            date__month=selected_month
+        )
 
-    # 🔥 Assigned (from settings)
-    assigned = settings.PL_LIMIT_PER_MONTH
+        # check if already processed
+        if records.exists():
+            processed = records.filter(is_processed=True).exists()
 
-    # 🔥 Count approved leave days for selected month
-    approved_leaves = Leave.objects.filter(
-        employee=selected_employee,
-        status='Approved',
-        start_date__year=selected_year,
-        start_date__month=selected_month
-    )
+        # =====================
+        # LEAVE CALCULATION
+        # =====================
 
-    used = 0
-    for leave in approved_leaves:
-        used += (leave.end_date - leave.start_date).days + 1
+        lwp_assigned = settings.PL_LIMIT_PER_MONTH
 
-    remaining = assigned - used
+        leave_days = 0
 
-    summary = {
-        'working_days': get_working_days_of_month(selected_year, selected_month),
-        'present_days': records.filter(status__in=['Present', 'Late']).count(),
-        'lwp_days': records.filter(status='LWP').count(),
-        'absent_days': records.filter(status='Absent').count(),
+        leaves = Leave.objects.filter(
+            employee=selected_employee,
+            status='Approved'
+        )
 
-        # 🔥 New LWP Display
-        'lwp_assigned': assigned,
-        'lwp_used': used,
-        'lwp_remaining': remaining,
-    }
+        for leave in leaves:
+            current = leave.start_date
 
+            while current <= leave.end_date:
+
+                if current.year == selected_year and current.month == selected_month:
+                    leave_days += 1
+
+                current += timedelta(days=1)
+
+        lwp_used = leave_days
+        lwp_remaining = lwp_assigned - lwp_used
+
+        summary = {
+            'working_days': get_working_days_of_month(selected_year, selected_month),
+
+            'present_days': records.filter(
+                status__in=['Present', 'Late']
+            ).count(),
+
+            'absent_days': records.filter(
+                status='Absent'
+            ).count(),
+
+            'lwp_assigned': lwp_assigned,
+            'lwp_used': lwp_used,
+            'lwp_remaining': lwp_remaining,
+        }
 
     context = {
         'employees': employees,
         'selected_employee': selected_employee,
+        'records': records,
+        'processed': processed,
         'summary': summary,
         'selected_month': selected_month,
         'selected_year': selected_year,
@@ -1007,11 +1052,13 @@ def process_attendance_view(request):
     }
 
     return render(request, 'attendance/process_attendance.html', context)
+
+
 @login_required
 def apply_regularization(request, date):
     employee = request.user.employee_profile
 
-    attendance = Attendance.objects.filter(
+    attendance = Attendance.objects.filter( 
         employee=employee,
         date=date
     ).first()
