@@ -16,7 +16,7 @@ import calendar
 import json
 from decimal import Decimal
 
-from .utils import get_working_days_of_month, get_used_pl
+from .utils import get_working_days_of_month, get_used_pl,generate_salary
 from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization
 
 
@@ -1125,3 +1125,44 @@ def admin_regularization_action(request, pk, action):
         reg.save()
 
     return redirect('admin_regularization_list')
+
+@login_required
+def generate_salary_page(request):
+
+    departments = Department.objects.all()
+    employees = None
+
+    dept_id = request.GET.get("department")
+
+    if dept_id:
+        employees = Employee.objects.filter(department_id=dept_id)
+
+    return render(request, "salary/generate_salary.html", {
+        "departments": departments,
+        "employees": employees
+    })
+
+@login_required
+def run_salary_generation(request):
+
+    if request.method == "POST":
+
+        department = request.POST.get("department")
+        month = int(request.POST.get("month"))
+        year = int(request.POST.get("year"))
+
+        employee_ids = request.POST.getlist("employee_ids")
+
+        for emp_id in employee_ids:
+
+            emp = Employee.objects.get(id=emp_id)
+
+            basic = float(request.POST.get(f"basic_{emp_id}", 0))
+            hra = float(request.POST.get(f"hra_{emp_id}", 0))
+            allowance = float(request.POST.get(f"allowance_{emp_id}", 0))
+
+            generate_salary(emp, month, year, basic, hra, allowance)
+
+        messages.success(request, "Salary generated successfully")
+
+        return redirect("generate_salary_page")

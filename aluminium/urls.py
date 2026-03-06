@@ -73,6 +73,8 @@ urlpatterns = [
     path('dashboard/regularization/', views.admin_regularization_list, name='admin_regularization_list'),
     path('dashboard/regularization/<int:pk>/<str:action>/', views.admin_regularization_action, name='admin_regularization_action'),
 
+    path('salary/generate/', views.generate_salary_page, name='generate_salary_page'),
+    path('salary/run/', views.run_salary_generation, name='run_salary_generation'),
 
 ]
 

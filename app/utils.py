@@ -1,5 +1,5 @@
 from django.utils.timezone import localdate
-from app.models import Leave
+from app.models import Leave,Attendance,MonthlySalary
 
 
 def get_used_pl(employee, date=None):
@@ -67,3 +67,51 @@ def get_working_days_of_month(year, month):
         working_days += 1
 
     return working_days
+
+def generate_salary(employee, month, year, basic, hra, allowance):
+
+    gross = basic + hra + allowance
+
+    per_day = gross / 26
+
+    absent_days = Attendance.objects.filter(
+        employee=employee,
+        date__year=year,
+        date__month=month,
+        status='Absent'
+    ).count()
+
+    lwp_days = Attendance.objects.filter(
+        employee=employee,
+        date__year=year,
+        date__month=month,
+        status='LWP'
+    ).count()
+
+    deduction_days = absent_days + lwp_days
+    deduction = deduction_days * per_day
+
+    emp_pf = basic * 0.12
+    employer_pf = basic * 0.12
+
+    emp_esic = gross * 0.0075
+    employer_esic = gross * 0.0325
+
+    net_salary = gross - deduction - emp_pf - emp_esic
+
+    MonthlySalary.objects.update_or_create(
+        employee=employee,
+        month=month,
+        year=year,
+        defaults={
+            "gross_salary": gross,
+            "absent_days": absent_days,
+            "lwp_days": lwp_days,
+            "lwp_deduction": deduction,
+            "emp_pf": emp_pf,
+            "employer_pf": employer_pf,
+            "emp_esic": emp_esic,
+            "employer_esic": employer_esic,
+            "net_salary": net_salary
+        }
+    )

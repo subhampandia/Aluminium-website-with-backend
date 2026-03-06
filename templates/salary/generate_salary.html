@@ -1,0 +1,140 @@
+{% extends "base_dashboard.html" %}
+{% block content %}
+
+<h4 class="mb-3">Generate Salary</h4>
+
+<!-- Department Selector -->
+<form method="get">
+
+<label class="form-label">Select Department</label>
+
+<select name="department" class="form-select" onchange="this.form.submit()">
+
+<option value="">Select Department</option>
+
+{% for d in departments %}
+<option value="{{ d.id }}"
+{% if request.GET.department == d.id|stringformat:"s" %}selected{% endif %}>
+{{ d.name }}
+</option>
+{% endfor %}
+
+</select>
+
+</form>
+
+
+{% if employees %}
+
+<form method="post" action="{% url 'run_salary_generation' %}">
+{% csrf_token %}
+
+<input type="hidden" name="department" value="{{ request.GET.department }}">
+
+<!-- Month & Year -->
+<div class="row mt-3">
+
+<div class="col-md-4">
+<label class="form-label">Month</label>
+
+<select name="month" class="form-select">
+
+{% for num, name in months %}
+<option value="{{ num }}"
+{% if num == selected_month %}selected{% endif %}>
+{{ name }}
+</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<div class="col-md-4">
+<label class="form-label">Year</label>
+
+<select name="year" class="form-select">
+
+{% for y in years %}
+<option value="{{ y }}"
+{% if y == selected_year %}selected{% endif %}>
+{{ y }}
+</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+
+<br>
+
+<!-- Employee Salary Table -->
+
+<table class="table table-bordered">
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Department</th>
+<th>Basic</th>
+<th>HRA</th>
+<th>Allowance</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for emp in employees %}
+
+<tr>
+
+<td>
+{{ emp.first_name }} {{ emp.last_name }}
+<input type="hidden" name="employee_ids" value="{{ emp.id }}">
+</td>
+
+<td>{{ emp.department.name }}</td>
+
+<td>
+<input type="number"
+name="basic_{{ emp.id }}"
+class="form-control"
+placeholder="Basic Salary">
+</td>
+
+<td>
+<input type="number"
+name="hra_{{ emp.id }}"
+class="form-control"
+placeholder="HRA">
+</td>
+
+<td>
+<input type="number"
+name="allowance_{{ emp.id }}"
+class="form-control"
+placeholder="Allowance">
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+
+<button class="btn btn-success">
+Generate Salary
+</button>
+
+</form>
+
+{% endif %}
+
+{% endblock %}
