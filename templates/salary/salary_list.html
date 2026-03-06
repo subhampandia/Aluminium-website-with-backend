@@ -1,0 +1,48 @@
+{% extends "base_dashboard.html" %}
+{% block content %}
+
+<h4 class="mb-3">Generated Salaries</h4>
+
+<table class="table table-bordered table-striped">
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Month</th>
+<th>Year</th>
+<th>Gross Salary</th>
+<th>Leave Deduction</th>
+<th>PF</th>
+<th>ESIC</th>
+<th>Net Salary</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for s in salaries %}
+
+<tr>
+<td>{{ s.employee.first_name }} {{ s.employee.last_name }}</td>
+<td>{{ s.month }}</td>
+<td>{{ s.year }}</td>
+<td>{{ s.gross_salary }}</td>
+<td>{{ s.leave_deduction }}</td>
+<td>{{ s.emp_pf }}</td>
+<td>{{ s.emp_esic }}</td>
+<td class="fw-bold text-success">{{ s.net_salary }}</td>
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="8" class="text-center">No salaries generated</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

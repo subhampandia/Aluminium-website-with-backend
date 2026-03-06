@@ -71,25 +71,22 @@ def get_working_days_of_month(year, month):
 def generate_salary(employee, month, year, basic, hra, allowance):
 
     gross = basic + hra + allowance
-
     per_day = gross / 26
 
-    absent_days = Attendance.objects.filter(
+    records = Attendance.objects.filter(
         employee=employee,
         date__year=year,
         date__month=month,
-        status='Absent'
-    ).count()
+        is_processed=True
+    )
 
-    lwp_days = Attendance.objects.filter(
-        employee=employee,
-        date__year=year,
-        date__month=month,
-        status='LWP'
-    ).count()
+    absent_days = records.filter(status='Absent').count()
 
-    deduction_days = absent_days + lwp_days
-    deduction = deduction_days * per_day
+    extra_leave_days = records.filter(status='LWP').count()
+
+    total_deduction_days = absent_days + extra_leave_days
+
+    leave_deduction = total_deduction_days * per_day
 
     emp_pf = basic * 0.12
     employer_pf = basic * 0.12
@@ -97,7 +94,7 @@ def generate_salary(employee, month, year, basic, hra, allowance):
     emp_esic = gross * 0.0075
     employer_esic = gross * 0.0325
 
-    net_salary = gross - deduction - emp_pf - emp_esic
+    net_salary = gross - leave_deduction - emp_pf - emp_esic
 
     MonthlySalary.objects.update_or_create(
         employee=employee,
@@ -106,8 +103,8 @@ def generate_salary(employee, month, year, basic, hra, allowance):
         defaults={
             "gross_salary": gross,
             "absent_days": absent_days,
-            "lwp_days": lwp_days,
-            "lwp_deduction": deduction,
+            "extra_leave_days": extra_leave_days,
+            "leave_deduction": leave_deduction,
             "emp_pf": emp_pf,
             "employer_pf": employer_pf,
             "emp_esic": emp_esic,

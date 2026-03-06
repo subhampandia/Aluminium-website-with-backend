@@ -34,35 +34,4 @@
 </div>
 
 <!-- SHIFT HISTORY -->
-<h5 class="mb-3">Shift History</h5>
-
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Shift</th>
-      <th>Timing</th>
-      <th>Break</th>
-      <th>Assigned Date</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for sh in shift_history %}
-    <tr>
-      <td>{{ sh.shift.name }}</td>
-      <td>
-        {{ sh.shift.start_time|time:"h:i A" }} –
-        {{ sh.shift.end_time|time:"h:i A" }}
-      </td>
-      <td>{{ sh.shift.break_minutes }} mins</td>
-      <td>{{ sh.assigned_date }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="4" class="text-center text-muted">
-        No previous shifts
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
 {% endblock %}

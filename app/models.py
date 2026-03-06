@@ -265,11 +265,11 @@ class MonthlySalary(models.Model):
     month = models.IntegerField()
     year = models.IntegerField()
 
-    working_days = models.IntegerField()
-    present_days = models.IntegerField()
+    working_days = models.IntegerField(default=0)
+    present_days = models.IntegerField(default=0)
 
     absent_days = models.IntegerField(default=0)
-    extra_leave_days = models.IntegerField()
+    extra_leave_days = models.IntegerField(default=0)
 
     gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -279,7 +279,7 @@ class MonthlySalary(models.Model):
     emp_esic = models.DecimalField(max_digits=10, decimal_places=2)
     employer_esic = models.DecimalField(max_digits=10, decimal_places=2)
 
-    leave_deduction = models.DecimalField(max_digits=10, decimal_places=2)
+    leave_deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     net_salary = models.DecimalField(max_digits=10, decimal_places=2)
 

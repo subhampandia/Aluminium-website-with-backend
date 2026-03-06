@@ -17,7 +17,7 @@ import json
 from decimal import Decimal
 
 from .utils import get_working_days_of_month, get_used_pl,generate_salary
-from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization
+from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization,MonthlySalary
 
 
 # ================= AUTH =================
@@ -1126,21 +1126,35 @@ def admin_regularization_action(request, pk, action):
 
     return redirect('admin_regularization_list')
 
+import calendar
+from django.utils.timezone import localdate
+
 @login_required
 def generate_salary_page(request):
 
     departments = Department.objects.all()
     employees = None
 
+    today = localdate()
+
+    selected_month = int(request.GET.get("month", today.month))
+    selected_year = int(request.GET.get("year", today.year))
+
     dept_id = request.GET.get("department")
 
     if dept_id:
         employees = Employee.objects.filter(department_id=dept_id)
 
-    return render(request, "salary/generate_salary.html", {
+    context = {
         "departments": departments,
-        "employees": employees
-    })
+        "employees": employees,
+        "months": list(enumerate(calendar.month_name))[1:],  # Jan-Dec
+        "years": range(today.year - 1, today.year + 4),
+        "selected_month": selected_month,
+        "selected_year": selected_year,
+    }
+
+    return render(request, "salary/generate_salary.html", context)
 
 @login_required
 def run_salary_generation(request):
@@ -1157,6 +1171,18 @@ def run_salary_generation(request):
 
             emp = Employee.objects.get(id=emp_id)
 
+            # Check processed attendance
+            records = Attendance.objects.filter(
+                employee=emp,
+                date__year=year,
+                date__month=month,
+                is_processed=True
+            )
+
+            # Skip employee if attendance not processed
+            if not records.exists():
+                continue
+
             basic = float(request.POST.get(f"basic_{emp_id}", 0))
             hra = float(request.POST.get(f"hra_{emp_id}", 0))
             allowance = float(request.POST.get(f"allowance_{emp_id}", 0))
@@ -1165,4 +1191,72 @@ def run_salary_generation(request):
 
         messages.success(request, "Salary generated successfully")
 
-        return redirect("generate_salary_page")
+        return redirect("salary_list")
+
+@login_required
+def salary_list(request):
+
+    salaries = MonthlySalary.objects.select_related("employee").order_by("-year", "-month")
+
+    return render(
+        request,
+        "salary/salary_list.html",
+        {"salaries": salaries}
+    )    
+@login_required
+def processed_attendance_list(request):
+
+    month = request.GET.get("month")
+    year = request.GET.get("year")
+
+    records = Attendance.objects.filter(is_processed=True)
+
+    if month:
+        records = records.filter(date__month=month)
+
+    if year:
+        records = records.filter(date__year=year)
+
+    employees = Employee.objects.all()
+
+    summary = []
+
+    for emp in employees:
+
+        emp_records = records.filter(employee=emp)
+
+        if not emp_records.exists():
+            continue
+
+        summary.append({
+            "employee": emp,
+            "present": emp_records.filter(status__in=["Present", "Late"]).count(),
+            "absent": emp_records.filter(status="Absent").count(),
+            "leave": emp_records.filter(status__in=["Leave", "LWP"]).count(),
+            "month": month,
+            "year": year
+        })
+
+    return render(
+        request,
+        "attendance/processed_overview.html",
+        {"summary": summary}
+    )
+@login_required
+def processed_attendance_detail(request, emp_id):
+
+    employee = get_object_or_404(Employee, id=emp_id)
+
+    records = Attendance.objects.filter(
+        employee=employee,
+        is_processed=True
+    ).order_by("-date")
+
+    return render(
+        request,
+        "attendance/processed_detail.html",
+        {
+            "employee": employee,
+            "records": records
+        }
+    )

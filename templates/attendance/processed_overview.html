@@ -1,0 +1,44 @@
+{% extends "base_dashboard.html" %}
+
+{% block content %}
+
+<h4>Processed Attendance Overview</h4>
+
+<table class="table table-bordered">
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Leave</th>
+<th>Details</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for s in summary %}
+
+<tr>
+<td>{{ s.employee.first_name }} {{ s.employee.last_name }}</td>
+<td>{{ s.present }}</td>
+<td>{{ s.absent }}</td>
+<td>{{ s.leave }}</td>
+
+<td>
+<a href="{% url 'processed_attendance_detail' s.employee.id %}"
+class="btn btn-sm btn-primary">
+View Details
+</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

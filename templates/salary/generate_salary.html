@@ -36,16 +36,12 @@
 
 <div class="col-md-4">
 <label class="form-label">Month</label>
-
 <select name="month" class="form-select">
-
 {% for num, name in months %}
-<option value="{{ num }}"
-{% if num == selected_month %}selected{% endif %}>
+<option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>
 {{ name }}
 </option>
 {% endfor %}
-
 </select>
 
 </div>
@@ -53,16 +49,12 @@
 
 <div class="col-md-4">
 <label class="form-label">Year</label>
-
 <select name="year" class="form-select">
-
 {% for y in years %}
-<option value="{{ y }}"
-{% if y == selected_year %}selected{% endif %}>
+<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
 {{ y }}
 </option>
 {% endfor %}
-
 </select>
 
 </div>

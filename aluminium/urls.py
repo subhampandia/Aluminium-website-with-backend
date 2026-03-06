@@ -69,13 +69,19 @@ urlpatterns = [
     path('employee/shift/',views.employee_shift_details,name='employee_shift_details'),
 
     path('attendance/process/', views.process_attendance_view, name='process_attendance'),
+    path("attendance/processed/",views.processed_attendance_list,name="processed_attendance_list"),
+    path(
+    "attendance/processed/<int:emp_id>/",
+    views.processed_attendance_detail,
+    name="processed_attendance_detail"
+),
     path('attendance/regularize/<str:date>/', views.apply_regularization, name='apply_regularization'),
     path('dashboard/regularization/', views.admin_regularization_list, name='admin_regularization_list'),
     path('dashboard/regularization/<int:pk>/<str:action>/', views.admin_regularization_action, name='admin_regularization_action'),
 
     path('salary/generate/', views.generate_salary_page, name='generate_salary_page'),
     path('salary/run/', views.run_salary_generation, name='run_salary_generation'),
-
+    path('salary/list/', views.salary_list, name='salary_list'),
 ]
 
 if settings.DEBUG:

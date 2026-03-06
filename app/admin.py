@@ -120,3 +120,24 @@ class LeaveAdmin(admin.ModelAdmin):
     )
     list_filter = ('leave_type', 'status')
     search_fields = ('employee__employee_id', 'employee__first_name')
+
+from .models import MonthlySalary
+
+@admin.register(MonthlySalary)
+class MonthlySalaryAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "employee",
+        "month",
+        "year",
+        "gross_salary",
+        "leave_deduction",
+        "emp_pf",
+        "emp_esic",
+        "net_salary",
+        "generated_at"
+    )
+
+    list_filter = ("month", "year")
+    search_fields = ("employee__employee_id", "employee__first_name")
+    
