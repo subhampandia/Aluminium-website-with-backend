@@ -13,10 +13,12 @@
 <option value="">Select Department</option>
 
 {% for d in departments %}
+
 <option value="{{ d.id }}"
 {% if request.GET.department == d.id|stringformat:"s" %}selected{% endif %}>
 {{ d.name }}
 </option>
+
 {% endfor %}
 
 </select>
@@ -26,45 +28,7 @@
 
 {% if employees %}
 
-<form method="post" action="{% url 'run_salary_generation' %}">
-{% csrf_token %}
-
-<input type="hidden" name="department" value="{{ request.GET.department }}">
-
-<!-- Month & Year -->
-<div class="row mt-3">
-
-<div class="col-md-4">
-<label class="form-label">Month</label>
-<select name="month" class="form-select">
-{% for num, name in months %}
-<option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>
-{{ name }}
-</option>
-{% endfor %}
-</select>
-
-</div>
-
-
-<div class="col-md-4">
-<label class="form-label">Year</label>
-<select name="year" class="form-select">
-{% for y in years %}
-<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
-{{ y }}
-</option>
-{% endfor %}
-</select>
-
-</div>
-
-</div>
-
-
 <br>
-
-<!-- Employee Salary Table -->
 
 <table class="table table-bordered">
 
@@ -72,9 +36,7 @@
 <tr>
 <th>Employee</th>
 <th>Department</th>
-<th>Basic</th>
-<th>HRA</th>
-<th>Allowance</th>
+<th>Action</th>
 </tr>
 </thead>
 
@@ -84,32 +46,23 @@
 
 <tr>
 
-<td>
-{{ emp.first_name }} {{ emp.last_name }}
-<input type="hidden" name="employee_ids" value="{{ emp.id }}">
-</td>
+<td>{{ emp.first_name }} {{ emp.last_name }}</td>
 
 <td>{{ emp.department.name }}</td>
 
 <td>
-<input type="number"
-name="basic_{{ emp.id }}"
-class="form-control"
-placeholder="Basic Salary">
-</td>
 
-<td>
-<input type="number"
-name="hra_{{ emp.id }}"
-class="form-control"
-placeholder="HRA">
-</td>
+<button
+class="btn btn-primary btn-sm open-salary-modal"
+data-empid="{{ emp.id }}"
+data-empname="{{ emp.first_name }} {{ emp.last_name }}"
+data-bs-toggle="modal"
+data-bs-target="#salaryModal">
 
-<td>
-<input type="number"
-name="allowance_{{ emp.id }}"
-class="form-control"
-placeholder="Allowance">
+Generate Salary
+
+</button>
+
 </td>
 
 </tr>
@@ -120,13 +73,232 @@ placeholder="Allowance">
 
 </table>
 
+{% endif %}
 
-<button class="btn btn-success">
-Generate Salary
-</button>
+
+<!-- Salary Modal -->
+
+<div class="modal fade" id="salaryModal">
+
+<div class="modal-dialog modal-lg">
+
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 class="modal-title">Generate Salary</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+
+<div class="modal-body">
+
+<form id="salaryForm">
+
+{% csrf_token %}
+
+<input type="hidden" name="employee_id" id="employee_id">
+
+<input type="hidden" name="month" value="{{ selected_month }}">
+<input type="hidden" name="year" value="{{ selected_year }}">
+
+
+<div class="mb-3">
+
+<label>Employee</label>
+
+<input type="text"
+id="employee_name"
+class="form-control"
+readonly>
+
+</div>
+<div class="row mb-3">
+
+<div class="col-md-6">
+
+<label>Month</label>
+
+<select id="salary_month" name="month" class="form-select">
+
+{% for num, name in months %}
+
+<option value="{{ num }}">{{ name }}</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Year</label>
+
+<select id="salary_year" name="year" class="form-select">
+
+{% for y in years %}
+
+<option value="{{ y }}">{{ y }}</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+<h6>Attendance Summary</h6>
+
+<table class="table table-sm table-bordered">
+
+<tr>
+<th>Working Days</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Leave</th>
+</tr>
+
+<tr>
+<td id="working_days">-</td>
+<td id="present_days">-</td>
+<td id="absent_days">-</td>
+<td id="leave_days">-</td>
+</tr>
+
+</table>
+
+<hr>
+
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Basic</label>
+
+<input type="number"
+name="basic"
+class="form-control"
+required>
+
+</div>
+
+
+<div class="col-md-4">
+
+<label>HRA</label>
+
+<input type="number"
+name="hra"
+class="form-control"
+required>
+
+</div>
+
+
+<div class="col-md-4">
+
+<label>Allowance</label>
+
+<input type="number"
+name="allowance"
+class="form-control"
+required>
+
+</div>
+
+</div>
 
 </form>
 
-{% endif %}
+</div>
+
+
+<div class="modal-footer">
+
+<button class="btn btn-success" onclick="generateSalary()">
+
+Generate Salary
+
+</button>
+
+</div>
+
+</div>
+</div>
+</div>
+
+
+<script>
+
+let currentEmployee = null;
+
+document.querySelectorAll(".open-salary-modal").forEach(btn => {
+
+btn.addEventListener("click", function(){
+
+currentEmployee = this.dataset.empid
+let empName = this.dataset.empname
+
+document.getElementById("employee_id").value = currentEmployee
+document.getElementById("employee_name").value = empName
+
+loadAttendance()
+
+})
+
+})
+
+
+document.getElementById("salary_month").addEventListener("change", loadAttendance)
+document.getElementById("salary_year").addEventListener("change", loadAttendance)
+
+
+function loadAttendance(){
+
+let month = document.getElementById("salary_month").value
+let year = document.getElementById("salary_year").value
+
+if(!currentEmployee) return
+
+fetch(`/salary/attendance-summary/${currentEmployee}/?month=${month}&year=${year}`)
+
+.then(res => res.json())
+
+.then(data => {
+
+document.getElementById("working_days").innerText = data.working_days
+document.getElementById("present_days").innerText = data.present
+document.getElementById("absent_days").innerText = data.absent
+document.getElementById("leave_days").innerText = data.leave
+
+})
+
+}
+
+function generateSalary(){
+
+    let form = document.getElementById("salaryForm")
+
+    fetch("{% url 'generate_single_salary' %}", {
+        method: "POST",
+        body: new FormData(form),
+        headers:{
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message)
+
+        location.reload()
+
+    })
+
+}
+
+</script>
 
 {% endblock %}

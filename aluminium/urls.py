@@ -70,11 +70,9 @@ urlpatterns = [
 
     path('attendance/process/', views.process_attendance_view, name='process_attendance'),
     path("attendance/processed/",views.processed_attendance_list,name="processed_attendance_list"),
-    path(
-    "attendance/processed/<int:emp_id>/",
-    views.processed_attendance_detail,
-    name="processed_attendance_detail"
-),
+    path("attendance/processed/<int:emp_id>/",views.processed_attendance_detail,name="processed_attendance_detail"),
+    path("salary/attendance-summary/<int:emp_id>/",views.salary_attendance_summary,name="salary_attendance_summary"),
+    path("salary/generate-single/",views.generate_single_salary,name="generate_single_salary"),
     path('attendance/regularize/<str:date>/', views.apply_regularization, name='apply_regularization'),
     path('dashboard/regularization/', views.admin_regularization_list, name='admin_regularization_list'),
     path('dashboard/regularization/<int:pk>/<str:action>/', views.admin_regularization_action, name='admin_regularization_action'),

@@ -1293,3 +1293,67 @@ def processed_attendance_detail(request, emp_id):
             "records": records
         }
     )
+    
+@login_required
+def salary_attendance_summary(request, emp_id):
+
+    month = int(request.GET.get("month"))
+    year = int(request.GET.get("year"))
+
+    records = Attendance.objects.filter(
+        employee_id=emp_id,
+        date__year=year,
+        date__month=month,
+        is_processed=True
+    )
+
+    # ✅ Use utility function
+    working_days = get_working_days_of_month(year, month)
+
+    present = records.filter(status__in=["Present","Late"]).count()
+    absent = records.filter(status="Absent").count()
+    leave = records.filter(status__in=["Leave","LWP"]).count()
+
+    data = {
+        "working_days": working_days,
+        "present": present,
+        "absent": absent,
+        "leave": leave
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def generate_single_salary(request):
+
+    if request.method == "POST":
+
+        emp_id = request.POST.get("employee_id")
+        month = int(request.POST.get("month"))
+        year = int(request.POST.get("year"))
+
+        basic = float(request.POST.get("basic",0))
+        hra = float(request.POST.get("hra",0))
+        allowance = float(request.POST.get("allowance",0))
+
+        emp = Employee.objects.get(id=emp_id)
+
+        records = Attendance.objects.filter(
+            employee=emp,
+            date__year=year,
+            date__month=month,
+            is_processed=True
+        )
+
+        if not records.exists():
+            return JsonResponse({
+                "status":"error",
+                "message":"Attendance not processed"
+            })
+
+        generate_salary(emp, month, year, basic, hra, allowance)
+
+        return JsonResponse({
+            "status":"success",
+            "message":"Salary generated successfully"
+        })

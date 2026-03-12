@@ -71,7 +71,6 @@ def get_working_days_of_month(year, month):
 def generate_salary(employee, month, year, basic, hra, allowance):
 
     gross = basic + hra + allowance
-    per_day = gross / working_days if working_days else 0
     records = Attendance.objects.filter(
         employee=employee,
         date__year=year,
@@ -80,17 +79,21 @@ def generate_salary(employee, month, year, basic, hra, allowance):
     )
 
     absent_days = records.filter(status='Absent').count()
+    leave_days = records.filter(status="Leave").count()
+    pl_limit = settings.PL_LIMIT_PER_MONTH
 
-    extra_leave_days = records.filter(status='LWP').count()
+    extra_leave_days = max(0, leave_days - pl_limit)
+
 
     total_deduction_days = absent_days + extra_leave_days
     
-    working_days = records.exclude(status="Holiday").count()
+    working_days = get_working_days_of_month(year, month)
+    per_day_basic = basic / working_days if working_days else 0
 
     present_days = records.filter(
         status__in=["Present","Late"]).count()
 
-    leave_deduction = total_deduction_days * per_day
+    leave_deduction = total_deduction_days * per_day_basic
 
     emp_pf = basic * 0.12
     employer_pf = basic * 0.12

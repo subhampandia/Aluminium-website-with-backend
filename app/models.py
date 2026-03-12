@@ -259,10 +259,25 @@ class SalaryStructure(models.Model):
     def __str__(self):
         return f"{self.employee.employee_id} Salary"
 class MonthlySalary(models.Model):
+    MONTH_CHOICES = [
+    (1,"January"),
+    (2,"February"),
+    (3,"March"),
+    (4,"April"),
+    (5,"May"),
+    (6,"June"),
+    (7,"July"),
+    (8,"August"),
+    (9,"September"),
+    (10,"October"),
+    (11,"November"),
+    (12,"December"),
+]
 
+    month = models.IntegerField(choices=MONTH_CHOICES)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
 
-    month = models.IntegerField()
+   
     year = models.IntegerField()
 
     working_days = models.IntegerField(default=0)
