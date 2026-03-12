@@ -963,16 +963,42 @@ def process_attendance_view(request):
     if request.method == "POST":
 
         emp_id = request.POST.get("employee_id")
-        month = request.POST.get("month")
-        year = request.POST.get("year")
+        month = int(request.POST.get("month"))
+        year = int(request.POST.get("year"))
 
         employee = Employee.objects.get(id=emp_id)
 
+        # 1️⃣ Mark existing attendance as processed
         Attendance.objects.filter(
             employee=employee,
             date__year=year,
             date__month=month
         ).update(is_processed=True)
+
+        # 2️⃣ Convert approved leave into attendance records
+        leaves = Leave.objects.filter(
+            employee=employee,
+            status="Approved"
+        )
+
+        for leave in leaves:
+
+            current = leave.start_date
+
+            while current <= leave.end_date:
+
+                if current.year == year and current.month == month:
+
+                    Attendance.objects.update_or_create(
+                        employee=employee,
+                        date=current,
+                        defaults={
+                            "status": "Leave",
+                            "is_processed": True
+                        }
+                    )
+
+                current += timedelta(days=1)
 
         messages.success(request, "Attendance processed successfully and locked.")
 
@@ -1002,21 +1028,28 @@ def process_attendance_view(request):
         # =====================
 
         lwp_assigned = settings.PL_LIMIT_PER_MONTH
-
         leave_days = 0
 
         leaves = Leave.objects.filter(
             employee=selected_employee,
-            status='Approved'
+            status="Approved"
         )
 
         for leave in leaves:
+
             current = leave.start_date
 
             while current <= leave.end_date:
 
                 if current.year == selected_year and current.month == selected_month:
-                    leave_days += 1
+                    att, created = Attendance.objects.get_or_create(
+                        employee=selected_employee,
+                        date=current
+                    )
+
+                    att.status = "Leave"
+                    att.is_processed = True
+                    att.save()
 
                 current += timedelta(days=1)
 
