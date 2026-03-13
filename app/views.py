@@ -1313,11 +1313,13 @@ def salary_attendance_summary(request, emp_id):
     present = records.filter(status__in=["Present","Late"]).count()
     absent = records.filter(status="Absent").count()
     leave = records.filter(status__in=["Leave","LWP"]).count()
+    half_days = records.filter(status="Half Day").count()
 
     data = {
         "working_days": working_days,
         "present": present,
         "absent": absent,
+        "half_days":half_days,
         "leave": leave
     }
 

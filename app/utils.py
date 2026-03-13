@@ -80,12 +80,14 @@ def generate_salary(employee, month, year, basic, hra, allowance):
 
     absent_days = records.filter(status='Absent').count()
     leave_days = records.filter(status="Leave").count()
+    half_days = records.filter(status='Half Day').count()
+
     pl_limit = settings.PL_LIMIT_PER_MONTH
 
     extra_leave_days = max(0, leave_days - pl_limit)
 
 
-    total_deduction_days = absent_days + extra_leave_days
+    total_deduction_days = absent_days + extra_leave_days + (half_days * 0.5)
     
     working_days = get_working_days_of_month(year, month)
     per_day_basic = basic / working_days if working_days else 0

@@ -156,6 +156,7 @@ readonly>
 <th>Working Days</th>
 <th>Present</th>
 <th>Absent</th>
+<th>Half days</th>
 <th>Leave</th>
 </tr>
 
@@ -163,6 +164,7 @@ readonly>
 <td id="working_days">-</td>
 <td id="present_days">-</td>
 <td id="absent_days">-</td>
+<td id="half_days">-</td>
 <td id="leave_days">-</td>
 </tr>
 
@@ -271,6 +273,7 @@ fetch(`/salary/attendance-summary/${currentEmployee}/?month=${month}&year=${year
 document.getElementById("working_days").innerText = data.working_days
 document.getElementById("present_days").innerText = data.present
 document.getElementById("absent_days").innerText = data.absent
+document.getElementById("half_days").innerText = data.half_days
 document.getElementById("leave_days").innerText = data.leave
 
 })
