@@ -16,7 +16,7 @@ import calendar
 import json
 from decimal import Decimal
 
-from .utils import get_working_days_of_month, get_used_pl,generate_salary
+from .utils import get_working_days_of_month, generate_salary
 from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization,MonthlySalary
 
 
@@ -928,7 +928,7 @@ def admin_employee_attendance_detail(request, emp_id):
         }
     )
 
-
+# ================= CALENDAR =================
 
 @staff_member_required
 def admin_employee_attendance_calendar(request, emp_id):
@@ -1087,6 +1087,8 @@ def process_attendance_view(request):
     return render(request, 'attendance/process_attendance.html', context)
 
 
+# ================= ATTENDANCE REGULARIZATION =================
+
 @login_required
 def apply_regularization(request, date):
     employee = request.user.employee_profile
@@ -1159,83 +1161,9 @@ def admin_regularization_action(request, pk, action):
 
     return redirect('admin_regularization_list')
 
-import calendar
-from django.utils.timezone import localdate
 
-@login_required
-def generate_salary_page(request):
+# ================= PROCESSED ATTENDANCE VIEW =================
 
-    departments = Department.objects.all()
-    employees = None
-
-    today = localdate()
-
-    selected_month = int(request.GET.get("month", today.month))
-    selected_year = int(request.GET.get("year", today.year))
-
-    dept_id = request.GET.get("department")
-
-    if dept_id:
-        employees = Employee.objects.filter(department_id=dept_id)
-
-    context = {
-        "departments": departments,
-        "employees": employees,
-        "months": list(enumerate(calendar.month_name))[1:],  # Jan-Dec
-        "years": range(today.year - 1, today.year + 4),
-        "selected_month": selected_month,
-        "selected_year": selected_year,
-    }
-
-    return render(request, "salary/generate_salary.html", context)
-
-@login_required
-def run_salary_generation(request):
-
-    if request.method == "POST":
-
-        department = request.POST.get("department")
-        month = int(request.POST.get("month"))
-        year = int(request.POST.get("year"))
-
-        employee_ids = request.POST.getlist("employee_ids")
-
-        for emp_id in employee_ids:
-
-            emp = Employee.objects.get(id=emp_id)
-
-            # Check processed attendance
-            records = Attendance.objects.filter(
-                employee=emp,
-                date__year=year,
-                date__month=month,
-                is_processed=True
-            )
-
-            # Skip employee if attendance not processed
-            if not records.exists():
-                continue
-
-            basic = float(request.POST.get(f"basic_{emp_id}", 0))
-            hra = float(request.POST.get(f"hra_{emp_id}", 0))
-            allowance = float(request.POST.get(f"allowance_{emp_id}", 0))
-
-            generate_salary(emp, month, year, basic, hra, allowance)
-
-        messages.success(request, "Salary generated successfully")
-
-        return redirect("salary_list")
-
-@login_required
-def salary_list(request):
-
-    salaries = MonthlySalary.objects.select_related("employee").order_by("-year", "-month")
-
-    return render(
-        request,
-        "salary/salary_list.html",
-        {"salaries": salaries}
-    )    
 @login_required
 def processed_attendance_list(request):
 
@@ -1293,7 +1221,84 @@ def processed_attendance_detail(request, emp_id):
             "records": records
         }
     )
-    
+
+# ================= SALARY =================
+
+@login_required
+def generate_salary_page(request):
+
+    departments = Department.objects.all()
+    employees = None
+
+    today = localdate()
+
+    selected_month = int(request.GET.get("month", today.month))
+    selected_year = int(request.GET.get("year", today.year))
+
+    dept_id = request.GET.get("department")
+
+    if dept_id:
+        employees = Employee.objects.filter(department_id=dept_id)
+
+    context = {
+        "departments": departments,
+        "employees": employees,
+        "months": list(enumerate(calendar.month_name))[1:],  # Jan-Dec
+        "years": range(today.year - 1, today.year + 4),
+        "selected_month": selected_month,
+        "selected_year": selected_year,
+    }
+
+    return render(request, "salary/generate_salary.html", context)
+
+
+@login_required
+def run_salary_generation(request):
+
+    if request.method == "POST":
+
+        department = request.POST.get("department")
+        month = int(request.POST.get("month"))
+        year = int(request.POST.get("year"))
+
+        employee_ids = request.POST.getlist("employee_ids")
+
+        for emp_id in employee_ids:
+
+            emp = Employee.objects.get(id=emp_id)
+
+            # Check processed attendance
+            records = Attendance.objects.filter(
+                employee=emp,
+                date__year=year,
+                date__month=month,
+                is_processed=True
+            )
+
+            # Skip employee if attendance not processed
+            if not records.exists():
+                continue
+
+            basic = float(request.POST.get(f"basic_{emp_id}", 0))
+            hra = float(request.POST.get(f"hra_{emp_id}", 0))
+            allowance = float(request.POST.get(f"allowance_{emp_id}", 0))
+
+            generate_salary(emp, month, year, basic, hra, allowance)
+
+        messages.success(request, "Salary generated successfully")
+
+        return redirect("salary_list")    
+
+@login_required
+def salary_list(request):
+
+    salaries = MonthlySalary.objects.select_related("employee").order_by("-year", "-month")
+
+    return render(
+        request,
+        "salary/salary_list.html",
+        {"salaries": salaries}
+    )        
 @login_required
 def salary_attendance_summary(request, emp_id):
 
