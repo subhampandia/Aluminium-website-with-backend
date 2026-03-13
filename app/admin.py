@@ -92,7 +92,7 @@ class AttendanceAdmin(admin.ModelAdmin):
         'is_processed'
     )
     list_filter = ('status', 'date')
-    search_fields = ('employee__employee_id','employee_first_name')
+    search_fields = ('employee__employee_id','employee__first_name')
     date_hierarchy = 'date'
 
 # ------------------------
@@ -130,6 +130,10 @@ class MonthlySalaryAdmin(admin.ModelAdmin):
         "employee",
         "month",
         "year",
+        "working_days",
+        "present_days",
+        "half_days",
+        "absent_days",
         "gross_salary",
         "leave_deduction",
         "emp_pf",
@@ -140,4 +144,5 @@ class MonthlySalaryAdmin(admin.ModelAdmin):
 
     list_filter = ("month", "year")
     search_fields = ("employee__employee_id", "employee__first_name")
+    ordering = ("-year","-month")
     

@@ -93,7 +93,7 @@ def generate_salary(employee, month, year, basic, hra, allowance):
     per_day_basic = basic / working_days if working_days else 0
 
     present_days = records.filter(
-        status__in=["Present","Late"]).count()
+        status__in=["Present","Late","Half Day"]).count()
 
     leave_deduction = total_deduction_days * per_day_basic
 
@@ -112,6 +112,7 @@ def generate_salary(employee, month, year, basic, hra, allowance):
         defaults={
             "working_days": working_days,
             "present_days": present_days,
+            "half_days": half_days,
             "gross_salary": gross,
             "absent_days": absent_days,
             "extra_leave_days": extra_leave_days,
