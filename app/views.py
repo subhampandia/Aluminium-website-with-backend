@@ -1359,3 +1359,28 @@ def generate_single_salary(request):
             "status":"success",
             "message":"Salary generated successfully"
         })
+
+@login_required
+def employee_salary_list(request):
+
+    employee = request.user.employee_profile
+
+    salaries = MonthlySalary.objects.filter(
+        employee=employee
+    ).order_by("-year","-month")
+
+    return render(
+        request,
+        "employee/employee_salary_list.html",
+        {"salaries": salaries}
+    )
+@login_required
+def payslip_view(request, salary_id):
+
+    salary = get_object_or_404(MonthlySalary, id=salary_id)
+
+    return render(
+        request,
+        "salary/payslip.html",
+        {"salary": salary}
+    )

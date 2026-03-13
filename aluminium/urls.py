@@ -80,6 +80,17 @@ urlpatterns = [
     path('salary/generate/', views.generate_salary_page, name='generate_salary_page'),
     path('salary/run/', views.run_salary_generation, name='run_salary_generation'),
     path('salary/list/', views.salary_list, name='salary_list'),
+    path(
+    "employee/salary/",
+    views.employee_salary_list,
+    name="employee_salary_list"
+    ),
+
+    path(
+    "payslip/<int:salary_id>/",
+    views.payslip_view,
+    name="payslip_view"
+    ),
 ]
 
 if settings.DEBUG:

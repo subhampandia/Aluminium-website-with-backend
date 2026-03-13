@@ -282,7 +282,7 @@ class MonthlySalary(models.Model):
 
     working_days = models.IntegerField(default=0)
     present_days = models.IntegerField(default=0)
-
+    half_days = models.IntegerField(default=0)
     absent_days = models.IntegerField(default=0)
     extra_leave_days = models.IntegerField(default=0)
 

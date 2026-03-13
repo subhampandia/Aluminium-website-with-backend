@@ -1,0 +1,62 @@
+{% extends "employee/base_employee_dashboard.html" %}
+
+{% block content %}
+
+<div class="card shadow p-4">
+
+<h3 class="text-center mb-4">Payslip</h3>
+
+<p><strong>Employee:</strong>
+{{ salary.employee.first_name }} {{ salary.employee.last_name }}</p>
+
+<p><strong>Month:</strong>
+{{ salary.get_month_display }} {{ salary.year }}</p>
+
+<hr>
+
+<h5>Attendance</h5>
+
+<ul>
+<li>Working Days: {{ salary.working_days }}</li>
+<li>Present Days: {{ salary.present_days }}</li>
+<li>Absent Days: {{ salary.absent_days }}</li>
+<li>Half Days: {{ salary.half_days }}</li>
+<li>Leave Days: {{ salary.extra_leave_days }}</li>
+</ul>
+
+<hr>
+
+<h5>Salary Details</h5>
+
+<table class="table">
+
+<tr>
+<th>Gross Salary</th>
+<td>{{ salary.gross_salary }}</td>
+</tr>
+
+<tr>
+<th>Leave Deduction</th>
+<td>{{ salary.leave_deduction }}</td>
+</tr>
+
+<tr>
+<th>PF</th>
+<td>{{ salary.emp_pf }}</td>
+</tr>
+
+<tr>
+<th>ESIC</th>
+<td>{{ salary.emp_esic }}</td>
+</tr>
+
+<tr class="table-success">
+<th>Net Salary</th>
+<td>{{ salary.net_salary }}</td>
+</tr>
+
+</table>
+
+</div>
+
+{% endblock %}
