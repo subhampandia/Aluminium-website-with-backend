@@ -1,0 +1,30 @@
+{% extends "accounts/base_accounts_dashboard.html" %}
+
+{% block content %}
+
+<div class="row">
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h5>Total Salaries</h5>
+<h3>{{ total_salaries }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h5>This Month</h5>
+<h3>{{ this_month_salaries }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h5>Total Amount</h5>
+<h3>₹ {{ total_amount }}</h3>
+</div>
+</div>
+
+</div>
+
+{% endblock %}

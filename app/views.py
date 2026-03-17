@@ -1247,7 +1247,28 @@ def processed_attendance_detail(request, emp_id):
 
 # ================= SALARY =================
 
+from django.http import HttpResponseForbidden
+
+def payroll_access_required(view_func):
+    def wrapper(request, *args, **kwargs):
+
+        # ✅ Admin allowed
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # ✅ Only Accounts allowed
+        if hasattr(request.user, 'employee_profile'):
+            if request.user.employee_profile.role == 'ACCOUNTS':
+                return view_func(request, *args, **kwargs)
+
+        return HttpResponseForbidden("Access Denied")
+
+    return wrapper
+
+
+
 @login_required
+@payroll_access_required
 def generate_salary_page(request):
 
     departments = Department.objects.all()
@@ -1263,19 +1284,27 @@ def generate_salary_page(request):
     if dept_id:
         employees = Employee.objects.filter(department_id=dept_id)
 
+    # ✅ Decide base template here
+    if request.user.is_superuser:
+        base_template = "base_dashboard.html"
+    else:
+        base_template = "accounts/base_accounts_dashboard.html"
+
     context = {
         "departments": departments,
         "employees": employees,
-        "months": list(enumerate(calendar.month_name))[1:],  # Jan-Dec
+        "months": list(enumerate(calendar.month_name))[1:],
         "years": range(today.year - 1, today.year + 4),
         "selected_month": selected_month,
         "selected_year": selected_year,
+        "base_template": base_template   # ✅ IMPORTANT
     }
 
     return render(request, "salary/generate_salary.html", context)
 
 
 @login_required
+@payroll_access_required
 def run_salary_generation(request):
 
     if request.method == "POST":
@@ -1431,3 +1460,80 @@ def hr_dashboard(request):
     }
 
     return render(request, "hr/hr_dashboard.html", context)
+from django.http import HttpResponseForbidden
+
+def accounts_required(view_func):
+    def wrapper(request, *args, **kwargs):
+
+        # ✅ allow admin
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+
+        # ✅ allow accounts role
+        if hasattr(request.user, 'employee_profile'):
+            if request.user.employee_profile.role == 'ACCOUNTS':
+                return view_func(request, *args, **kwargs)
+
+        return HttpResponseForbidden("Access Denied")
+
+    return wrapper
+from django.db.models import Sum
+@login_required
+@accounts_required
+def accounts_dashboard(request):
+
+    today = timezone.localdate()
+
+    total_salaries = MonthlySalary.objects.count()
+
+    this_month_salaries = MonthlySalary.objects.filter(
+        month=today.month,
+        year=today.year
+    ).count()
+
+    total_amount = MonthlySalary.objects.aggregate(
+    total=Sum('net_salary')
+    )['total'] or 0
+
+    context = {
+        "total_salaries": total_salaries,
+        "this_month_salaries": this_month_salaries,
+        "total_amount": total_amount,
+    }
+
+    return render(request, "accounts/dashboard.html", context)
+@login_required
+@accounts_required
+def accounts_salary_list(request):
+
+    month = request.GET.get("month")
+    year = request.GET.get("year")
+
+    salaries = MonthlySalary.objects.select_related("employee").order_by("-year", "-month")
+
+    if month:
+        salaries = salaries.filter(month=month)
+
+    if year:
+        salaries = salaries.filter(year=year)
+
+    context = {
+        "salaries": salaries,
+        "months": list(enumerate(calendar.month_name))[1:],
+        "years": range(2023, timezone.now().year + 2),
+        "selected_month": month,
+        "selected_year": year,
+    }
+
+    return render(request, "accounts/salary_list.html", context)
+@login_required
+@accounts_required
+def accounts_payslip_view(request, salary_id):
+
+    salary = get_object_or_404(MonthlySalary, id=salary_id)
+
+    return render(
+        request,
+        "accounts/payslip.html",
+        {"salary": salary}
+    )

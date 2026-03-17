@@ -79,6 +79,7 @@ urlpatterns = [
 
     path('salary/generate/', views.generate_salary_page, name='generate_salary_page'),
     path('salary/run/', views.run_salary_generation, name='run_salary_generation'),
+    path('accounts/generate-salary/', views.generate_salary_page, name='accounts_generate_salary'),
     path('salary/list/', views.salary_list, name='salary_list'),
     path(
     "employee/salary/",
@@ -96,6 +97,9 @@ urlpatterns = [
     views.hr_dashboard,
     name="hr_dashboard"
     ),
+    path('accounts/dashboard/', views.accounts_dashboard, name='accounts_dashboard'),
+    path('accounts/salaries/', views.accounts_salary_list, name='accounts_salary_list'),
+    path('accounts/payslip/<int:salary_id>/', views.accounts_payslip_view, name='accounts_payslip'),
 ]
 
 if settings.DEBUG:

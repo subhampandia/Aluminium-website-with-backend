@@ -1,0 +1,66 @@
+{% extends "accounts/base_accounts_dashboard.html" %}
+
+{% block content %}
+
+<h4 class="mb-3">Salary List</h4>
+
+<form method="get" class="row mb-3">
+
+<div class="col-md-3">
+<select name="month" class="form-select">
+<option value="">All Months</option>
+{% for m, name in months %}
+<option value="{{ m }}" {% if selected_month == m|stringformat:"s" %}selected{% endif %}>
+{{ name }}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="col-md-3">
+<select name="year" class="form-select">
+<option value="">All Years</option>
+{% for y in years %}
+<option value="{{ y }}" {% if selected_year == y|stringformat:"s" %}selected{% endif %}>
+{{ y }}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="col-md-2">
+<button class="btn btn-primary">Filter</button>
+</div>
+
+</form>
+
+
+<table class="table table-bordered table-hover">
+
+<tr>
+<th>Employee</th>
+<th>Month</th>
+<th>Net Salary</th>
+<th>Action</th>
+</tr>
+
+{% for s in salaries %}
+<tr>
+<td>{{ s.employee }}</td>
+<td>{{ s.get_month_display }} {{ s.year }}</td>
+<td>₹ {{ s.net_salary }}</td>
+<td>
+<a href="{% url 'accounts_payslip' s.id %}" class="btn btn-sm btn-primary">
+View
+</a>
+</td>
+</tr>
+{% empty %}
+<tr>
+<td colspan="4" class="text-center">No records found</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}
