@@ -1,0 +1,32 @@
+{% extends "base_hr_dashboard.html" %}
+
+{% block content %}
+
+<h3 class="mb-4">HR Dashboard</h3>
+
+<div class="row">
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h6>Total Employees</h6>
+<h3>{{ total_employees }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h6>Pending Leaves</h6>
+<h3>{{ pending_leaves }}</h3>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card shadow p-3">
+<h6>Today's Attendance</h6>
+<h3>{{ today_attendance }}</h3>
+</div>
+</div>
+
+</div>
+
+{% endblock %}

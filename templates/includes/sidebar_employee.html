@@ -1,0 +1,36 @@
+{% load static %}
+<div class="sidebar" id="sidebar">
+
+<h5 class="text-center text-white mt-3">Employee Panel</h5>
+
+<a href="{% url 'employee_dashboard' %}">
+<i class="bi bi-house"></i>
+<span>Dashboard</span>
+</a>
+
+<a href="{% url 'employee_profile' %}">
+<i class="bi bi-person"></i>
+<span>My Profile</span>
+</a>
+
+<a href="{% url 'employee_shift_details' %}">
+<i class="bi bi-clock"></i>
+<span>My Shift</span>
+</a>
+
+<a href="{% url 'employee_attendance_history' %}">
+<i class="bi bi-calendar-check"></i>
+<span>My Attendance</span>
+</a>
+
+<a href="{% url 'my_leaves' %}">
+<i class="bi bi-file-text"></i>
+<span>My Leaves</span>
+</a>
+
+<a href="{% url 'employee_salary_list' %}">
+<i class="bi bi-cash"></i>
+<span>My Salary</span>
+</a>
+
+</div>

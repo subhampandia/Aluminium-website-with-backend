@@ -7,23 +7,37 @@
 <form method="post" class="card shadow-sm p-4" style="max-width: 720px;">
   {% csrf_token %}
 
+  <!-- ================= DEPARTMENT ================= -->
+  <label class="fw-bold mb-1">Department</label>
+
+  <select id="deptSelect" class="form-select mb-3">
+    <option value="">Select Department</option>
+    {% for d in departments %}
+    <option value="{{ d.id }}">{{ d.name }}</option>
+    {% endfor %}
+  </select>
+
   <!-- ================= EMPLOYEE ================= -->
   <label class="fw-bold mb-1">Employee</label>
+
   <select
     name="employee"
     id="employeeSelect"
     class="form-select mb-2"
     required
+    disabled
   >
     <option value="">Select Employee</option>
+
     {% for emp in employees %}
-      <option
-        value="{{ emp.id }}"
-        data-dept="{{ emp.department.name }}"
-        data-desg="{{ emp.designation.name }}"
-      >
-        {{ emp.employee_id }} - {{ emp.first_name }} {{ emp.last_name }}
-      </option>
+    <option
+      value="{{ emp.id }}"
+      data-dept="{{ emp.department.id }}"
+      data-deptname="{{ emp.department.name }}"
+      data-desg="{{ emp.designation.name }}"
+    >
+      {{ emp.employee_id }} - {{ emp.first_name }} {{ emp.last_name }}
+    </option>
     {% endfor %}
   </select>
 
@@ -42,6 +56,7 @@
 
   <!-- ================= SHIFT ================= -->
   <label class="fw-bold mb-1">Shift</label>
+
   <select
     name="shift"
     id="shiftSelect"
@@ -49,14 +64,15 @@
     required
   >
     <option value="">Select Shift</option>
+
     {% for s in shifts %}
-      <option
-        value="{{ s.id }}"
-        data-start="{{ s.start_time|time:'h:i A' }}"
-        data-end="{{ s.end_time|time:'h:i A' }}"
-      >
-        {{ s.name }}
-      </option>
+    <option
+      value="{{ s.id }}"
+      data-start="{{ s.start_time|time:'h:i A' }}"
+      data-end="{{ s.end_time|time:'h:i A' }}"
+    >
+      {{ s.name }}
+    </option>
     {% endfor %}
   </select>
 
@@ -76,17 +92,52 @@
     <button type="submit" class="btn btn-success">
       Assign Shift
     </button>
+
     <a href="{% url 'shift_assign_list' %}" class="btn btn-secondary">
       Cancel
     </a>
   </div>
+
 </form>
 
+
 <!-- ================= SCRIPT ================= -->
+
 <script>
+
+const deptSelect = document.getElementById('deptSelect');
+const empSelect = document.getElementById('employeeSelect');
+
+deptSelect.addEventListener('change', function () {
+
+  const deptId = this.value;
+  const options = empSelect.querySelectorAll('option');
+
+  options.forEach(opt => {
+
+    if(!opt.value) return;
+
+    const empDept = opt.getAttribute('data-dept');
+
+    if(!deptId || empDept === deptId){
+      opt.style.display = 'block';
+    }else{
+      opt.style.display = 'none';
+    }
+
+  });
+
+  empSelect.disabled = !deptId;
+  empSelect.value = "";
+
+});
+
+
 document.getElementById('employeeSelect').addEventListener('change', function () {
+
   const opt = this.options[this.selectedIndex];
-  const dept = opt.getAttribute('data-dept');
+
+  const dept = opt.getAttribute('data-deptname');
   const desg = opt.getAttribute('data-desg');
 
   document.getElementById('empPreview').innerHTML = dept
@@ -102,10 +153,14 @@ document.getElementById('employeeSelect').addEventListener('change', function ()
          &nbsp; | &nbsp;
          <strong>Designation:</strong> —
        </small>`;
+
 });
 
+
 document.getElementById('shiftSelect').addEventListener('change', function () {
+
   const opt = this.options[this.selectedIndex];
+
   const start = opt.getAttribute('data-start');
   const end = opt.getAttribute('data-end');
 
@@ -118,6 +173,9 @@ document.getElementById('shiftSelect').addEventListener('change', function () {
        <small>
          <strong>Shift Time:</strong> —
        </small>`;
+
 });
+
 </script>
+
 {% endblock %}

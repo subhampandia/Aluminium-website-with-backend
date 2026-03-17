@@ -91,6 +91,11 @@ urlpatterns = [
     views.payslip_view,
     name="payslip_view"
     ),
+    path(
+    "hr/dashboard/",
+    views.hr_dashboard,
+    name="hr_dashboard"
+    ),
 ]
 
 if settings.DEBUG:

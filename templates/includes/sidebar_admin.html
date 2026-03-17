@@ -1,0 +1,128 @@
+{% load static %}
+
+<div class="sidebar" id="sidebar">
+
+<div class="sidebar-logo text-center mb-3">
+<img src="{% static 'images/gvit.png' %}" width="60">
+</div>
+
+<!-- Dashboard -->
+
+<a href="{% url 'dashboard' %}">
+<i class="bi bi-speedometer2"></i>
+<span>Dashboard</span>
+</a>
+
+<!-- HR MANAGEMENT -->
+
+<a class="menu-toggle" data-bs-toggle="collapse" href="#hrMenu">
+<i class="bi bi-people"></i>
+<span>HR Management</span>
+<i class="bi bi-chevron-down ms-auto"></i>
+</a>
+
+<div class="collapse" id="hrMenu">
+
+<a href="{% url 'department_list' %}" class="submenu">
+<i class="bi bi-diagram-3"></i> Department
+</a>
+
+<a href="{% url 'designation_list' %}" class="submenu">
+<i class="bi bi-person-badge"></i> Designation
+</a>
+
+<a href="{% url 'employee_list' %}" class="submenu">
+<i class="bi bi-person"></i> Employees
+</a>
+
+</div>
+
+
+<!-- SHIFT -->
+
+<a class="menu-toggle" data-bs-toggle="collapse" href="#shiftMenu">
+<i class="bi bi-clock"></i>
+<span>Shift</span>
+<i class="bi bi-chevron-down ms-auto"></i>
+</a>
+
+<div class="collapse" id="shiftMenu">
+
+<a href="{% url 'shift_list' %}" class="submenu">
+<i class="bi bi-clock-history"></i> Shift Manage
+</a>
+
+<a href="{% url 'shift_assign_list' %}" class="submenu">
+<i class="bi bi-arrow-left-right"></i> Shift Assign
+</a>
+
+</div>
+
+
+<!-- ATTENDANCE -->
+
+<a class="menu-toggle" data-bs-toggle="collapse" href="#attendanceMenu">
+<i class="bi bi-calendar-check"></i>
+<span>Attendance</span>
+<i class="bi bi-chevron-down ms-auto"></i>
+</a>
+
+<div class="collapse" id="attendanceMenu">
+
+<a href="{% url 'admin_employee_attendance_list' %}" class="submenu">
+<i class="bi bi-list-check"></i> Attendance
+</a>
+
+<a href="{% url 'process_attendance' %}" class="submenu">
+<i class="bi bi-gear"></i> Process Attendance
+</a>
+
+<a href="{% url 'processed_attendance_list' %}" class="submenu">
+<i class="bi bi-card-checklist"></i> Processed Attendance
+</a>
+
+<a href="{% url 'admin_regularization_list' %}" class="submenu">
+<i class="bi bi-pencil-square"></i> Regularization
+</a>
+
+</div>
+
+
+<!-- PAYROLL -->
+
+<a class="menu-toggle" data-bs-toggle="collapse" href="#salaryMenu">
+<i class="bi bi-cash-stack"></i>
+<span>Payroll</span>
+<i class="bi bi-chevron-down ms-auto"></i>
+</a>
+
+<div class="collapse" id="salaryMenu">
+
+<a href="{% url 'generate_salary_page' %}" class="submenu">
+<i class="bi bi-calculator"></i> Generate Salary
+</a>
+
+<a href="{% url 'salary_list' %}" class="submenu">
+<i class="bi bi-receipt"></i> Generated Salaries
+</a>
+
+</div>
+
+
+<!-- LEAVE -->
+
+<a class="menu-toggle" data-bs-toggle="collapse" href="#leaveMenu">
+<i class="bi bi-journal-text"></i>
+<span>Leave</span>
+<i class="bi bi-chevron-down ms-auto"></i>
+</a>
+
+<div class="collapse" id="leaveMenu">
+
+<a href="{% url 'admin_leave_list' %}" class="submenu">
+<i class="bi bi-file-earmark-text"></i> Leave Requests
+</a>
+
+</div>
+
+</div>

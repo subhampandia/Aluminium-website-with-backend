@@ -64,6 +64,15 @@ class Employee(models.Model):
     master_degree = models.CharField(max_length=10, choices=MASTER_CHOICES, blank=True, null=True)
     # Work
     employee_id = models.CharField(max_length=20, unique=True)
+    role = models.CharField(
+    max_length=20,
+    choices=[
+        ('HR','HR'),
+        ('ACCOUNTS','Accounts'),
+        ('EMPLOYEE','Employee')
+    ],
+    default='EMPLOYEE'
+)
     department = models.ForeignKey(Department, on_delete=models.PROTECT)
     designation = models.ForeignKey(Designation, on_delete=models.PROTECT)
     date_of_joining = models.DateField(blank=True, null=True)
@@ -258,6 +267,8 @@ class SalaryStructure(models.Model):
 
     def __str__(self):
         return f"{self.employee.employee_id} Salary"
+
+
 class MonthlySalary(models.Model):
     MONTH_CHOICES = [
     (1,"January"),

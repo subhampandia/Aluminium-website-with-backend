@@ -324,6 +324,50 @@
             </option>
             {% endfor %}
           </select>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+
+            <select name="role" class="form-select">
+              <option
+                value="EMPLOYEE"
+                {%
+                if
+                employee.role=""
+                ="EMPLOYEE"
+                %}selected{%
+                endif
+                %}
+              >
+                Employee
+              </option>
+
+              <option
+                value="HR"
+                {%
+                if
+                employee.role=""
+                ="HR"
+                %}selected{%
+                endif
+                %}
+              >
+                HR
+              </option>
+
+              <option
+                value="ACCOUNTS"
+                {%
+                if
+                employee.role=""
+                ="ACCOUNTS"
+                %}selected{%
+                endif
+                %}
+              >
+                Accounts
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -591,30 +635,32 @@
   </div>
 </div>
 <script>
-document.getElementById('sameAsCurrent').addEventListener('change', function () {
-    const isChecked = this.checked;
+  document
+    .getElementById("sameAsCurrent")
+    .addEventListener("change", function () {
+      const isChecked = this.checked;
 
-    const fields = [
-        ['current_line1', 'permanent_line1'],
-        ['current_line2', 'permanent_line2'],
-        ['current_city', 'permanent_city'],
-        ['current_state', 'permanent_state'],
-        ['current_pin', 'permanent_pin'],
-    ];
+      const fields = [
+        ["current_line1", "permanent_line1"],
+        ["current_line2", "permanent_line2"],
+        ["current_city", "permanent_city"],
+        ["current_state", "permanent_state"],
+        ["current_pin", "permanent_pin"],
+      ];
 
-    fields.forEach(pair => {
+      fields.forEach((pair) => {
         const currentField = document.querySelector(`[name="${pair[0]}"]`);
         const permanentField = document.querySelector(`[name="${pair[1]}"]`);
 
         if (isChecked) {
-            permanentField.value = currentField.value;
-            permanentField.readOnly = true;
+          permanentField.value = currentField.value;
+          permanentField.readOnly = true;
         } else {
-            permanentField.value = '';
-            permanentField.readOnly = false;
+          permanentField.value = "";
+          permanentField.readOnly = false;
         }
+      });
     });
-});
 </script>
 
 {% endblock %}

@@ -1,7 +1,5 @@
 {% load static %}
-
 <!doctype html>
-
 <html lang="en">
 
 <head>
@@ -9,12 +7,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>{% block title %}Dashboard{% endblock %}</title>
+<title>{% block title %}HR Dashboard{% endblock %}</title>
 
 <link rel="icon" type="image/x-icon" href="{% static 'images/gvit.png' %}">
 
 <!-- Bootstrap -->
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -26,15 +23,8 @@
 
 <!-- ================= SIDEBAR ================= -->
 
-{% if request.user.is_superuser %}
-{% include "includes/sidebar_admin.html" %}
-{% elif request.user.employee_profile.role == "HR" %}
 {% include "includes/sidebar_hr.html" %}
-{% elif request.user.employee_profile.role == "ACCOUNTS" %}
-{% include "includes/sidebar_accounts.html" %}
-{% else %}
-{% include "includes/sidebar_employee.html" %}
-{% endif %}
+
 
 <!-- ================= NAVBAR ================= -->
 
@@ -45,8 +35,9 @@
 <i class="bi bi-list toggle-btn" onclick="toggleSidebar()"></i>
 
 <span class="navbar-brand ms-3">
-{% block page_title %}Dashboard{% endblock %}
+{% block page_title %}HR Dashboard{% endblock %}
 </span>
+
 
 <div class="ms-auto d-flex align-items-center gap-3 me-3">
 
@@ -55,12 +46,13 @@
 <a href="#" class="dropdown-toggle profile-toggle" role="button"
 data-bs-toggle="dropdown">
 
-<img src="{% static 'images/gvit.png' %}"
+<img src="https://ui-avatars.com/api/?name={{request.user.username}}&background=298fd7&color=fff"
 width="38"
 height="38"
 class="rounded-circle shadow">
 
 </a>
+
 
 <ul class="dropdown-menu dropdown-menu-end shadow">
 
@@ -96,6 +88,7 @@ data-bs-target="#logoutModal">
 
 </nav>
 
+
 <!-- ================= MAIN CONTENT ================= -->
 
 <div class="content mt-4" id="content">
@@ -103,6 +96,7 @@ data-bs-target="#logoutModal">
 {% block content %}{% endblock %}
 
 </div>
+
 
 <!-- ================= FOOTER ================= -->
 
@@ -129,6 +123,7 @@ GVI Technology
 
 </footer>
 
+
 <!-- ================= LOGOUT MODAL ================= -->
 
 <div class="modal fade" id="logoutModal">
@@ -146,19 +141,23 @@ data-bs-dismiss="modal"></button>
 
 </div>
 
+
 <div class="modal-body">
 Are you sure you want to logout?
 </div>
+
 
 <div class="modal-footer">
 
 <button class="btn btn-secondary btn-sm"
 data-bs-dismiss="modal">
-Cancel </button>
+Cancel
+</button>
 
 <a href="{% url 'logout' %}"
 class="btn btn-danger btn-sm">
-Logout </a>
+Logout
+</a>
 
 </div>
 
@@ -167,6 +166,7 @@ Logout </a>
 </div>
 
 </div>
+
 
 <!-- ================= SCRIPT ================= -->
 
@@ -195,35 +195,7 @@ navbar.classList.toggle("expanded")
 }
 
 }
-document.addEventListener("DOMContentLoaded", function(){
 
-const menus = document.querySelectorAll('.collapse');
-
-menus.forEach(menu => {
-
-menu.addEventListener('shown.bs.collapse', function(){
-localStorage.setItem("activeMenu", this.id);
-});
-
-menu.addEventListener('hidden.bs.collapse', function(){
-localStorage.removeItem("activeMenu");
-});
-
-});
-
-const activeMenu = localStorage.getItem("activeMenu");
-
-if(activeMenu){
-
-const el = document.getElementById(activeMenu);
-
-if(el){
-new bootstrap.Collapse(el, { toggle:true });
-}
-
-}
-
-});
 </script>
 
 </body>

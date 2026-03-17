@@ -34,15 +34,31 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
+            # Get employee profile
+            employee = Employee.objects.filter(user=user).first()
+
             # 🔀 Redirect based on role
-            if hasattr(user, 'employee_profile'):
-                return redirect('employee_dashboard')
-            else:
-                return redirect('dashboard')
 
-        messages.error(request, "Invalid username or password")
+            # Admin
+            if user.is_superuser:
+                return redirect("dashboard")
 
-    return render(request, 'login.html')
+            # HR
+            if employee and employee.role == "HR":
+                return redirect("hr_dashboard")
+
+            # Accounts
+            if employee and employee.role == "ACCOUNTS":
+                return redirect("accounts_dashboard")
+
+            # Employee
+            if employee:
+                return redirect("employee_dashboard")
+
+        else:
+            messages.error(request, "Invalid username or password")
+
+    return render(request, "login.html")
 
 @login_required
 def employee_profile(request):
@@ -202,6 +218,7 @@ def employee_add(request):
             first_name=request.POST.get('first_name'),
             middle_name=request.POST.get('middle_name'),
             last_name=request.POST.get('last_name'),
+            role=request.POST.get("role"),
             gender=request.POST.get('gender'),
             blood_group=request.POST.get('blood_group'),
             date_of_birth=request.POST.get('date_of_birth') or None,
@@ -271,6 +288,7 @@ def employee_edit(request, pk):
         employee.employee_id = request.POST.get('employee_id')
         employee.department_id = request.POST.get('department')
         employee.designation_id = request.POST.get('designation')
+        employee.role = request.POST.get('role')
 
         employee.pan_no = request.POST.get('pan_no')
         employee.Aadhar_no = request.POST.get('Aadhar_no')
@@ -386,15 +404,20 @@ def shift_toggle_status(request, pk):
 
 @login_required(login_url='login')
 def shift_assign(request):
+
     if request.method == 'POST':
         ShiftAssignment.objects.update_or_create(
             employee_id=request.POST.get('employee'),
-            defaults={'shift_id': request.POST.get('shift'), 'is_active': True}
+            defaults={
+                'shift_id': request.POST.get('shift'),
+                'is_active': True
+            }
         )
         messages.success(request, "Shift assigned")
         return redirect('shift_assign_list')
 
     return render(request, 'shift/shift_assign.html', {
+        'departments': Department.objects.all(),
         'employees': Employee.objects.filter(is_active=True),
         'shifts': Shift.objects.filter(is_active=True)
     })
@@ -1060,7 +1083,7 @@ def process_attendance_view(request):
             'working_days': get_working_days_of_month(selected_year, selected_month),
 
             'present_days': records.filter(
-                status__in=['Present', 'Late']
+                status__in=['Present', 'Late', 'Half Day']
             ).count(),
 
             'absent_days': records.filter(
@@ -1191,7 +1214,7 @@ def processed_attendance_list(request):
 
         summary.append({
             "employee": emp,
-            "present": emp_records.filter(status__in=["Present", "Late"]).count(),
+            "present": emp_records.filter(status__in=["Present", "Late","Half Day"]).count(),
             "absent": emp_records.filter(status="Absent").count(),
             "leave": emp_records.filter(status__in=["Leave", "LWP"]).count(),
             "month": month,
@@ -1389,3 +1412,22 @@ def payslip_view(request, salary_id):
         "salary/payslip.html",
         {"salary": salary}
     )
+
+@login_required
+def hr_dashboard(request):
+
+    total_employees = Employee.objects.filter(is_active=True).count()
+
+    pending_leaves = Leave.objects.filter(status="Pending").count()
+
+    today = timezone.localdate()
+
+    today_attendance = Attendance.objects.filter(date=today).count()
+
+    context = {
+        "total_employees": total_employees,
+        "pending_leaves": pending_leaves,
+        "today_attendance": today_attendance
+    }
+
+    return render(request, "hr/hr_dashboard.html", context)
