@@ -1436,10 +1436,32 @@ def payslip_view(request, salary_id):
 
     salary = get_object_or_404(MonthlySalary, id=salary_id)
 
+    if request.user.is_superuser:
+        base_template = "base_dashboard.html"
+
+    elif hasattr(request.user, 'employee_profile'):
+
+        role = request.user.employee_profile.role
+
+        if role == "ACCOUNTS":
+            base_template = "accounts/base_accounts_dashboard.html"
+
+        elif role == "HR":
+            base_template = "base_hr_dashboard.html"
+
+        else:
+            base_template = "employee/base_employee_dashboard.html"
+
+    else:
+        base_template = "employee/base_employee_dashboard.html"
+
     return render(
         request,
         "salary/payslip.html",
-        {"salary": salary}
+        {
+            "salary": salary,
+            "base_template": base_template
+        }
     )
 
 @login_required

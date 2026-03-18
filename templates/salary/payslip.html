@@ -1,9 +1,10 @@
-{% extends "employee/base_employee_dashboard.html" %}
+{% extends base_template %}
 
 {% block content %}
+
 <div class="d-flex justify-content-between mb-3">
 
-<a href="{% url 'employee_salary_list' %}" class="btn btn-secondary">
+<a href="javascript:history.back()" class="btn btn-secondary">
 <i class="bi bi-arrow-left"></i> Back
 </a>
 
@@ -13,78 +14,109 @@
 
 </div>
 
+
 <div class="card shadow p-4" id="payslip">
-<div class="text-center mb-4">
-<h4>AlumTech Pvt Ltd</h4>
+
+<!-- HEADER -->
+<div class="text-center mb-4 border-bottom pb-2">
+<h4 class="mb-0">AlumTech Pvt Ltd</h4>
+<small class="text-muted">Salary Payslip</small>
 </div>
-<h3 class="text-center mb-4">Payslip</h3>
 
-<p><strong>Employee:</strong>
-{{ salary.employee.first_name }} {{ salary.employee.last_name }}</p>
+<!-- EMPLOYEE INFO -->
+<div class="row mb-3">
 
-<p><strong>Month:</strong>
-{{ salary.get_month_display }} {{ salary.year }}</p>
+<div class="col-md-6">
+<p><strong>Employee:</strong> {{ salary.employee.first_name }} {{ salary.employee.last_name }}</p>
+</div>
 
-<hr>
+<div class="col-md-6 text-md-end">
+<p><strong>Month:</strong> {{ salary.get_month_display }} {{ salary.year }}</p>
+</div>
 
-<h5>Attendance</h5>
-
-<ul>
-<li>Working Days: {{ salary.working_days }}</li>
-<li>Present Days: {{ salary.present_days }}</li>
-<li>Absent Days: {{ salary.absent_days }}</li>
-<li>Half Days: {{ salary.half_days }}</li>
-<li>Extra Leave (LWP): {{ salary.extra_leave_days }}</li></ul>
+</div>
 
 <hr>
 
-<h5>Salary Details</h5>
+<!-- ATTENDANCE -->
+<h5 class="mb-3">Attendance Summary</h5>
 
-<table class="table">
+<table class="table table-bordered table-sm text-center">
 
-<tr>
-<th>Gross Salary</th>
-<td>{{ salary.gross_salary }}</td>
+<tr class="table-light">
+<th>Working Days</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Half Days</th>
+<th>Extra Leave</th>
 </tr>
 
 <tr>
-<th>Leave Deduction</th>
-<td>{{ salary.leave_deduction }}</td>
-</tr>
-
-<tr>
-<th>PF</th>
-<td>{{ salary.emp_pf }}</td>
-</tr>
-
-<tr>
-<th>ESIC</th>
-<td>{{ salary.emp_esic }}</td>
-</tr>
-
-<tr class="table-success">
-<th>Net Salary</th>
-<td>{{ salary.net_salary }}</td>
+<td>{{ salary.working_days }}</td>
+<td>{{ salary.present_days }}</td>
+<td>{{ salary.absent_days }}</td>
+<td>{{ salary.half_days }}</td>
+<td>{{ salary.extra_leave_days }}</td>
 </tr>
 
 </table>
 
+<hr>
+
+<!-- SALARY DETAILS -->
+<h5 class="mb-3">Salary Details</h5>
+
+<table class="table table-bordered">
+
+<tr>
+<th>Gross Salary</th>
+<td>₹ {{ salary.gross_salary }}</td>
+</tr>
+
+<tr>
+<th>Leave Deduction</th>
+<td>₹ {{ salary.leave_deduction }}</td>
+</tr>
+
+<tr>
+<th>PF (Employee)</th>
+<td>₹ {{ salary.emp_pf }}</td>
+</tr>
+
+<tr>
+<th>ESIC (Employee)</th>
+<td>₹ {{ salary.emp_esic }}</td>
+</tr>
+
+<tr class="table-success fw-bold">
+<th>Net Salary</th>
+<td>₹ {{ salary.net_salary }}</td>
+</tr>
+
+</table>
+
+<!-- FOOTER -->
+<div class="text-end mt-4">
+<small class="text-muted">Generated on {{ salary.generated_at }}</small>
 </div>
+
+</div>
+
+<!-- PRINT SCRIPT -->
 <script>
-
 function printPayslip(){
+    var content = document.getElementById("payslip").innerHTML;
 
-var printContents = document.getElementById("payslip").innerHTML;
-var originalContents = document.body.innerHTML;
+    var win = window.open('', '', 'height=700,width=900');
+    win.document.write('<html><head><title>Payslip</title>');
+    win.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+    win.document.write('</head><body>');
+    win.document.write(content);
+    win.document.write('</body></html>');
 
-document.body.innerHTML = printContents;
-
-window.print();
-
-document.body.innerHTML = originalContents;
-location.reload();
-
+    win.document.close();
+    win.print();
 }
-
 </script>
+
 {% endblock %}

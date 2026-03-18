@@ -15,6 +15,7 @@
 <th>PF</th>
 <th>ESIC</th>
 <th>Net Salary</th>
+<th>Payslip</th>
 </tr>
 </thead>
 
@@ -31,6 +32,12 @@
 <td>{{ s.emp_pf }}</td>
 <td>{{ s.emp_esic }}</td>
 <td class="fw-bold text-success">{{ s.net_salary }}</td>
+<td>
+<a href="{% url 'payslip_view' s.id %}" class="btn btn-sm btn-primary">
+View
+</a>
+</td>
+
 </tr>
 
 {% empty %}
