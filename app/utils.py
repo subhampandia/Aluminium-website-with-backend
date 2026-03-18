@@ -121,6 +121,9 @@ def generate_salary(employee, month, year, basic, hra, allowance):
             "employer_pf": employer_pf,
             "emp_esic": emp_esic,
             "employer_esic": employer_esic,
-            "net_salary": net_salary
+            "net_salary": net_salary,
+            "basic": basic,
+            "hra": hra,
+            "allowance": allowance
         }
     )

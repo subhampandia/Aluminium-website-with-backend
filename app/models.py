@@ -298,7 +298,9 @@ class MonthlySalary(models.Model):
     extra_leave_days = models.IntegerField(default=0)
 
     gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
-
+    basic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    hra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     emp_pf = models.DecimalField(max_digits=10, decimal_places=2)
     employer_pf = models.DecimalField(max_digits=10, decimal_places=2)
 

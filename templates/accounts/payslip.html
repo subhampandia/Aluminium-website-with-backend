@@ -1,9 +1,8 @@
 {% extends "accounts/base_accounts_dashboard.html" %}
-
+{% load static %}
 {% block content %}
 
 <div class="d-flex justify-content-between mb-3">
-
 <a href="javascript:history.back()" class="btn btn-secondary">
 <i class="bi bi-arrow-left"></i> Back
 </a>
@@ -11,98 +10,128 @@
 <button onclick="printPayslip()" class="btn btn-primary">
 <i class="bi bi-printer"></i> Print
 </button>
-
 </div>
-
 
 <div class="card shadow p-4" id="payslip">
 
 <!-- HEADER -->
-<div class="text-center mb-4 border-bottom pb-2">
+<div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+<div>
 <h4 class="mb-0">AlumTech Pvt Ltd</h4>
-<small class="text-muted">Salary Payslip</small>
+<small>India</small>
+</div>
+<img src="{% static 'images/gvit.png' %}" height="50">
 </div>
 
-<!-- EMPLOYEE INFO -->
-<div class="row mb-3">
+<h5 class="text-center mb-4">
+Payslip for {{ salary.get_month_display }} {{ salary.year }}
+</h5>
+
+<!-- EMPLOYEE SUMMARY + NET PAY -->
+<div class="row border p-3 mb-3">
 
 <div class="col-md-6">
-<p><strong>Employee:</strong> {{ salary.employee.first_name }} {{ salary.employee.last_name }}</p>
+<h6><b>EMPLOYEE SUMMARY</b></h6>
+<p><b>Name:</b> {{ salary.employee.first_name }} {{ salary.employee.last_name }}</p>
+<p><b>Department:</b> {{ salary.employee.department.name }}</p>
+<p><b>Designation:</b> {{ salary.employee.designation.name }}</p>
+<p><b>Pay Period:</b> {{ salary.get_month_display }} {{ salary.year }}</p>
+<p><b>Generated Date:</b> {{ salary.generated_at|date:"d/m/Y" }}</p>
 </div>
 
-<div class="col-md-6 text-md-end">
-<p><strong>Month:</strong> {{ salary.get_month_display }} {{ salary.year }}</p>
+<div class="col-md-6 text-center border-start">
+<h6>Employee Net Pay</h6>
+<h1 class="fw-bold">₹{{ salary.net_salary }}</h1>
+<p>Paid Days: {{ salary.present_days }} | Extra Leave Days: {{ salary.extra_leave_days }}</p>
 </div>
 
 </div>
 
-<hr>
+<!-- EARNINGS + DEDUCTIONS -->
+<table class="table table-bordered">
 
-<!-- ATTENDANCE -->
-<h5 class="mb-3">Attendance Summary</h5>
+<thead class="table-light">
+<tr>
+<th>EARNINGS</th>
+<th>AMOUNT</th>
+<th>DEDUCTIONS</th>
+<th>AMOUNT</th>
+</tr>
+</thead>
 
-<table class="table table-bordered table-sm text-center">
+<tbody>
 
-<tr class="table-light">
-<th>Working Days</th>
-<th>Present</th>
-<th>Absent</th>
-<th>Half Days</th>
-<th>Extra Leave</th>
+<tr>
+<td>Basic</td>
+<td>₹{{ salary.basic }}</td>
+
+<td>Leave Deduction</td>
+<td>₹{{ salary.leave_deduction }}</td>
 </tr>
 
 <tr>
-<td>{{ salary.working_days }}</td>
-<td>{{ salary.present_days }}</td>
-<td>{{ salary.absent_days }}</td>
-<td>{{ salary.half_days }}</td>
-<td>{{ salary.extra_leave_days }}</td>
+<td>HRA</td>
+<td>₹{{ salary.hra }}</td>
+
+<td>PF</td>
+<td>₹{{ salary.emp_pf }}</td>
 </tr>
+
+<tr>
+<td>Allowance</td>
+<td>₹{{ salary.allowance }}</td>
+
+<td>ESIC</td>
+<td>₹{{ salary.emp_esic }}</td>
+</tr>
+
+<tr class="fw-bold">
+<td>Total Earnings</td>
+<td>₹{{ salary.gross_salary }}</td>
+
+<td>Total Deductions</td>
+<td>
+₹{{ salary.leave_deduction|add:salary.emp_pf|add:salary.emp_esic }}
+</td>
+</tr>
+
+</tbody>
 
 </table>
 
-<hr>
-
-<!-- SALARY DETAILS -->
-<h5 class="mb-3">Salary Details</h5>
-
+<!-- NET PAY SUMMARY -->
 <table class="table table-bordered">
 
 <tr>
-<th>Gross Salary</th>
-<td>₹ {{ salary.gross_salary }}</td>
+<th>Gross Earnings</th>
+<td>₹{{ salary.gross_salary }}</td>
 </tr>
 
 <tr>
-<th>Leave Deduction</th>
-<td>₹ {{ salary.leave_deduction }}</td>
-</tr>
-
-<tr>
-<th>PF (Employee)</th>
-<td>₹ {{ salary.emp_pf }}</td>
-</tr>
-
-<tr>
-<th>ESIC (Employee)</th>
-<td>₹ {{ salary.emp_esic }}</td>
+<th>Total Deductions</th>
+<td>₹{{ salary.leave_deduction|add:salary.emp_pf|add:salary.emp_esic }}</td>
 </tr>
 
 <tr class="table-success fw-bold">
-<th>Net Salary</th>
-<td>₹ {{ salary.net_salary }}</td>
+<th>Total Net Payable</th>
+<td>₹{{ salary.net_salary }}</td>
 </tr>
 
 </table>
 
 <!-- FOOTER -->
-<div class="text-end mt-4">
-<small class="text-muted">Generated on {{ salary.generated_at }}</small>
+<div class="text-center mt-4">
+<p>
+<b>Total Net Payable ₹{{ salary.net_salary }}</b>
+</p>
+<small class="text-muted">
+This is a system generated payslip.
+</small>
 </div>
 
 </div>
 
-<!-- PRINT SCRIPT -->
+<!-- PRINT -->
 <script>
 function printPayslip(){
     var content = document.getElementById("payslip").innerHTML;
