@@ -1,15 +1,201 @@
 {% extends 'base_dashboard.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<h2>Welcome {{ request.user.username }}</h2>
-<p>Your charts, tables and widgets will appear here.</p>
 
-<div class="card mt-3 shadow-sm">
+<h3 class="mb-4">Admin Dashboard</h3>
+
+<!-- ================= TOP CARDS ================= -->
+<div class="row g-4">
+
+  <div class="col-md-3">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted mb-1">Employees</p>
+          <h4>{{ total_employees }}</h4>
+        </div>
+        <div class="bg-primary text-white p-2 rounded">
+          <i class="bi bi-people"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted mb-1">Present</p>
+          <h4>{{ present_today }}</h4>
+        </div>
+        <div class="bg-success text-white p-2 rounded">
+          <i class="bi bi-check-circle"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted mb-1">Absent</p>
+          <h4>{{ absent_today }}</h4>
+        </div>
+        <div class="bg-danger text-white p-2 rounded">
+          <i class="bi bi-x-circle"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted mb-1">Leaves</p>
+          <h4>{{ pending_leaves }}</h4>
+        </div>
+        <div class="bg-warning text-white p-2 rounded">
+          <i class="bi bi-calendar"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= SECOND ROW ================= -->
+<div class="row g-4 mt-4">
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body text-warning">
+        <h6>Half Day</h6>
+        <h3>{{ half_day_today }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body text-warning">
+        <h6>Pending Leaves</h6>
+        <h3>{{ pending_leaves }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body text-danger">
+        <h6>Regularization</h6>
+        <h3>{{ pending_regularization }}</h3>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= PAYROLL ================= -->
+<div class="row mt-4">
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>Total Salaries</h6>
+        <h3>{{ total_salaries }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>This Month Salary</h6>
+        <h3>{{ this_month_salary }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm text-center">
+      <div class="card-body text-success">
+        <h6>Total Salary Amount</h6>
+        <h3>₹ {{ total_salary_amount }}</h3>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= QUICK ACTIONS ================= -->
+<div class="card mt-4 shadow-sm">
   <div class="card-body">
-    <h5 class="card-title">Sample Section</h5>
-    <p class="card-text">This is where your content goes.</p>
+    <h5>Quick Actions</h5>
+
+    <a href="{% url 'employee_add' %}" class="btn btn-primary btn-sm">+ Add Employee</a>
+    <a href="{% url 'department_add' %}" class="btn btn-secondary btn-sm">+ Department</a>
+    <a href="{% url 'shift_add' %}" class="btn btn-info btn-sm">+ Shift</a>
+    <a href="{% url 'generate_salary_page' %}" class="btn btn-success btn-sm">Generate Salary</a>
+
   </div>
 </div>
+
+<!-- ================= RECENT EMPLOYEES ================= -->
+<div class="card mt-4 shadow-sm">
+  <div class="card-body">
+    <h5>Recently Added Employees</h5>
+
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Joining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in recent_employees %}
+        <tr>
+          <td>{{ emp.full_name }}</td>
+          <td>{{ emp.department.name }}</td>
+          <td>{{ emp.date_of_joining }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ================= RECENT LEAVES ================= -->
+<div class="card mt-4 shadow-sm">
+  <div class="card-body">
+    <h5>Recent Leave Requests</h5>
+
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Type</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leave in recent_leaves %}
+        <tr>
+          <td>{{ leave.employee.full_name }}</td>
+          <td>{{ leave.leave_type }}</td>
+          <td>
+            <span class="badge bg-warning">{{ leave.status }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% endblock %}

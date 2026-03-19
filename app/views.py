@@ -79,7 +79,69 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'dashboard.html')
+
+    today = timezone.localdate()
+
+    # ================= EMPLOYEE =================
+    total_employees = Employee.objects.filter(is_active=True).count()
+    inactive_employees = Employee.objects.filter(is_active=False).count()
+
+    # ================= ATTENDANCE =================
+    present_today = Attendance.objects.filter(
+        date=today,
+        status__in=["Present", "Late"]
+    ).count()
+
+    absent_today = Attendance.objects.filter(
+        date=today,
+        status="Absent"
+    ).count()
+
+    half_day_today = Attendance.objects.filter(
+        date=today,
+        status="Half Day"
+    ).count()
+
+    # ================= LEAVE =================
+    pending_leaves = Leave.objects.filter(status="Pending").count()
+
+    # ================= REGULARIZATION =================
+    pending_regularization = AttendanceRegularization.objects.filter(
+        status="Pending"
+    ).count()
+
+    # ================= PAYROLL =================
+    total_salaries = MonthlySalary.objects.count()
+
+    this_month_salary = MonthlySalary.objects.filter(
+        month=today.month,
+        year=today.year
+    ).count()
+
+    total_salary_amount = MonthlySalary.objects.aggregate(
+        total=Sum('net_salary')
+    )['total'] or 0
+
+    # ================= RECENT DATA =================
+    recent_employees = Employee.objects.order_by('-created_at')[:5]
+    recent_leaves = Leave.objects.select_related('employee').order_by('-applied_at')[:5]
+
+    context = {
+        "total_employees": total_employees,
+        "inactive_employees": inactive_employees,
+        "present_today": present_today,
+        "absent_today": absent_today,
+        "half_day_today": half_day_today,
+        "pending_leaves": pending_leaves,
+        "pending_regularization": pending_regularization,
+        "total_salaries": total_salaries,
+        "this_month_salary": this_month_salary,
+        "total_salary_amount": total_salary_amount,
+        "recent_employees": recent_employees,
+        "recent_leaves": recent_leaves,
+    }
+
+    return render(request, 'dashboard.html', context)
 
 
 # ================= DEPARTMENT =================

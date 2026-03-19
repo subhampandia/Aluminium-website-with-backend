@@ -38,31 +38,34 @@
 
 <!-- ================= NAVBAR ================= -->
 
-<nav class="navbar navbar-expand-lg navbar-custom" id="navbar">
+<nav class="navbar navbar-expand-lg navbar-custom shadow-sm" id="navbar">
 
 <div class="container-fluid">
 
 <i class="bi bi-list toggle-btn" onclick="toggleSidebar()"></i>
 
-<span class="navbar-brand ms-3">
+<span class="navbar-brand ms-3 fw-semibold">
 {% block page_title %}Dashboard{% endblock %}
 </span>
 
 <div class="ms-auto d-flex align-items-center gap-3 me-3">
 
+<span class="text-muted small">
+Welcome, {{ request.user.username }}
+</span>
+
 <div class="dropdown">
 
-<a href="#" class="dropdown-toggle profile-toggle" role="button"
-data-bs-toggle="dropdown">
+<a href="#" class="dropdown-toggle profile-toggle" data-bs-toggle="dropdown">
 
 <img src="{% static 'images/gvit.png' %}"
 width="38"
 height="38"
-class="rounded-circle shadow">
+class="rounded-circle shadow-sm">
 
 </a>
 
-<ul class="dropdown-menu dropdown-menu-end shadow">
+<ul class="dropdown-menu dropdown-menu-end shadow border-0">
 
 <li>
 <a class="dropdown-item" href="#">

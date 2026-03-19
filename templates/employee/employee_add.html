@@ -3,7 +3,7 @@
 
 <div class="card shadow-sm">
   <div class="card-body">
-    <h4 class="mb-4">Add Employee</h4>
+    <h4 class="mb-4">New Employee</h4>
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -335,13 +335,11 @@
         </div>
         <label class="form-label">Role</label>
 
-<select name="role" class="form-select">
-
-<option value="EMPLOYEE">Employee</option>
-<option value="HR">HR</option>
-<option value="ACCOUNTS">Accounts</option>
-
-</select>
+        <select name="role" class="form-select">
+          <option value="EMPLOYEE">Employee</option>
+          <option value="HR">HR</option>
+          <option value="ACCOUNTS">Accounts</option>
+        </select>
         <div class="col-md-4">
           <label>Date of Joining</label>
           <input
@@ -473,11 +471,7 @@
 
         <div class="col-md-6">
           <label class="form-label">Generated Date</label>
-          <input
-            type="date"
-            name="generated_at"
-            class="form-control"
-          />
+          <input type="date" name="generated_at" class="form-control" />
         </div>
       </div>
       <!-- ACTION -->
