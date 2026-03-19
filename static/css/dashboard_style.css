@@ -433,3 +433,45 @@ body {
   }
 
 }
+ /* ── Top progress bar ── */
+    #page-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0%;
+        z-index: 9999;
+        background: linear-gradient(90deg, #0d6efd, #6ea8fe);
+        border-radius: 0 2px 2px 0;
+        transition: width 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #page-progress.loading {
+        opacity: 1;
+        width: 80%;
+        transition: width 8s cubic-bezier(0.1, 0.05, 0.0, 1);
+    }
+
+    #page-progress.done {
+        width: 100%;
+        opacity: 0;
+        transition: width 0.2s ease, opacity 0.4s ease 0.1s;
+    }
+
+    /* ── Content fade ── */
+    #content {
+        animation: pageFadeIn 0.3s ease forwards;
+    }
+
+    @keyframes pageFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    body.navigating #content {
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
