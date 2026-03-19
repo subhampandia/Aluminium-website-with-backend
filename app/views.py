@@ -940,18 +940,49 @@ def admin_employee_attendance_list(request):
         'admin/attendance/employee_list.html',
         {'employees': employees}
     )
-
 @staff_member_required
 def admin_employee_attendance_detail(request, emp_id):
+
     employee = get_object_or_404(Employee, id=emp_id)
 
-    attendances = Attendance.objects.filter(employee=employee)
-    leaves = Leave.objects.filter(employee=employee, status='Approved')
-    holidays = Holiday.objects.all()
+    today = date.today()
+
+    # ================= GET FILTER =================
+    selected_month = request.GET.get("month")
+    selected_year = request.GET.get("year")
+
+    # 🔥 Default = current month
+    if selected_month and selected_year:
+        month = int(selected_month)
+        year = int(selected_year)
+    else:
+        month = today.month
+        year = today.year
+
+    # ================= MONTH RANGE =================
+    start_date = date(year, month, 1)
+    end_date = date(year, month, calendar.monthrange(year, month)[1])
+
+    # ================= FETCH DATA =================
+    attendances = Attendance.objects.filter(
+        employee=employee,
+        date__range=(start_date, end_date)
+    )
+
+    leaves = Leave.objects.filter(
+        employee=employee,
+        status="Approved",
+        start_date__lte=end_date,
+        end_date__gte=start_date
+    )
+
+    holidays = Holiday.objects.filter(
+        date__range=(start_date, end_date)
+    )
 
     rows = {}
 
-    # 1️⃣ Attendance (Highest priority)
+    # ================= ATTENDANCE =================
     for att in attendances:
         rows[att.date] = {
             'date': att.date,
@@ -961,10 +992,11 @@ def admin_employee_attendance_detail(request, emp_id):
             'status': att.status
         }
 
-    # 2️⃣ Leave (Override Attendance)
+    # ================= LEAVE =================
     for leave in leaves:
-        current = leave.start_date
-        while current <= leave.end_date:
+        current = max(leave.start_date, start_date)
+
+        while current <= min(leave.end_date, end_date):
             rows[current] = {
                 'date': current,
                 'punch_in': None,
@@ -974,7 +1006,7 @@ def admin_employee_attendance_detail(request, emp_id):
             }
             current += timedelta(days=1)
 
-    # 3️⃣ Holidays (Only if not already marked)
+    # ================= HOLIDAY =================
     for holiday in holidays:
         if holiday.date not in rows:
             rows[holiday.date] = {
@@ -985,23 +1017,20 @@ def admin_employee_attendance_detail(request, emp_id):
                 'status': 'Holiday'
             }
 
-    # 4️⃣ Sundays (Only if not already marked)
-    start_date = date.today().replace(month=1, day=1)
-    end_date = date.today()
-
+    # ================= SUNDAYS =================
     current = start_date
     while current <= end_date:
-        if current.weekday() == 6:  # Sunday
-            if current not in rows:
-                rows[current] = {
-                    'date': current,
-                    'punch_in': None,
-                    'punch_out': None,
-                    'working_hours': None,
-                    'status': 'Sunday'
-                }
+        if current.weekday() == 6 and current not in rows:
+            rows[current] = {
+                'date': current,
+                'punch_in': None,
+                'punch_out': None,
+                'working_hours': None,
+                'status': 'Sunday'
+            }
         current += timedelta(days=1)
 
+    # ================= SORT =================
     history = sorted(rows.values(), key=lambda x: x['date'], reverse=True)
 
     return render(
@@ -1009,10 +1038,13 @@ def admin_employee_attendance_detail(request, emp_id):
         'admin/attendance/employee_attendance_detail.html',
         {
             'employee': employee,
-            'history': history
+            'history': history,
+            'selected_month': str(month),
+            'selected_year': str(year),
+            'months': list(enumerate(calendar.month_name))[1:],
+            'years': range(2023, today.year + 2),
         }
     )
-
 # ================= CALENDAR =================
 
 @staff_member_required
@@ -1293,9 +1325,24 @@ def processed_attendance_detail(request, emp_id):
 
     employee = get_object_or_404(Employee, id=emp_id)
 
+    today = date.today()
+
+    selected_month = request.GET.get("month")
+    selected_year = request.GET.get("year")
+
+    # ✅ Default → current month
+    if selected_month and selected_year:
+        month = int(selected_month)
+        year = int(selected_year)
+    else:
+        month = today.month
+        year = today.year
+
     records = Attendance.objects.filter(
         employee=employee,
-        is_processed=True
+        is_processed=True,
+        date__month=month,
+        date__year=year
     ).order_by("-date")
 
     return render(
@@ -1303,7 +1350,11 @@ def processed_attendance_detail(request, emp_id):
         "attendance/processed_detail.html",
         {
             "employee": employee,
-            "records": records
+            "records": records,
+            "selected_month": str(month),
+            "selected_year": str(year),
+            "months": list(enumerate(calendar.month_name))[1:],
+            "years": range(2023, today.year + 2),
         }
     )
 

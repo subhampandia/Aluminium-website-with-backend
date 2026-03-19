@@ -7,12 +7,59 @@
   </a>
 </div>
 <h4 class="mb-3">Processed Attendance</h4>
+<form method="get" class="card p-3 mb-4 shadow-sm">
 
-<table class="table table-bordered table-striped">
+  <div class="row g-3 align-items-end">
 
-<thead>
+    <div class="col-md-4">
+      <label>Month</label>
+      <select name="month" class="form-select">
+        {% for m, name in months %}
+        <option value="{{ m }}"
+          {% if selected_month == m|stringformat:"s" %}selected{% endif %}>
+          {{ name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label>Year</label>
+      <select name="year" class="form-select">
+        {% for y in years %}
+        <option value="{{ y }}"
+          {% if selected_year == y|stringformat:"s" %}selected{% endif %}>
+          {{ y }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100">Apply</button>
+    </div>
+
+    <div class="col-md-2">
+      <a href="?" class="btn btn-outline-secondary w-100">Reset</a>
+    </div>
+
+  </div>
+
+</form>
+<div class="card shadow-sm p-3">
+
+<h5 class="mb-3">
+  {{ employee.full_name }} ({{ employee.employee_id }})
+</h5>
+<div class="row mb-3">
+
+ 
+
+</div>
+<table class="table align-middle">
+
+<thead class="table-light">
 <tr>
-<th>Employee</th>
 <th>Date</th>
 <th>Status</th>
 <th>Punch In</th>
@@ -25,17 +72,29 @@
 {% for r in records %}
 
 <tr>
-<td>{{ r.employee.first_name }} {{ r.employee.last_name }}</td>
-<td>{{ r.date }}</td>
-<td>{{ r.status }}</td>
-<td>{{ r.punch_in }}</td>
-<td>{{ r.punch_out }}</td>
+<td>{{ r.date|date:"d M Y" }}</td>
+
+<td>
+  <span class="badge
+    {% if r.status == 'Present' %}bg-success
+    {% elif r.status == 'Late' %}bg-warning text-dark
+    {% elif r.status == 'Half Day' %}bg-secondary
+    {% elif r.status == 'Absent' %}bg-danger
+    {% elif r.status == 'Leave' %}bg-info text-dark
+    {% else %}bg-dark{% endif %}">
+    {{ r.status }}
+  </span>
+</td>
+
+<td>{{ r.punch_in|date:"h:i A"|default:"-" }}</td>
+<td>{{ r.punch_out|date:"h:i A"|default:"-" }}</td>
+
 </tr>
 
 {% empty %}
 
 <tr>
-<td colspan="5" class="text-center">No processed attendance</td>
+<td colspan="4" class="text-center">No processed attendance</td>
 </tr>
 
 {% endfor %}
@@ -43,5 +102,7 @@
 </tbody>
 
 </table>
+
+</div>
 
 {% endblock %}
