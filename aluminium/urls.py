@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from app import views
 
 urlpatterns = [
@@ -100,6 +100,7 @@ urlpatterns = [
     path('accounts/dashboard/', views.accounts_dashboard, name='accounts_dashboard'),
     path('accounts/salaries/', views.accounts_salary_list, name='accounts_salary_list'),
     path('accounts/payslip/<int:salary_id>/', views.accounts_payslip_view, name='accounts_payslip'),
+    path('performance/', include('performance.urls')),
 ]
 
 if settings.DEBUG:

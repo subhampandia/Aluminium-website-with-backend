@@ -1,0 +1,53 @@
+{% extends 'base_hr_dashboard.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Performance Reviews</h4>
+        <a href="{% url 'add_review' %}" class="btn btn-success">
+            + Add Review
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.employee }}</td>
+
+                        <td>
+                            <span class="badge bg-info">
+                                {{ review.get_rating_display }}
+                            </span>
+                        </td>
+
+                        <td>{{ review.comments }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">
+                            No reviews yet
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

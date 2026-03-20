@@ -1,0 +1,53 @@
+{% extends 'base_hr_dashboard.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Add Goal</h5>
+        </div>
+
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.employee.label_tag }}
+                        {{ form.employee }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                    </div>
+
+                    <div class="col-md-12 mt-3">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        {{ form.target_value.label_tag }}
+                        {{ form.target_value }}
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        {{ form.deadline.label_tag }}
+                        {{ form.deadline }}
+                    </div>
+
+                    <div class="col-md-4 mt-3">
+                        {{ form.status.label_tag }}
+                        {{ form.status }}
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button class="btn btn-success">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
