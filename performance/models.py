@@ -5,7 +5,7 @@ from django.contrib.auth.models import User# adjust if needed
 
 class Goal(models.Model):
     STATUS_CHOICES = [
-        ('Pending', 'Pending'),
+        ('Assigned', 'Assigned'),
         ('In Progress', 'In Progress'),
         ('Completed', 'Completed'),
     ]
@@ -19,7 +19,7 @@ class Goal(models.Model):
     target_value = models.IntegerField()
     achieved_value = models.IntegerField(default=0,blank=True)
     deadline = models.DateField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Assigned')
 
     def __str__(self):
         return f"{self.employee} - {self.title}"

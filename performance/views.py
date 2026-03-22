@@ -3,7 +3,8 @@ from .models import Goal,PerformanceReview
 from app.models import Employee
 from .forms import GoalForm,ReviewForm
 from django.contrib.auth.decorators import user_passes_test
-
+def is_employee(user):
+    return user.is_authenticated and Employee.objects.filter(user=user).exists()
 def is_hr_or_admin(user):
     if not user.is_authenticated:
         return False
@@ -72,3 +73,39 @@ def add_review(request):
         review.save()
         return redirect('review_list')
     return render(request, 'performance/add_review.html', {'form': form,'base_template': base_template})
+
+@user_passes_test(is_employee)
+def my_tasks(request):
+    employee = Employee.objects.filter(user=request.user).first()
+    tasks = Goal.objects.filter(employee=employee)
+
+    base_template = get_base_template(request.user)
+
+    return render(request, 'performance/my_tasks.html', {
+        'tasks': tasks,
+        'base_template': base_template
+    })
+    
+@user_passes_test(is_employee)
+def accept_task(request, pk):
+    employee = Employee.objects.filter(user=request.user).first()
+
+    task = Goal.objects.filter(id=pk, employee=employee).first()  # ✅ secure
+
+    if task and task.status == 'Assigned':
+        task.status = 'In Progress'
+        task.save()
+
+    return redirect('my_tasks')
+
+@user_passes_test(is_employee)
+def complete_task(request, pk):
+    employee = Employee.objects.filter(user=request.user).first()
+
+    task = Goal.objects.filter(id=pk, employee=employee).first()  # ✅ secure
+
+    if task and task.status == 'In Progress':
+        task.status = 'Completed'
+        task.save()
+
+    return redirect('my_tasks')
