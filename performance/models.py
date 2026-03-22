@@ -1,6 +1,7 @@
 # Create your models here.
 from django.db import models
-from app.models import Employee   # adjust if needed
+from app.models import Employee
+from django.contrib.auth.models import User# adjust if needed
 
 class Goal(models.Model):
     STATUS_CHOICES = [
@@ -10,12 +11,13 @@ class Goal(models.Model):
     ]
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    created_by = models.ForeignKey(Employee, related_name='goals_created', on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(Employee, related_name='goals_created', on_delete=models.SET_NULL, null=True,blank=True)
+    created_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # ✅ NEW
 
     title = models.CharField(max_length=200)
     description = models.TextField()
     target_value = models.IntegerField()
-    achieved_value = models.IntegerField(default=0)
+    achieved_value = models.IntegerField(default=0,blank=True)
     deadline = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 

@@ -124,5 +124,15 @@
 </a>
 
 </div>
+<div class="nav-item">
+        <a data-bs-toggle="collapse" href="#performanceMenu" role="button">
+            <i class="bi bi-graph-up"></i>
+            <span>Performance</span>
+        </a>
 
+        <div id="performanceMenu" class="collapse">
+            <a href="{% url 'goal_list' %}" class="ms-3">Goals</a>
+            <a href="{% url 'review_list' %}" class="ms-3">Reviews</a>
+        </div>
+    </div>
 </div>
