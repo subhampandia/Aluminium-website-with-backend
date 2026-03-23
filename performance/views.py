@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Goal,PerformanceReview
 from app.models import Employee
-from .forms import GoalForm,ReviewForm
+from .forms import GoalForm,ReviewForm,TaskSubmitForm
 from django.contrib.auth.decorators import user_passes_test
 def is_employee(user):
     return user.is_authenticated and Employee.objects.filter(user=user).exists()
@@ -101,11 +101,14 @@ def accept_task(request, pk):
 @user_passes_test(is_employee)
 def complete_task(request, pk):
     employee = Employee.objects.filter(user=request.user).first()
+    task = Goal.objects.filter(id=pk, employee=employee).first()
 
-    task = Goal.objects.filter(id=pk, employee=employee).first()  # ✅ secure
+    if task and request.method == "POST":
+        submitted_date = request.POST.get('submitted_at')
 
-    if task and task.status == 'In Progress':
-        task.status = 'Completed'
-        task.save()
+        if submitted_date and task.status == 'In Progress':
+            task.status = 'Completed'
+            task.submitted_at = submitted_date
+            task.save()
 
     return redirect('my_tasks')

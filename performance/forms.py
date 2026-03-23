@@ -16,3 +16,11 @@ class ReviewForm(forms.ModelForm):
         model = PerformanceReview
         exclude = ['reviewer']
         fields = '__all__'
+        
+class TaskSubmitForm(forms.ModelForm):
+    class Meta:
+        model = Goal
+        fields = ['submitted_at']
+        widgets = {
+            'submitted_at': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+        }

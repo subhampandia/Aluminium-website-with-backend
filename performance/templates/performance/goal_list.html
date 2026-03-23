@@ -16,6 +16,7 @@
             <th>Status</th>
             <th>Deadline</th>
             <th>Assigned By</th>
+            <th>Submitted On</th>
           </tr>
         </thead>
 
@@ -38,6 +39,14 @@
               {% if goal.created_by %} {{ goal.created_by }} {% else %} {{
               goal.created_by_user.username }} {% endif %}
             </td>
+            <td>
+                {% if goal.submitted_at %}
+                    {{ goal.submitted_at|date:"d M Y" }}
+                {% else %}
+                    <span class="text-muted">Pending</span>
+                {% endif %}
+            </td>
+
           </tr>
           {% empty %}
           <tr>
