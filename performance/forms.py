@@ -7,8 +7,11 @@ class GoalForm(forms.ModelForm):
         exclude = ['achieved_value', 'created_by']
         fields = '__all__'
         widgets = {
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
-            'deadline': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+            'employee': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'deadline': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
         
 class ReviewForm(forms.ModelForm):
@@ -16,6 +19,11 @@ class ReviewForm(forms.ModelForm):
         model = PerformanceReview
         exclude = ['reviewer']
         fields = '__all__'
+        widgets = {
+            'employee': forms.Select(attrs={'class': 'form-control'}),
+            'rating': forms.Select(attrs={'class': 'form-control'}),
+            'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
         
 class TaskSubmitForm(forms.ModelForm):
     class Meta:
