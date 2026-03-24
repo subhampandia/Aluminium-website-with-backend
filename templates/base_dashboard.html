@@ -21,7 +21,6 @@
 
 {% block extra_css %}{% endblock %}
 
-
 </head>
 
 <body>
@@ -47,7 +46,6 @@
 
     <div class="container-fluid">
 
-       
         <button class="toggle-btn border-0 bg-transparent p-0"
                 id="sidebarToggleBtn"
                 aria-label="Toggle sidebar"
@@ -68,7 +66,6 @@
 
             <div class="dropdown">
 
-               
                 <a href="#"
                    class="dropdown-toggle profile-toggle"
                    data-bs-toggle="dropdown"
@@ -121,9 +118,7 @@
 <!-- ================= MAIN CONTENT ================= -->
 
 <div class="content mt-4 pb-5" id="content">
-
     {% block content %}{% endblock %}
-
 </div>
 
 <!-- ================= FOOTER ================= -->
@@ -150,6 +145,9 @@
     </div>
 
 </footer>
+
+<!-- ================= PAGE MODALS ================= -->
+{% block modals %}{% endblock %}
 
 <!-- ================= LOGOUT MODAL ================= -->
 
@@ -200,7 +198,6 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-
     const toggleBtn = document.getElementById("sidebarToggleBtn");
     const sidebar   = document.getElementById("sidebar");
     const content   = document.getElementById("content");
@@ -215,8 +212,6 @@ document.addEventListener("DOMContentLoaded", function () {
             content.classList.toggle("expanded", isCollapsed);
             footer.classList.toggle("collapsed", isCollapsed);
             navbar.classList.toggle("expanded", isCollapsed);
-
-            
             toggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
         }
     }
@@ -225,13 +220,11 @@ document.addEventListener("DOMContentLoaded", function () {
         toggleBtn.addEventListener("click", toggleSidebar);
     }
 
-   
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && window.innerWidth <= 768) {
             sidebar.classList.remove("show");
         }
     });
-
 
     const menus = document.querySelectorAll(".collapse");
 
@@ -247,7 +240,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
-    
     const progressBar = document.getElementById("page-progress");
 
     progressBar.classList.add("done");
@@ -268,21 +260,14 @@ document.addEventListener("DOMContentLoaded", function () {
         ) return;
 
         link.addEventListener("click", function (e) {
-
-           
             if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
-
-           
             progressBar.classList.remove("done");
             progressBar.classList.add("loading");
-
             document.body.classList.add("navigating");
-
         });
 
     });
 
-    
     window.addEventListener("pageshow", function () {
         progressBar.classList.remove("loading");
         progressBar.classList.add("done");

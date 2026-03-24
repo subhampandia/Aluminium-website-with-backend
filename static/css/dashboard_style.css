@@ -537,3 +537,11 @@ body {
 .quick-card {
     border-radius: 12px;
 }
+/* ── MODAL FIX ── */
+.modal {
+  z-index: 1055 !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+}

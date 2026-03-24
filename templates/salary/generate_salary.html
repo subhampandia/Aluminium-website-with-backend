@@ -1,4 +1,5 @@
 {% extends base_template %}
+
 {% block content %}
 
 <h4 class="mb-3">Generate Salary</h4>
@@ -25,7 +26,6 @@
 
 </form>
 
-
 {% if employees %}
 
 <br>
@@ -45,26 +45,17 @@
 {% for emp in employees %}
 
 <tr>
-
 <td>{{ emp.first_name }} {{ emp.last_name }}</td>
-
 <td>{{ emp.department.name }}</td>
-
 <td>
-
 <button
-class="btn btn-primary btn-sm open-salary-modal"
-data-empid="{{ emp.id }}"
-data-empname="{{ emp.first_name }} {{ emp.last_name }}"
-data-bs-toggle="modal"
-data-bs-target="#salaryModal">
-
-Generate Salary
-
+    type="button"
+    class="btn btn-primary btn-sm open-salary-modal"
+    data-empid="{{ emp.id }}"
+    data-empname="{{ emp.first_name }} {{ emp.last_name }}">
+    Generate Salary
 </button>
-
 </td>
-
 </tr>
 
 {% endfor %}
@@ -75,10 +66,13 @@ Generate Salary
 
 {% endif %}
 
+{% endblock %}
+
+
+{% block modals %}
 
 <!-- Salary Modal -->
-
-<div class="modal fade" id="salaryModal">
+<div class="modal fade" id="salaryModal" tabindex="-1">
 
 <div class="modal-dialog modal-lg">
 
@@ -89,7 +83,6 @@ Generate Salary
 <button class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 
-
 <div class="modal-body">
 
 <form id="salaryForm">
@@ -98,52 +91,29 @@ Generate Salary
 
 <input type="hidden" name="employee_id" id="employee_id">
 
-<input type="hidden" name="month" value="{{ selected_month }}">
-<input type="hidden" name="year" value="{{ selected_year }}">
-
-
 <div class="mb-3">
-
 <label>Employee</label>
-
-<input type="text"
-id="employee_name"
-class="form-control"
-readonly>
-
+<input type="text" id="employee_name" class="form-control" readonly>
 </div>
+
 <div class="row mb-3">
 
 <div class="col-md-6">
-
 <label>Month</label>
-
-<select id="salary_month" name="month" class="form-select">
-
+<select id="salary_month" name="month" class="form-select" onchange="loadAttendance()">
 {% for num, name in months %}
-
 <option value="{{ num }}">{{ name }}</option>
-
 {% endfor %}
-
 </select>
-
 </div>
 
 <div class="col-md-6">
-
 <label>Year</label>
-
-<select id="salary_year" name="year" class="form-select">
-
+<select id="salary_year" name="year" class="form-select" onchange="loadAttendance()">
 {% for y in years %}
-
 <option value="{{ y }}">{{ y }}</option>
-
 {% endfor %}
-
 </select>
-
 </div>
 
 </div>
@@ -151,7 +121,6 @@ readonly>
 <h6>Attendance Summary</h6>
 
 <table class="table table-sm table-bordered">
-
 <tr>
 <th>Working Days</th>
 <th>Present</th>
@@ -159,7 +128,6 @@ readonly>
 <th>Half days</th>
 <th>Leave</th>
 </tr>
-
 <tr>
 <td id="working_days">-</td>
 <td id="present_days">-</td>
@@ -167,47 +135,25 @@ readonly>
 <td id="half_days">-</td>
 <td id="leave_days">-</td>
 </tr>
-
 </table>
 
 <hr>
 
-
 <div class="row">
 
 <div class="col-md-4">
-
 <label>Basic</label>
-
-<input type="number"
-name="basic"
-class="form-control"
-required>
-
+<input type="number" name="basic" class="form-control" required>
 </div>
 
-
 <div class="col-md-4">
-
 <label>HRA</label>
-
-<input type="number"
-name="hra"
-class="form-control"
-required>
-
+<input type="number" name="hra" class="form-control" required>
 </div>
 
-
 <div class="col-md-4">
-
 <label>Allowance</label>
-
-<input type="number"
-name="allowance"
-class="form-control"
-required>
-
+<input type="number" name="allowance" class="form-control" required>
 </div>
 
 </div>
@@ -216,92 +162,98 @@ required>
 
 </div>
 
-
 <div class="modal-footer">
-
-<button class="btn btn-success" onclick="generateSalary()">
-
-Generate Salary
-
-</button>
-
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-success" onclick="generateSalary()">Generate Salary</button>
 </div>
 
 </div>
 </div>
 </div>
 
+{% endblock %}
 
+
+{% block extra_js %}
 <script>
-
 let currentEmployee = null;
 
-document.querySelectorAll(".open-salary-modal").forEach(btn => {
+document.addEventListener("DOMContentLoaded", function () {
 
-btn.addEventListener("click", function(){
+    document.querySelectorAll(".open-salary-modal").forEach(btn => {
 
-currentEmployee = this.dataset.empid
-let empName = this.dataset.empname
+        btn.addEventListener("click", function () {
 
-document.getElementById("employee_id").value = currentEmployee
-document.getElementById("employee_name").value = empName
+            currentEmployee = this.dataset.empid;
+            let empName = this.dataset.empname;
 
-loadAttendance()
+            document.getElementById("employee_id").value = currentEmployee;
+            document.getElementById("employee_name").value = empName;
 
-})
+            loadAttendance();
 
-})
+            let modalEl = document.getElementById("salaryModal");
+            let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
 
+        });
 
-document.getElementById("salary_month").addEventListener("change", loadAttendance)
-document.getElementById("salary_year").addEventListener("change", loadAttendance)
+    });
 
+});
 
-function loadAttendance(){
+function loadAttendance() {
 
-let month = document.getElementById("salary_month").value
-let year = document.getElementById("salary_year").value
+    let monthEl = document.getElementById("salary_month");
+    let yearEl = document.getElementById("salary_year");
 
-if(!currentEmployee) return
+    if (!monthEl || !yearEl || !currentEmployee) return;
 
-fetch(`/salary/attendance-summary/${currentEmployee}/?month=${month}&year=${year}`)
+    let month = monthEl.value;
+    let year = yearEl.value;
 
-.then(res => res.json())
-
-.then(data => {
-
-document.getElementById("working_days").innerText = data.working_days
-document.getElementById("present_days").innerText = data.present
-document.getElementById("absent_days").innerText = data.absent
-document.getElementById("half_days").innerText = data.half_days
-document.getElementById("leave_days").innerText = data.leave
-
-})
+    fetch(`/salary/attendance-summary/${currentEmployee}/?month=${month}&year=${year}`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("working_days").innerText = data.working_days;
+        document.getElementById("present_days").innerText = data.present;
+        document.getElementById("absent_days").innerText = data.absent;
+        document.getElementById("half_days").innerText = data.half_days;
+        document.getElementById("leave_days").innerText = data.leave;
+    })
+    .catch(err => console.log("Attendance error:", err));
 
 }
 
-function generateSalary(){
+function generateSalary() {
 
-    let form = document.getElementById("salaryForm")
+    let form = document.getElementById("salaryForm");
 
     fetch("{% url 'generate_single_salary' %}", {
         method: "POST",
         body: new FormData(form),
-        headers:{
+        headers: {
             "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
         }
     })
     .then(res => res.json())
     .then(data => {
 
-        alert(data.message)
+        alert(data.message);
 
-        location.reload()
+        let modalEl = document.getElementById("salaryModal");
+        let modal = bootstrap.Modal.getInstance(modalEl);
+
+        if (modal) modal.hide();
+
+        document.body.classList.remove("modal-open");
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+
+        location.reload();
 
     })
+    .catch(err => console.log("Salary error:", err));
 
 }
-
 </script>
-
 {% endblock %}
