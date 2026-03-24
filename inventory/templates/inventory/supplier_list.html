@@ -1,0 +1,143 @@
+{% extends base_template %}
+{% block page_title %}Suppliers{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Suppliers</h4>
+    <button class="btn btn-primary btn-sm" onclick="openSupplierModal()">
+        <i class="bi bi-plus-circle me-1"></i> Add Supplier
+    </button>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">#</th>
+                    <th>Supplier Name</th>
+                    <th>Contact Person</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sup in suppliers %}
+                <tr>
+                    <td class="ps-3 text-muted small">{{ forloop.counter }}</td>
+                    <td class="fw-semibold">{{ sup.name }}</td>
+                    <td class="small">{{ sup.contact_person|default:"-" }}</td>
+                    <td class="small">{{ sup.phone|default:"-" }}</td>
+                    <td class="small">{{ sup.email|default:"-" }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="editSupplier({{ sup.id }}, '{{ sup.name }}', '{{ sup.contact_person }}', '{{ sup.phone }}', '{{ sup.email }}', '{{ sup.address }}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="{% url 'inventory_supplier_delete' sup.pk %}"
+                                  onsubmit="return confirm('Delete {{ sup.name }}?')">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No suppliers added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<div class="modal fade" id="supplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="supplierModalTitle">Add Supplier</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'inventory_supplier_save' %}">
+                {% csrf_token %}
+                <input type="hidden" name="supplier_id" id="supplier_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Supplier Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="sup_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Person</label>
+                            <input type="text" name="contact_person" id="sup_contact" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" id="sup_phone" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="sup_email" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <textarea name="address" id="sup_address" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary btn-sm" type="submit">Save Supplier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+function openSupplierModal() {
+    document.getElementById('supplierModalTitle').innerText = 'Add Supplier';
+    document.getElementById('supplier_id').value = '';
+    document.getElementById('sup_name').value = '';
+    document.getElementById('sup_contact').value = '';
+    document.getElementById('sup_phone').value = '';
+    document.getElementById('sup_email').value = '';
+    document.getElementById('sup_address').value = '';
+    let modal = bootstrap.Modal.getInstance(document.getElementById('supplierModal')) || new bootstrap.Modal(document.getElementById('supplierModal'));
+    modal.show();
+}
+
+function editSupplier(id, name, contact, phone, email, address) {
+    document.getElementById('supplierModalTitle').innerText = 'Edit Supplier';
+    document.getElementById('supplier_id').value = id;
+    document.getElementById('sup_name').value = name;
+    document.getElementById('sup_contact').value = contact;
+    document.getElementById('sup_phone').value = phone;
+    document.getElementById('sup_email').value = email;
+    document.getElementById('sup_address').value = address;
+    let modal = bootstrap.Modal.getInstance(document.getElementById('supplierModal')) || new bootstrap.Modal(document.getElementById('supplierModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

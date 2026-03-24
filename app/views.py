@@ -50,7 +50,10 @@ def login_view(request):
             # Accounts
             if employee and employee.role == "ACCOUNTS":
                 return redirect("accounts_dashboard")
-
+            #store manager
+            if employee and employee.role == "STORE_MANAGER":
+                return redirect("inventory_dashboard")
+            
             # Employee
             if employee:
                 return redirect("employee_dashboard")

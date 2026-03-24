@@ -122,5 +122,30 @@
             <i class="bi bi-clipboard-check"></i> Reviews
         </a>
     </div>
+    <a class="menu-toggle" data-bs-toggle="collapse" href="#inventoryMenu" role="button">
+    <i class="bi bi-box-seam"></i>
+    <span>Inventory</span>
+    <i class="bi bi-chevron-down ms-auto"></i>
+</a>
 
+<div class="collapse" id="inventoryMenu" data-bs-parent="#sidebar">
+    <a href="{% url 'inventory_dashboard' %}" class="submenu">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'inventory_item_list' %}" class="submenu">
+        <i class="bi bi-list-ul"></i> Items
+    </a>
+    <a href="{% url 'inventory_transactions' %}" class="submenu">
+        <i class="bi bi-arrow-left-right"></i> Stock In / Out
+    </a>
+    <a href="{% url 'inventory_supplier_list' %}" class="submenu">
+        <i class="bi bi-truck"></i> Suppliers
+    </a>
+    <a href="{% url 'inventory_warehouse_list' %}" class="submenu">
+        <i class="bi bi-building"></i> Warehouses
+    </a>
+    <a href="{% url 'inventory_category_list' %}" class="submenu">
+        <i class="bi bi-grid"></i> Categories
+    </a>
+</div>
 </div>

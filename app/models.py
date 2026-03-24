@@ -69,7 +69,8 @@ class Employee(models.Model):
     choices=[
         ('HR','HR'),
         ('ACCOUNTS','Accounts'),
-        ('EMPLOYEE','Employee')
+        ('EMPLOYEE','Employee'),
+        ('STORE_MANAGER', 'Store Manager'),
     ],
     default='EMPLOYEE'
 )

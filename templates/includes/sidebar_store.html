@@ -1,0 +1,51 @@
+{% load static %}
+
+<div class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+        <img src="{% static 'images/gvit.png' %}" alt="Logo">
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="sidebar-heading">Inventory</div>
+
+    <a href="{% url 'inventory_dashboard' %}"
+       class="{% if request.path == '/inventory/' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'inventory_item_list' %}"
+       class="{% if '/inventory/items' in request.path %}active{% endif %}">
+        <i class="bi bi-box-seam"></i>
+        <span>Items</span>
+    </a>
+
+    <a href="{% url 'inventory_transactions' %}"
+       class="{% if '/inventory/transactions' in request.path %}active{% endif %}">
+        <i class="bi bi-arrow-left-right"></i>
+        <span>Stock In / Out</span>
+    </a>
+
+    <div class="sidebar-heading">Master Data</div>
+
+    <a href="{% url 'inventory_supplier_list' %}"
+       class="{% if '/inventory/suppliers' in request.path %}active{% endif %}">
+        <i class="bi bi-truck"></i>
+        <span>Suppliers</span>
+    </a>
+
+    <a href="{% url 'inventory_warehouse_list' %}"
+       class="{% if '/inventory/warehouses' in request.path %}active{% endif %}">
+        <i class="bi bi-building"></i>
+        <span>Warehouses</span>
+    </a>
+
+    <a href="{% url 'inventory_category_list' %}"
+       class="{% if '/inventory/categories' in request.path %}active{% endif %}">
+        <i class="bi bi-grid"></i>
+        <span>Categories</span>
+    </a>
+
+</div>

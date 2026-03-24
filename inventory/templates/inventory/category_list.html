@@ -1,0 +1,141 @@
+{% extends base_template %}
+{% block page_title %}Categories{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Item Categories</h4>
+    <button class="btn btn-primary btn-sm" onclick="openCategoryModal()">
+        <i class="bi bi-plus-circle me-1"></i> Add Category
+    </button>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">#</th>
+                    <th>Category Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr>
+                    <td class="ps-3 text-muted small">{{ forloop.counter }}</td>
+                    <td class="fw-semibold">{{ cat.name }}</td>
+                    <td>
+                        {% if cat.category_type == 'RAW' %}
+                        <span class="badge bg-primary bg-opacity-10 text-primary">Raw Material</span>
+                        {% elif cat.category_type == 'FINISHED' %}
+                        <span class="badge bg-success bg-opacity-10 text-success">Finished Product</span>
+                        {% else %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning">Machinery & Spares</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ cat.description|default:"-" }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="editCategory({{ cat.id }}, '{{ cat.name }}', '{{ cat.category_type }}', '{{ cat.description }}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="{% url 'inventory_category_delete' cat.pk %}"
+                                  onsubmit="return confirm('Delete {{ cat.name }}?')">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No categories added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'inventory_category_save' %}">
+                {% csrf_token %}
+                <input type="hidden" name="category_id" id="category_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Category Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="cat_name" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Type <span class="text-danger">*</span></label>
+                            <select name="category_type" id="cat_type" class="form-select" required>
+                                <option value="RAW">Raw Material</option>
+                                <option value="FINISHED">Finished Product</option>
+                                <option value="MACHINERY">Machinery & Spare Parts</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" id="cat_description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary btn-sm" type="submit">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+function openCategoryModal() {
+    document.getElementById('categoryModalTitle').innerText = 'Add Category';
+    document.getElementById('category_id').value = '';
+    document.getElementById('cat_name').value = '';
+    document.getElementById('cat_type').value = 'RAW';
+    document.getElementById('cat_description').value = '';
+    let modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal')) || new bootstrap.Modal(document.getElementById('categoryModal'));
+    modal.show();
+}
+
+function editCategory(id, name, type, description) {
+    document.getElementById('categoryModalTitle').innerText = 'Edit Category';
+    document.getElementById('category_id').value = id;
+    document.getElementById('cat_name').value = name;
+    document.getElementById('cat_type').value = type;
+    document.getElementById('cat_description').value = description;
+    let modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal')) || new bootstrap.Modal(document.getElementById('categoryModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

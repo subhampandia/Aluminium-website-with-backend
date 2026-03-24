@@ -101,6 +101,7 @@ urlpatterns = [
     path('accounts/salaries/', views.accounts_salary_list, name='accounts_salary_list'),
     path('accounts/payslip/<int:salary_id>/', views.accounts_payslip_view, name='accounts_payslip'),
     path('performance/', include('performance.urls')),
+    path('inventory/', include('inventory.urls'))
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,130 @@
+{% extends base_template %}
+{% block page_title %}Warehouses{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Warehouses</h4>
+    <button class="btn btn-primary btn-sm" onclick="openWarehouseModal()">
+        <i class="bi bi-plus-circle me-1"></i> Add Warehouse
+    </button>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">#</th>
+                    <th>Warehouse Name</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wh in warehouses %}
+                <tr>
+                    <td class="ps-3 text-muted small">{{ forloop.counter }}</td>
+                    <td class="fw-semibold">{{ wh.name }}</td>
+                    <td class="small">{{ wh.location|default:"-" }}</td>
+                    <td class="small text-muted">{{ wh.description|default:"-" }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="editWarehouse({{ wh.id }}, '{{ wh.name }}', '{{ wh.location }}', '{{ wh.description }}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="{% url 'inventory_warehouse_delete' wh.pk %}"
+                                  onsubmit="return confirm('Delete {{ wh.name }}?')">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No warehouses added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<div class="modal fade" id="warehouseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warehouseModalTitle">Add Warehouse</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'inventory_warehouse_save' %}">
+                {% csrf_token %}
+                <input type="hidden" name="warehouse_id" id="warehouse_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Warehouse Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="wh_name" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" id="wh_location" class="form-control"
+                                   placeholder="e.g. Main Plant, Store Room A">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" id="wh_description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary btn-sm" type="submit">Save Warehouse</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+function openWarehouseModal() {
+    document.getElementById('warehouseModalTitle').innerText = 'Add Warehouse';
+    document.getElementById('warehouse_id').value = '';
+    document.getElementById('wh_name').value = '';
+    document.getElementById('wh_location').value = '';
+    document.getElementById('wh_description').value = '';
+    let modal = bootstrap.Modal.getInstance(document.getElementById('warehouseModal')) || new bootstrap.Modal(document.getElementById('warehouseModal'));
+    modal.show();
+}
+
+function editWarehouse(id, name, location, description) {
+    document.getElementById('warehouseModalTitle').innerText = 'Edit Warehouse';
+    document.getElementById('warehouse_id').value = id;
+    document.getElementById('wh_name').value = name;
+    document.getElementById('wh_location').value = location;
+    document.getElementById('wh_description').value = description;
+    let modal = bootstrap.Modal.getInstance(document.getElementById('warehouseModal')) || new bootstrap.Modal(document.getElementById('warehouseModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

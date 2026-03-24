@@ -9,7 +9,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>{% block title %}Dashboard{% endblock %}</title>
+<title>{% block title %}Store Manager{% endblock %}</title>
 
 <link rel="icon" type="image/x-icon" href="{% static 'images/gvit.png' %}">
 
@@ -29,18 +29,7 @@
 <div id="page-progress"></div>
 
 <!-- ================= SIDEBAR ================= -->
-
-{% if request.user.is_superuser %}
-    {% include "includes/sidebar_admin.html" %}
-{% elif request.user.employee_profile.role == "HR" %}
-    {% include "includes/sidebar_hr.html" %}
-{% elif request.user.employee_profile.role == "ACCOUNTS" %}
-    {% include "includes/sidebar_accounts.html" %}
-{% elif request.user.employee_profile.role == "STORE_MANAGER" %}
-    {% include "includes/sidebar_store.html" %}
-{% else %}
-    {% include "includes/sidebar_employee.html" %}
-{% endif %}
+{% include "includes/sidebar_store.html" %}
 
 <!-- ================= NAVBAR ================= -->
 
@@ -57,7 +46,7 @@
         </button>
 
         <span class="navbar-brand ms-3 fw-semibold">
-            {% block page_title %}Dashboard{% endblock %}
+            {% block page_title %}Store Manager{% endblock %}
         </span>
 
         <div class="ms-auto d-flex align-items-center gap-3 me-3">
@@ -88,12 +77,6 @@
                     <li>
                         <a class="dropdown-item" href="#">
                             <i class="bi bi-person me-2"></i> Profile
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-gear me-2"></i> Settings
                         </a>
                     </li>
 

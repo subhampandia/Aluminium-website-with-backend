@@ -1,0 +1,218 @@
+{% extends base_template %}
+{% block page_title %}Stock Transactions{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Stock In / Out</h4>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stockModal">
+        <i class="bi bi-plus-circle me-1"></i> New Transaction
+    </button>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Filter -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <label class="small text-muted mb-0">Filter:</label>
+            <select name="type" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                <option value="">All Types</option>
+                <option value="IN" {% if txn_type == 'IN' %}selected{% endif %}>Stock In</option>
+                <option value="OUT" {% if txn_type == 'OUT' %}selected{% endif %}>Stock Out</option>
+                <option value="ADJUST" {% if txn_type == 'ADJUST' %}selected{% endif %}>Adjustment</option>
+            </select>
+            {% if txn_type %}
+            <a href="{% url 'inventory_transactions' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Type</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Batch No.</th>
+                    <th>Ref No.</th>
+                    <th>Notes</th>
+                    <th>By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td class="ps-3">
+                        {% if txn.transaction_type == 'IN' %}
+                        <span class="badge bg-success">Stock IN</span>
+                        {% elif txn.transaction_type == 'OUT' %}
+                        <span class="badge bg-danger">Stock OUT</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Adjustment</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'inventory_item_detail' txn.item.pk %}"
+                           class="fw-semibold text-decoration-none small">
+                            {{ txn.item.name }}
+                        </a>
+                        <div class="text-muted" style="font-size:11px;">{{ txn.item.item_code }}</div>
+                    </td>
+                    <td class="fw-bold">{{ txn.quantity }} {{ txn.item.unit }}</td>
+                    <td class="small text-muted">{{ txn.batch_number|default:"-" }}</td>
+                    <td class="small text-muted">{{ txn.reference_number|default:"-" }}</td>
+                    <td class="small text-muted">{{ txn.notes|default:"-" }}</td>
+                    <td class="small">{{ txn.created_by.username|default:"-" }}</td>
+                    <td class="small text-muted">{{ txn.created_at|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No transactions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<!-- New Transaction Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Stock Transaction</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="stockForm">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Item <span class="text-danger">*</span></label>
+                            <select name="item_id" id="txn_item" class="form-select" required onchange="loadItemStock()">
+                                <option value="">Select Item</option>
+                                {% for item in items %}
+                                <option value="{{ item.id }}">{{ item.item_code }} - {{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Transaction Type <span class="text-danger">*</span></label>
+                            <select name="transaction_type" class="form-select" required>
+                                <option value="IN">Stock In</option>
+                                <option value="OUT">Stock Out</option>
+                                <option value="ADJUST">Stock Adjustment</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="currentStockBadge" class="d-none">
+                                <span class="badge bg-info text-dark">
+                                    Current Stock: <span id="currentStockVal">-</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control"
+                                   step="0.01" min="0.01" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Batch Number</label>
+                            <input type="text" name="batch_number" class="form-control"
+                                   placeholder="e.g. BATCH-2025-001">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Reference Number</label>
+                            <input type="text" name="reference_number" class="form-control"
+                                   placeholder="e.g. PO-001 / INV-001">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Purchase Price (₹)</label>
+                            <input type="number" name="purchase_price" id="txn_price"
+                                   class="form-control" step="0.01">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Notes</label>
+                            <input type="text" name="notes" class="form-control"
+                                   placeholder="Optional notes">
+                        </div>
+
+                    </div>
+
+                </form>
+                <div id="txnMsg" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success btn-sm" onclick="submitTransaction()">
+                    <i class="bi bi-save me-1"></i> Save Transaction
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+function loadItemStock() {
+    const itemId = document.getElementById('txn_item').value;
+    if (!itemId) return;
+
+    fetch(`/inventory/items/${itemId}/stock/`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('currentStockVal').innerText = `${data.current_stock} ${data.unit}`;
+        document.getElementById('currentStockBadge').classList.remove('d-none');
+        document.getElementById('txn_price').value = data.purchase_price;
+    });
+}
+
+function submitTransaction() {
+    const form = document.getElementById('stockForm');
+    const msgDiv = document.getElementById('txnMsg');
+
+    fetch("{% url 'inventory_transactions' %}", {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            msgDiv.innerHTML = `<div class="alert alert-success py-2 small">${data.message}</div>`;
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            msgDiv.innerHTML = `<div class="alert alert-danger py-2 small">${data.message}</div>`;
+        }
+    });
+}
+</script>
+{% endblock %}
