@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Invoice {{ order.order_number }}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #222; background: #fff; }
+  .invoice-wrapper { max-width: 800px; margin: 0 auto; padding: 40px; }
+
+  /* Header */
+  .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 3px solid #0d3b6e; }
+  .company-name { font-size: 26px; font-weight: 800; color: #0d3b6e; letter-spacing: -0.5px; }
+  .company-sub { color: #666; font-size: 12px; margin-top: 4px; }
+  .invoice-title { text-align: right; }
+  .invoice-title h2 { font-size: 28px; font-weight: 800; color: #0d3b6e; letter-spacing: 2px; }
+  .invoice-title .order-no { font-size: 14px; color: #555; margin-top: 4px; }
+
+  /* Status badge */
+  .status-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .status-PENDING { background: #fff3cd; color: #856404; }
+  .status-CONFIRMED { background: #d1e7dd; color: #0f5132; }
+  .status-DISPATCHED { background: #cfe2ff; color: #084298; }
+  .status-DELIVERED { background: #e2e3e5; color: #383d41; }
+  .status-CANCELLED { background: #f8d7da; color: #842029; }
+
+  /* Info grid */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .info-box { background: #f7f9fc; border-radius: 8px; padding: 16px; }
+  .info-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0d3b6e; margin-bottom: 8px; }
+  .info-box p { font-size: 13px; color: #333; line-height: 1.6; margin: 0; }
+  .info-box .value { font-weight: 600; }
+
+  /* Table */
+  .items-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .items-table thead tr { background: #0d3b6e; color: white; }
+  .items-table thead th { padding: 11px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+  .items-table thead th:last-child { text-align: right; }
+  .items-table tbody tr:nth-child(even) { background: #f7f9fc; }
+  .items-table tbody td { padding: 11px 14px; border-bottom: 1px solid #eee; font-size: 13px; }
+  .items-table tbody td:last-child { text-align: right; font-weight: 600; }
+  .items-table tfoot td { padding: 12px 14px; font-weight: 700; border-top: 2px solid #0d3b6e; }
+  .items-table tfoot .total-label { font-size: 14px; color: #0d3b6e; text-align: right; }
+  .items-table tfoot .total-value { font-size: 18px; color: #0d3b6e; text-align: right; }
+
+  /* Footer */
+  .invoice-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+  .invoice-footer .thank-you { font-size: 14px; font-weight: 600; color: #0d3b6e; }
+  .invoice-footer .generated { font-size: 11px; color: #999; }
+
+  /* Print button */
+  .print-btn { display: block; text-align: center; margin: 20px auto; }
+  .print-btn button {
+    background: #0d3b6e; color: white; border: none;
+    padding: 12px 36px; border-radius: 8px; font-size: 15px;
+    font-weight: 600; cursor: pointer;
+  }
+  @media print { .print-btn { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="print-btn">
+  <button onclick="window.print()">🖨️ Print / Save as PDF</button>
+</div>
+
+<div class="invoice-wrapper">
+
+  <!-- Header -->
+  <div class="invoice-header">
+    <div>
+      <div class="company-name">AlumTech Industries</div>
+      <div class="company-sub">Premium Aluminum Solutions</div>
+      <div class="company-sub">Industrial Zone, Mumbai, India</div>
+      <div class="company-sub">info@alumtech.com | +91-8658486585</div>
+    </div>
+    <div class="invoice-title">
+      <h2>INVOICE</h2>
+      <div class="order-no">{{ order.order_number }}</div>
+      <div style="margin-top:8px;">
+        <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Grid -->
+  <div class="info-grid">
+
+    <div class="info-box">
+      <div class="label">Bill To</div>
+      <p class="value">{{ order.customer_name }}</p>
+      {% if order.company_name %}<p>{{ order.company_name }}</p>{% endif %}
+      <p>{{ order.customer_email }}</p>
+      <p>{{ order.customer_phone }}</p>
+    </div>
+
+    <div class="info-box">
+      <div class="label">Ship To</div>
+      <p>{{ order.address_line1 }}</p>
+      {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
+      <p>{{ order.city }}, {{ order.state }}</p>
+      <p>PIN: {{ order.pincode }}</p>
+    </div>
+
+    <div class="info-box">
+      <div class="label">Order Details</div>
+      <p><span style="color:#666;font-size:11px;">Date:</span><br><span class="value">{{ order.created_at|date:"d M Y" }}</span></p>
+      <p style="margin-top:6px;"><span style="color:#666;font-size:11px;">Order #:</span><br><span class="value">{{ order.order_number }}</span></p>
+      {% if order.notes %}
+      <p style="margin-top:6px;"><span style="color:#666;font-size:11px;">Notes:</span><br>{{ order.notes }}</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Items Table -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Unit</th>
+        <th>Unit Price</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.items.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit }}</td>
+        <td>₹{{ item.unit_price }}</td>
+        <td>₹{{ item.subtotal }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="5" class="total-label">GRAND TOTAL</td>
+        <td class="total-value">₹{{ order.total_amount }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Footer -->
+  <div class="invoice-footer">
+    <div class="thank-you">Thank you for your business!</div>
+    <div class="generated">Generated on {{ order.created_at|date:"d M Y" }}</div>
+  </div>
+
+</div>
+
+</body>
+</html>

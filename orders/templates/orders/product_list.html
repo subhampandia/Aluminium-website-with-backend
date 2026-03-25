@@ -1,0 +1,217 @@
+{% extends base_template %}
+{% block page_title %}Order Products{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Order Products</h4>
+    <button class="btn btn-primary btn-sm" onclick="openProductModal()">
+        <i class="bi bi-plus-circle me-1"></i> Add Product
+    </button>
+</div>
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Name</th>
+                    <th>Category</th>
+                    <th>Unit</th>
+                    <th>Price/Unit</th>
+                    <th>Min Qty</th>
+                    <th>Linked Inventory</th>
+                    <th>Stock</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td class="ps-3 fw-semibold">{{ p.name }}</td>
+                    <td><span class="badge bg-secondary bg-opacity-10 text-dark small">{{ p.get_category_display }}</span></td>
+                    <td class="small">{{ p.unit }}</td>
+                    <td class="small fw-semibold">₹{{ p.price_per_unit }}</td>
+                    <td class="small">{{ p.min_order_qty }}</td>
+                    <td class="small text-muted">{{ p.inventory_item|default:"—" }}</td>
+                    <td>
+                        {% if p.inventory_item %}
+                            {% if p.available_stock <= p.inventory_item.low_stock_threshold %}
+                            <span class="badge bg-danger">{{ p.available_stock }} {{ p.unit }}</span>
+                            {% else %}
+                            <span class="badge bg-success">{{ p.available_stock }} {{ p.unit }}</span>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="editProduct(
+                                        {{ p.id }},
+                                        '{{ p.name|escapejs }}',
+                                        '{{ p.category }}',
+                                        '{{ p.description|escapejs }}',
+                                        '{{ p.unit }}',
+                                        '{{ p.price_per_unit }}',
+                                        '{{ p.min_order_qty }}',
+                                        {{ p.inventory_item_id|default:'null' }},
+                                        {{ p.is_active|yesno:'true,false' }}
+                                    )">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="{% url 'order_product_delete' p.pk %}"
+                                  onsubmit="return confirm('Delete {{ p.name }}?')">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        No products yet. <button class="btn btn-link p-0" onclick="openProductModal()">Add one</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalTitle">Add Product</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'order_product_save' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" id="prod_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Product Name *</label>
+                            <input type="text" name="name" id="prod_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Category *</label>
+                            <select name="category" id="prod_category" class="form-select" required>
+                                {% for val, label in category_choices %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description *</label>
+                            <textarea name="description" id="prod_description" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Unit *</label>
+                            <select name="unit" id="prod_unit" class="form-select" required>
+                                <option value="kg">kg</option>
+                                <option value="ton">Ton</option>
+                                <option value="pcs">Pieces</option>
+                                <option value="mtr">Meters</option>
+                                <option value="sqft">Sq. Ft</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Price / Unit (₹) *</label>
+                            <input type="number" name="price_per_unit" id="prod_price"
+                                   class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Min Order Qty</label>
+                            <input type="number" name="min_order_qty" id="prod_min_qty"
+                                   class="form-control" step="0.01" value="1">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Link to Inventory Item</label>
+                            <select name="inventory_item" id="prod_inventory" class="form-select">
+                                <option value="">— None —</option>
+                                {% for inv in inventory_items %}
+                                <option value="{{ inv.id }}">{{ inv.item_code }} - {{ inv.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_active" id="prod_active"
+                                       class="form-check-input" checked>
+                                <label class="form-check-label" for="prod_active">
+                                    Active (visible to customers)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary btn-sm" type="submit">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+function openProductModal() {
+    document.getElementById('productModalTitle').innerText = 'Add Product';
+    document.getElementById('prod_id').value = '';
+    document.getElementById('prod_name').value = '';
+    document.getElementById('prod_category').value = 'EXTRUSION';
+    document.getElementById('prod_description').value = '';
+    document.getElementById('prod_unit').value = 'kg';
+    document.getElementById('prod_price').value = '';
+    document.getElementById('prod_min_qty').value = '1';
+    document.getElementById('prod_inventory').value = '';
+    document.getElementById('prod_active').checked = true;
+    let modal = bootstrap.Modal.getInstance(document.getElementById('productModal')) || new bootstrap.Modal(document.getElementById('productModal'));
+    modal.show();
+}
+
+function editProduct(id, name, category, description, unit, price, minQty, invItem, isActive) {
+    document.getElementById('productModalTitle').innerText = 'Edit Product';
+    document.getElementById('prod_id').value = id;
+    document.getElementById('prod_name').value = name;
+    document.getElementById('prod_category').value = category;
+    document.getElementById('prod_description').value = description;
+    document.getElementById('prod_unit').value = unit;
+    document.getElementById('prod_price').value = price;
+    document.getElementById('prod_min_qty').value = minQty;
+    document.getElementById('prod_inventory').value = invItem || '';
+    document.getElementById('prod_active').checked = isActive;
+    let modal = bootstrap.Modal.getInstance(document.getElementById('productModal')) || new bootstrap.Modal(document.getElementById('productModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

@@ -81,27 +81,15 @@ urlpatterns = [
     path('salary/run/', views.run_salary_generation, name='run_salary_generation'),
     path('accounts/generate-salary/', views.generate_salary_page, name='accounts_generate_salary'),
     path('salary/list/', views.salary_list, name='salary_list'),
-    path(
-    "employee/salary/",
-    views.employee_salary_list,
-    name="employee_salary_list"
-    ),
-
-    path(
-    "payslip/<int:salary_id>/",
-    views.payslip_view,
-    name="payslip_view"
-    ),
-    path(
-    "hr/dashboard/",
-    views.hr_dashboard,
-    name="hr_dashboard"
-    ),
+    path("employee/salary/",views.employee_salary_list,name="employee_salary_list"),
+    path("payslip/<int:salary_id>/",views.payslip_view,name="payslip_view"),
+    path("hr/dashboard/",views.hr_dashboard,name="hr_dashboard"),
     path('accounts/dashboard/', views.accounts_dashboard, name='accounts_dashboard'),
     path('accounts/salaries/', views.accounts_salary_list, name='accounts_salary_list'),
     path('accounts/payslip/<int:salary_id>/', views.accounts_payslip_view, name='accounts_payslip'),
     path('performance/', include('performance.urls')),
-    path('inventory/', include('inventory.urls'))
+    path('inventory/', include('inventory.urls')),
+    path('', include('orders.urls')),
 ]
 
 if settings.DEBUG:

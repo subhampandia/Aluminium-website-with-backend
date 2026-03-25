@@ -47,5 +47,17 @@
         <i class="bi bi-grid"></i>
         <span>Categories</span>
     </a>
+    <div class="sidebar-heading">Orders</div>
 
+<a href="{% url 'order_list' %}"
+   class="{% if '/manage/orders' in request.path %}active{% endif %}">
+    <i class="bi bi-bag"></i>
+    <span>Orders</span>
+</a>
+
+<a href="{% url 'order_product_list' %}"
+   class="{% if '/manage/products' in request.path %}active{% endif %}">
+    <i class="bi bi-boxes"></i>
+    <span>Manage Products</span>
+</a>
 </div>

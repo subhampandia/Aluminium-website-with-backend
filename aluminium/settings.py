@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'performance',
-    'inventory'
+    'inventory',
+    'orders'
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,10 @@ PF_EMPLOYER_PERCENT = 12
 
 ESIC_EMPLOYEE_PERCENT = 0.75
 ESIC_EMPLOYER_PERCENT = 3.25
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your@email.com'
+EMAIL_HOST_PASSWORD = 'your_app_password'
+DEFAULT_FROM_EMAIL = 'AlumTech Industries <your@email.com>'
