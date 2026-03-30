@@ -15,6 +15,8 @@ from datetime import date
 import calendar
 import json
 from decimal import Decimal
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 from .utils import get_working_days_of_month, generate_salary
 from .models import Department, Designation, Employee, Shift, ShiftAssignment, Leave, Attendance, Holiday,AttendanceRegularization,MonthlySalary
@@ -1675,3 +1677,31 @@ def accounts_payslip_view(request, salary_id):
         "accounts/payslip.html",
         {"salary": salary}
     )
+
+
+@login_required
+def send_payslip_email(request, salary_id):
+    from .models import MonthlySalary  # adjust import to your model
+    
+    salary = get_object_or_404(MonthlySalary, pk=salary_id)
+    employee_email = salary.employee.email
+
+    if not employee_email:
+        return JsonResponse({'success': False, 'message': 'No email found for this employee.'})
+
+    try:
+        subject = f"Payslip for {salary.get_month_display()} {salary.year} — AlumTech Pvt Ltd"
+        body = render_to_string('salary/payslip_email.html', {'salary': salary})
+
+        email = EmailMessage(
+            subject=subject,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[employee_email],
+        )
+        email.content_subtype = 'html'
+        email.send()
+
+        return JsonResponse({'success': True, 'message': f'Payslip sent to {employee_email}'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

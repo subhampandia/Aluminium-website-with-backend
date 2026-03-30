@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+  <div style="background:#0d3b6e;color:white;padding:20px;text-align:center;">
+    <h2>AlumTech Pvt Ltd</h2>
+    <p>Payslip for {{ salary.get_month_display }} {{ salary.year }}</p>
+  </div>
+  <div style="padding:20px;">
+    <p>Dear {{ salary.employee.first_name }},</p>
+    <p>Please find your payslip details below:</p>
+    <table width="100%" border="1" cellpadding="8" style="border-collapse:collapse;">
+      <tr><td><b>Employee</b></td><td>{{ salary.employee.first_name }} {{ salary.employee.last_name }}</td></tr>
+      <tr><td><b>Department</b></td><td>{{ salary.employee.department.name }}</td></tr>
+      <tr><td><b>Pay Period</b></td><td>{{ salary.get_month_display }} {{ salary.year }}</td></tr>
+      <tr><td><b>Gross Salary</b></td><td>₹{{ salary.gross_salary }}</td></tr>
+      <tr><td><b>Total Deductions</b></td><td>₹{{ salary.leave_deduction|add:salary.emp_pf|add:salary.emp_esic }}</td></tr>
+      <tr style="background:#d4edda;"><td><b>Net Payable</b></td><td><b>₹{{ salary.net_salary }}</b></td></tr>
+    </table>
+    <p style="margin-top:20px;color:#666;font-size:12px;">This is a system generated payslip.</p>
+  </div>
+</body>
+</html>

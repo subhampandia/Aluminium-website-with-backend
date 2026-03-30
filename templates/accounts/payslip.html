@@ -7,9 +7,26 @@
 <i class="bi bi-arrow-left"></i> Back
 </a>
 
-<button onclick="printPayslip()" class="btn btn-primary">
-<i class="bi bi-printer"></i> Print
+<div class="d-flex gap-2">
+
+    <!-- Print -->
+    <button onclick="printPayslip()" class="btn btn-primary">
+        <i class="bi bi-printer"></i> Print
+    </button>
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/91{{ salary.employee.contact_no }}?text=Dear%20{{ salary.employee.first_name }}%2C%20please%20find%20your%20payslip%20for%20{{ salary.get_month_display }}%20{{ salary.year }}%20attached.%20Net%20Pay%3A%20%E2%82%B9{{ salary.net_salary }}"
+       target="_blank"
+       class="btn btn-success">
+        <i class="bi bi-whatsapp"></i> WhatsApp
+    </a>
+
+    <!-- Email -->
+    <button onclick="sendPayslipEmail()" class="btn btn-info text-white" id="emailBtn">
+    <i class="bi bi-envelope"></i> Email
 </button>
+
+</div>
 </div>
 
 <div class="card shadow p-4" id="payslip">
@@ -145,6 +162,35 @@ function printPayslip(){
 
     win.document.close();
     win.print();
+}
+function sendPayslipEmail() {
+    const btn = document.getElementById('emailBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+    fetch("{% url 'send_payslip_email' salary.id %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]') 
+                           ? document.querySelector('[name=csrfmiddlewaretoken]').value 
+                           : '{{ csrf_token }}'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-envelope"></i> Email';
+        if (data.success) {
+            alert('✅ ' + data.message);
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-envelope"></i> Email';
+        alert('❌ Something went wrong.');
+    });
 }
 </script>
 

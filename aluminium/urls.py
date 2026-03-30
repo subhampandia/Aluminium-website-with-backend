@@ -90,6 +90,7 @@ urlpatterns = [
     path('performance/', include('performance.urls')),
     path('inventory/', include('inventory.urls')),
     path('', include('orders.urls')),
+    path('salary/<int:salary_id>/send-email/', views.send_payslip_email, name='send_payslip_email'),
 ]
 
 if settings.DEBUG:
