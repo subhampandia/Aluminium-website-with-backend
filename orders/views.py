@@ -150,6 +150,8 @@ def get_products_json(request):
             'price_per_unit': str(p.price_per_unit),
             'min_order_qty': str(p.min_order_qty),
             'available_stock': float(p.inventory_item.current_stock) if p.inventory_item else None,
+            'image_url': p.image.url if p.image else None,  # ← add this
+
         })
     return JsonResponse({'products': data})
 
@@ -287,6 +289,8 @@ def product_save(request):
         product.is_active = request.POST.get('is_active') == 'on'
         inv_item_id = request.POST.get('inventory_item')
         product.inventory_item_id = inv_item_id if inv_item_id else None
+        if 'image' in request.FILES:
+            product.image = request.FILES['image']
         product.save()
         messages.success(request, f'Product "{product.name}" saved.')
     return redirect('order_product_list')

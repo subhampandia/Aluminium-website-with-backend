@@ -952,10 +952,14 @@ function renderProducts(products) {
       }
     }
 
-    return `
+    const imgHTML = p.image_url
+  ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" alt="${p.name}">`
+  : `<i class="${icon}"></i>`;
+
+return `
     <div class="product-card" id="card-${p.id}">
-      <div class="product-img">
-        <i class="${icon}"></i>
+      <div class="product-img" style="position:relative;">
+        ${imgHTML}
         <span class="category-badge">${p.category}</span>
         ${stockBadge}
       </div>

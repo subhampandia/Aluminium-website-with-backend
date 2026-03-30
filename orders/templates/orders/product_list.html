@@ -110,7 +110,7 @@
                 <h5 class="modal-title" id="productModalTitle">Add Product</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="{% url 'order_product_save' %}">
+            <form method="post" action="{% url 'order_product_save' %}"enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="product_id" id="prod_id">
                 <div class="modal-body">
@@ -160,6 +160,16 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-12">
+    <label class="form-label">Product Image</label>
+    <input type="file" name="image" id="prod_image"
+           class="form-control" accept="image/*">
+    <div id="currentImagePreview" class="mt-2 d-none">
+        <img id="imagePreviewImg" src="" height="80"
+             class="rounded border" alt="Current image">
+        <small class="text-muted ms-2">Current image</small>
+    </div>
+</div>
                         <div class="col-12">
                             <div class="form-check">
                                 <input type="checkbox" name="is_active" id="prod_active"
